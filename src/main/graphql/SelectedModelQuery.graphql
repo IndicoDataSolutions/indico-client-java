@@ -1,0 +1,10 @@
+query SelectedModelQuery($modelGroupIds: [Int]!) {
+  modelGroups(modelGroupIds: $modelGroupIds) {
+    modelGroups {
+      selectedModel {
+        id
+        modelInfo
+      }
+    }
+  }
+}

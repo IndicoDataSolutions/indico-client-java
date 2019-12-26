@@ -1,0 +1,6 @@
+query JobResultQuery($id: String!) {
+  job(id: $id) {
+    status
+    result
+  }
+}
