@@ -69,7 +69,10 @@ public class LibraryTest {
 
     @Test
     void testPdfExtraction() throws IOException {
-        JSONArray json = indico.pdfExtraction(new ArrayList<String>()).sync();
+        PdfReader pdfReader = new PdfReader.Builder()
+                .setFilePaths(new ArrayList<String>())
+                .build();
+        JSONArray json = indico.pdfExtraction(pdfReader).sync();
         JSONObject result = json.getJSONObject(0);
         Assert.assertEquals("test_value", result.getString("test_key"));
     }

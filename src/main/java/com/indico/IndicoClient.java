@@ -6,12 +6,11 @@ import java.io.IOException;
 import com.apollographql.apollo.ApolloClient;
 import com.indico.api.ModelGroup;
 import com.indico.api.PdfExtraction;
-import com.indico.api.PdfExtractionOptions;
+import com.indico.api.PdfReader;
 import com.indico.auth.Authentication;
 import com.indico.auth.TokenAuthenticator;
 import com.indico.config.IndicoConfig;
 import com.indico.jobs.Job;
-import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -70,27 +69,13 @@ public class IndicoClient implements AutoCloseable {
     /**
      * Returns Job for extraction of data from pdf files with specified options
      *
-     * @param data list of files paths
-     * @param pdfExtractionOptions instance of PdfExtractionOptions
+     * @param pdfReader instance of PdfReader
      * @return instance of Job
      * @throws IOException
      * @throws FileNotFoundException
      */
-    public Job pdfExtraction(List<String> data, PdfExtractionOptions pdfExtractionOptions) throws IOException, FileNotFoundException {
-        return PdfExtraction.extract(this.apolloClient, data, pdfExtractionOptions);
-    }
-
-    /**
-     * Returns Job for extraction of data from pdf files with default options
-     *
-     * @param data list of files paths
-     * @return instance of Job
-     * @throws IOException
-     * @throws FileNotFoundException
-     */
-    public Job pdfExtraction(List<String> data) throws IOException, FileNotFoundException {
-        PdfExtractionOptions pdfExtractionOptions = new PdfExtractionOptions.Builder().build();
-        return pdfExtraction(data, pdfExtractionOptions);
+    public Job pdfExtraction(PdfReader pdfReader) throws IOException, FileNotFoundException {
+        return PdfExtraction.extract(this.apolloClient, pdfReader);
     }
 
     /**

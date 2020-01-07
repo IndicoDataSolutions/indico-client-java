@@ -43,7 +43,7 @@ public class IndicoConfig {
             this.protocol = protocol;
             return this;
         }
-        
+
         public Builder maxConnections(int maxConnections) {
             this.maxConnections = maxConnections;
             return this;
