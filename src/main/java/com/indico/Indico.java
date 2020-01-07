@@ -19,8 +19,6 @@ import okhttp3.OkHttpClient;
 
 public class Indico implements AutoCloseable {
 
-    private final String host;
-    private final String protocol;
     private final OkHttpClient okHttpClient;
     private final ApolloClient apolloClient;
     private final ThreadPoolExecutor dispatcher;
@@ -33,9 +31,7 @@ public class Indico implements AutoCloseable {
      * @throws FileNotFoundException
      */
     public Indico(IndicoConfig indicoConfig) throws IOException, FileNotFoundException {
-        this.host = indicoConfig.host;
-        this.protocol = indicoConfig.protocol;
-        String serverURL = this.protocol + "://" + this.host;
+        String serverURL = indicoConfig.protocol + "://" + indicoConfig.host;
         String apiToken = Authentication.resolveApiToken(indicoConfig.tokenPath);
 
         this.okHttpClient = new OkHttpClient.Builder()
@@ -95,22 +91,6 @@ public class Indico implements AutoCloseable {
     public Job pdfExtraction(List<String> data) throws IOException, FileNotFoundException {
         PdfExtractionOptions pdfExtractionOptions = new PdfExtractionOptions.Builder().build();
         return pdfExtraction(data, pdfExtractionOptions);
-    }
-
-    /**
-     *
-     * @return host for indico api
-     */
-    public String host() {
-        return this.host;
-    }
-
-    /**
-     *
-     * @return protocol for communication with host
-     */
-    public String protocol() {
-        return this.protocol;
     }
 
     /**
