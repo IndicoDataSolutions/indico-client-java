@@ -5,12 +5,14 @@ public class IndicoConfig {
     public final String host;
     public final String protocol;
     public final String tokenPath;
+    public final int maxConnections;
 
     public static class Builder {
 
         protected String tokenPath = null;
         protected String host = "app.indico.io";
         protected String protocol = "https";
+        protected int maxConnections = 10;
 
         /**
          *
@@ -41,6 +43,11 @@ public class IndicoConfig {
             this.protocol = protocol;
             return this;
         }
+        
+        public Builder maxConnections(int maxConnections) {
+            this.maxConnections = maxConnections;
+            return this;
+        }
 
         /**
          * returns an instance of IndicoConfig to pass to Indico constructor
@@ -58,5 +65,6 @@ public class IndicoConfig {
         this.tokenPath = builder.tokenPath;
         this.host = builder.host;
         this.protocol = builder.protocol;
+        this.maxConnections = builder.maxConnections;
     }
 }

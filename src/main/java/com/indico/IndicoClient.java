@@ -38,7 +38,7 @@ public class IndicoClient implements AutoCloseable {
                 .authenticator(new TokenAuthenticator(serverURL, apiToken))
                 .build();
 
-        this.dispatcher = dispatcher();
+        this.dispatcher = dispatcher(indicoConfig.maxConnections);
 
         this.apolloClient = ApolloClient.builder()
                 .serverUrl(serverURL + "/graph/api/graphql")
@@ -111,8 +111,8 @@ public class IndicoClient implements AutoCloseable {
      *
      * @return instance of ThreadPoolExecutor
      */
-    private ThreadPoolExecutor dispatcher() {
-        return new ThreadPoolExecutor(0, Integer.MAX_VALUE, 60, TimeUnit.SECONDS,
+    private ThreadPoolExecutor dispatcher(int maxConnections) {
+        return new ThreadPoolExecutor(0, maxConnections, 60, TimeUnit.SECONDS,
                 new SynchronousQueue<>(), (Runnable runnable)
                 -> new Thread(runnable, "Apollo Dispatcher"));
     }
