@@ -61,7 +61,7 @@ public class Setup {
         return mockServer;
     }
 
-    public Indico getIndico() throws IOException {
+    public IndicoClient getIndico() throws IOException {
         /**
          * Getting path to indico_api_token.txt in current folder.
          */
@@ -72,7 +72,7 @@ public class Setup {
                 .protocol("http")
                 .tokenPath(s)
                 .build();
-        return new Indico(indicoConfig);
+        return new IndicoClient(indicoConfig);
     }
 
     private JSONObject getModelResponse() {

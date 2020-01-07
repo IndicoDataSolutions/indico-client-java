@@ -1,6 +1,6 @@
 package com.indico.api;
 
-import com.indico.Indico;
+import com.indico.IndicoClient;
 import com.indico.jobs.Job;
 import com.indico.Setup;
 import com.indico.type.JobStatus;
@@ -17,7 +17,7 @@ import org.mockserver.integration.ClientAndServer;
 public class LibraryTest {
 
     private static ClientAndServer mockServer;
-    private static Indico indico;
+    private static IndicoClient indico;
     private static ModelGroup modelGroup;
 
     @BeforeAll

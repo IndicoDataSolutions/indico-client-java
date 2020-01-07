@@ -17,7 +17,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import okhttp3.OkHttpClient;
 
-public class Indico implements AutoCloseable {
+public class IndicoClient implements AutoCloseable {
 
     private final OkHttpClient okHttpClient;
     private final ApolloClient apolloClient;
@@ -30,7 +30,7 @@ public class Indico implements AutoCloseable {
      * @throws IOException
      * @throws FileNotFoundException
      */
-    public Indico(IndicoConfig indicoConfig) throws IOException, FileNotFoundException {
+    public IndicoClient(IndicoConfig indicoConfig) throws IOException, FileNotFoundException {
         String serverURL = indicoConfig.protocol + "://" + indicoConfig.host;
         String apiToken = Authentication.resolveApiToken(indicoConfig.tokenPath);
 
@@ -53,7 +53,7 @@ public class Indico implements AutoCloseable {
      * @throws IOException
      * @throws FileNotFoundException
      */
-    public Indico() throws IOException, FileNotFoundException {
+    public IndicoClient() throws IOException, FileNotFoundException {
         this(new IndicoConfig.Builder().build());
     }
 
