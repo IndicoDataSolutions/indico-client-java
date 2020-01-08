@@ -6,10 +6,8 @@ import java.io.IOException;
 import com.apollographql.apollo.ApolloClient;
 import com.indico.api.ModelGroup;
 import com.indico.api.PdfExtraction;
-import com.indico.api.PdfReader;
 import com.indico.auth.TokenAuthenticator;
 import com.indico.config.IndicoConfig;
-import com.indico.jobs.Job;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -53,27 +51,13 @@ public class IndicoClient implements AutoCloseable {
     public IndicoClient() throws IOException, FileNotFoundException {
         this(new IndicoConfig.Builder().build());
     }
-
-    /**
-     * Returns an instance of ModelGroup with specified model group id
-     *
-     * @param id model group id
-     * @return instance of ModelGroup
-     */
-    public ModelGroup ModelGroup(int id) {
-        return new ModelGroup(this.apolloClient, id);
+    
+    public ModelGroup.Builder getModelGroupBuilder() {
+        return new ModelGroup.Builder(this.apolloClient);
     }
-
-    /**
-     * Returns Job for extraction of data from pdf files with specified options
-     *
-     * @param pdfReader instance of PdfReader
-     * @return instance of Job
-     * @throws IOException
-     * @throws FileNotFoundException
-     */
-    public Job pdfExtraction(PdfReader pdfReader) throws IOException, FileNotFoundException {
-        return PdfExtraction.extract(this.apolloClient, pdfReader);
+    
+    public PdfExtraction.Builder getPdfExtractionBuilder() {
+        return new PdfExtraction.Builder(this.apolloClient);
     }
 
     /**

@@ -30,7 +30,7 @@ public class LibraryTest {
          * should be open for test to create mock server.
          */
         indico = setup.getIndico();
-        modelGroup = indico.ModelGroup(1);
+        modelGroup = indico.getModelGroupBuilder().id(1).build();
     }
 
     @AfterAll
@@ -69,10 +69,10 @@ public class LibraryTest {
 
     @Test
     void testPdfExtraction() throws IOException {
-        PdfReader pdfReader = new PdfReader.Builder()
+        PdfExtraction pdfExtraction = indico.getPdfExtractionBuilder()
                 .setFilePaths(new ArrayList<String>())
                 .build();
-        JSONArray json = indico.pdfExtraction(pdfReader).sync();
+        JSONArray json = pdfExtraction.extract().sync();
         JSONObject result = json.getJSONObject(0);
         Assert.assertEquals("test_value", result.getString("test_key"));
     }

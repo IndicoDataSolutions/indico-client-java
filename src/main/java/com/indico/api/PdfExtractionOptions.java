@@ -43,31 +43,34 @@ public class PdfExtractionOptions {
         /**
          * assumes the input is a single column of text.
          *
+         * @param singleColumn defaults to false
          * @return Builder instance
          */
-        public Builder singleColumn() {
-            this.singleColumn = true;
+        public Builder singleColumn(Boolean singleColumn) {
+            this.singleColumn = singleColumn;
             return this;
         }
 
         /**
          * returns body text as part of the results for each page.
          *
+         * @param text defaults to false
          * @return Builder instance
          */
-        public Builder text() {
-            this.text = true;
+        public Builder text(Boolean text) {
+            this.text = text;
             return this;
         }
 
         /**
-         * returns all body text for the PDF document in a single block. This
-         * text matches what you would see in Indico Teach.
+         * returns all body text for the PDF document in a single block.This
+ text matches what you would see in Indico Teach.
          *
+         * @param rawText defaults to false
          * @return Builder instance
          */
-        public Builder rawText() {
-            this.rawText = true;
+        public Builder rawText(Boolean rawText) {
+            this.rawText = rawText;
             return this;
         }
 
@@ -75,10 +78,11 @@ public class PdfExtractionOptions {
          * returns the contents of tables in the document, separately from body
          * text
          *
+         * @param tables defaults to false
          * @return Builder instance
          */
-        public Builder tables() {
-            this.tables = true;
+        public Builder tables(boolean tables) {
+            this.tables = tables;
             return this;
         }
 
@@ -88,10 +92,11 @@ public class PdfExtractionOptions {
          * optimized, modification date, title, creation date, number of pages,
          * page size
          *
+         * @param metadata defaults to false
          * @return Builder instance
          */
-        public Builder metadata() {
-            this.metadata = true;
+        public Builder metadata(Boolean metadata) {
+            this.metadata = metadata;
             return this;
         }
 

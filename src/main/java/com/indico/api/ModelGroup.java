@@ -17,17 +17,10 @@ public class ModelGroup {
 
     private final ApolloClient apolloClient;
     private final int id;
-
-    /**
-     * Class Constuctor
-     *
-     * @param apolloClient instance of ApolloClient
-     * @param id model group id
-     */
-    public ModelGroup(ApolloClient apolloClient, int id) {
-        super();
-        this.apolloClient = apolloClient;
-        this.id = id;
+    
+    private ModelGroup(Builder builder) {
+        this.apolloClient = builder.apolloClient;
+        this.id = builder.id;
     }
 
     /**
@@ -62,20 +55,23 @@ public class ModelGroup {
     /**
      * Loads specified model
      *
-     * @param id model id
+     * @param modelId model id
      * @return load status
      */
-    public String load(int id) {
+    public String load(int modelId) {
         JSONObject info = this.info();
         if (info.has("load_status") && info.getString("load_status").equals("ready")) {
             return "ready";
         }
 
         ApolloCall<LoadMutation.Data> apolloCall = this.apolloClient.mutate(LoadMutation.builder()
-                .model_id(id)
+                .model_id(modelId)
                 .build());
         Response<LoadMutation.Data> response = (Response<LoadMutation.Data>) GraphQL.execute(apolloCall).join();
         LoadMutation.Data data = response.data();
+        if (data.modelLoad() == null) {
+            throw new RuntimeException("Cannot Load Model id : " + modelId);
+        }
         return this.getStatus(data);
     }
 
@@ -85,16 +81,13 @@ public class ModelGroup {
      * @return load status
      */
     public String load() {
-        int id = this.getSelectedModel().getInt("id");
-        return load(id);
+        int modelId = this.getSelectedModel().getInt("id");
+        return load(modelId);
     }
 
     private String getStatus(LoadMutation.Data data) {
         JSONObject info;
         LoadMutation.ModelLoad modelLoad = data.modelLoad();
-        if (modelLoad == null) {
-            throw new RuntimeException("Cannot Load Model id : " + id);
-        }
         String status = modelLoad.status();
 
         while (status.equals("loading")) {
@@ -158,5 +151,27 @@ public class ModelGroup {
         json.put("id", model.id());
         json.put("modelInfo", new JSONObject(model.modelInfo().toString()));
         return json;
+    }
+
+    public static class Builder {
+
+        protected int id = 0;
+        protected final ApolloClient apolloClient;
+        
+        public Builder(ApolloClient apolloClient) {
+            this.apolloClient = apolloClient;
+        }
+
+        public Builder id(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public ModelGroup build() {
+            if (id == 0) {
+                throw new RuntimeException("ModelGroup Id is Required");
+            }
+            return new ModelGroup(this);
+        }
     }
 }
