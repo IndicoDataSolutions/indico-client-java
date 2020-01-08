@@ -38,10 +38,12 @@
 
 ```
     // Using try with resources`
-    try (Indico indico = new Indico([IndicoConfig config])) {
+    try (IndicoClient indico = new IndicoClient([IndicoConfig config])) {
 
         // Get Model Group
-        ModelGroup modelGroup = indico.ModelGroup(int groupId);
+        ModelGroup modelGroup = indico.getModelGroupBuilder()
+                                        .id(int id)
+                                        .build();
         // Load Model
         String status = modelGroup.load([int id]);
         // Model Info
@@ -56,12 +58,15 @@
         JSONArray jobResult = modelGroup.predict(List data,[int id]).sync();
 
         // For Pdf Extraction
-        Job job = indico.pdfExtraction(List data, [PdfExtractionOptions options]);
+        PdfExtraction pdfExtraction = indico.getPdfExtractionBuilder()
+                                              .setFilePaths(List<String> filePaths)
+                                              .setPdfExtractionOptions(PdfExtractionOptions options)
+                                              .build();
+        Job job = pdfExtraction.extract();
         job.await();
         JSONArray jobResult = job.result();
         // or use sync
-        JSONArray jobResult = indico.pdfExtraction(List data, [PdfExtractionOptions options]).sync();
+        JSONArray jobResult = pdfExtraction.extract().sync();
 
     }
 ```
-
