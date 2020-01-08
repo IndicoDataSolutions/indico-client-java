@@ -50,6 +50,12 @@ public class IndicoConfig {
             return this;
         }
 
+        /**
+         *
+         * @param maxConnections maximum connections threads allowed from an
+         * instance of IndicoClient
+         * @return
+         */
         public Builder maxConnections(int maxConnections) {
             this.maxConnections = maxConnections;
             return this;

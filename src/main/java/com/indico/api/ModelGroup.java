@@ -162,11 +162,20 @@ public class ModelGroup {
             this.apolloClient = apolloClient;
         }
 
+        /**
+         * 
+         * @param id ModelGroup ID
+         * @return 
+         */
         public Builder id(int id) {
             this.id = id;
             return this;
         }
 
+        /**
+         * 
+         * @return Instance of ModelGroup
+         */
         public ModelGroup build() {
             if (id == 0) {
                 throw new RuntimeException("ModelGroup Id is Required");

@@ -28,11 +28,6 @@ public class PdfExtraction {
         this.apolloClient = builder.apolloClient;
     }
 
-    /**
-     *
-     * @throws FileNotFoundException
-     * @throws IOException
-     */
     private List<String> process(List<String> files) throws FileNotFoundException, IOException {
         ArrayList<String> pdfList = new ArrayList<>();
         for (String url : files) {
@@ -50,6 +45,7 @@ public class PdfExtraction {
 
     /**
      *
+     * @return Instance of Job
      * @throws FileNotFoundException
      * @throws IOException
      */
@@ -77,6 +73,11 @@ public class PdfExtraction {
             this.apolloClient = apolloClient;
         }
 
+        /**
+         * 
+         * @param files Pdf File List
+         * @return 
+         */
         public Builder setFiles(List<File> files) {
             ArrayList<String> filePaths = new ArrayList<>();
             files.forEach((file) -> {
@@ -86,21 +87,42 @@ public class PdfExtraction {
             return this;
         }
 
+        /**
+         * 
+         * @param filePaths Pdf Files or URL(s) as String List
+         * @return 
+         */
         public Builder setFilePaths(List<String> filePaths) {
             this.files = filePaths;
             return this;
         }
 
+        /**
+         * 
+         * @param stream Stream containing Pdf Files or URL(s) as String
+         * @return 
+         */
         public Builder setStream(Stream<String> stream) {
             this.files = stream.collect(Collectors.toList());
             return this;
         }
 
+        /**
+         * 
+         * @param pdfExtractionOptions sets PdfExtractionOptions for extraction
+         * @return 
+         */
         public Builder setPdfExtractionOptions(PdfExtractionOptions pdfExtractionOptions) {
             this.pdfExtractionOptions = pdfExtractionOptions;
             return this;
         }
 
+        /**
+         * 
+         * @return Instance of PdfExtraction
+         * @throws FileNotFoundException
+         * @throws IOException 
+         */
         public PdfExtraction build() throws FileNotFoundException, IOException {
             if (this.files == null) {
                 throw new RuntimeException("Pdf File List Cannot Be Empty");

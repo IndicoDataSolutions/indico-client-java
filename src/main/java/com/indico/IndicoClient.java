@@ -52,10 +52,18 @@ public class IndicoClient implements AutoCloseable {
         this(new IndicoConfig.Builder().build());
     }
     
+    /**
+     * 
+     * @return Instance of ModelGroup Builder
+     */
     public ModelGroup.Builder getModelGroupBuilder() {
         return new ModelGroup.Builder(this.apolloClient);
     }
     
+    /**
+     * 
+     * @return Instance of PdfExtraction
+     */
     public PdfExtraction.Builder getPdfExtractionBuilder() {
         return new PdfExtraction.Builder(this.apolloClient);
     }
