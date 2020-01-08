@@ -50,7 +50,7 @@ public class TokenAuthenticator implements Authenticator {
                         .header("Authorization", "Bearer " + authToken)
                         .build();
             } else {
-                throw new RuntimeException(refreshResponse.code() + " : " + refreshResponse.message());
+                return null;
             }
         }
         return null;
