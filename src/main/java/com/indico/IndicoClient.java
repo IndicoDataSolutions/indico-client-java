@@ -7,7 +7,6 @@ import com.apollographql.apollo.ApolloClient;
 import com.indico.api.ModelGroup;
 import com.indico.api.PdfExtraction;
 import com.indico.api.PdfReader;
-import com.indico.auth.Authentication;
 import com.indico.auth.TokenAuthenticator;
 import com.indico.config.IndicoConfig;
 import com.indico.jobs.Job;
@@ -31,10 +30,9 @@ public class IndicoClient implements AutoCloseable {
      */
     public IndicoClient(IndicoConfig indicoConfig) throws IOException, FileNotFoundException {
         String serverURL = indicoConfig.protocol + "://" + indicoConfig.host;
-        String apiToken = Authentication.resolveApiToken(indicoConfig.tokenPath);
 
         this.okHttpClient = new OkHttpClient.Builder()
-                .authenticator(new TokenAuthenticator(serverURL, apiToken))
+                .authenticator(new TokenAuthenticator(serverURL, indicoConfig.apiToken))
                 .build();
 
         this.dispatcher = dispatcher(indicoConfig.maxConnections);

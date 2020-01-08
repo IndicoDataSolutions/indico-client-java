@@ -59,8 +59,9 @@ public class PdfReader {
 
         public Builder setFiles(List<File> files) {
             ArrayList<String> filePaths = new ArrayList<>();
+            System.out.println(files.get(0).getPath());
             files.forEach((file) -> {
-                filePaths.add(file.getAbsolutePath());
+                filePaths.add(file.getPath());
             });
             this.files = filePaths;
             return this;
