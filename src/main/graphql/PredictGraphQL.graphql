@@ -1,4 +1,4 @@
-mutation PredictMutation($modelId: Int!, $data: [String]!) {
+mutation PredictGraphQL($modelId: Int!, $data: [String]!) {
   modelPredict(modelId: $modelId, data: $data) {
     jobId
   }

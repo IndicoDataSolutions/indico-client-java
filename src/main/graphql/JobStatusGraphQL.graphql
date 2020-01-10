@@ -1,0 +1,5 @@
+query JobStatusGraphQL($id: String!) {
+  job(id: $id) {
+    status
+  }
+}

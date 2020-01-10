@@ -1,4 +1,4 @@
-package com.indico.graphql;
+package com.indico;
 
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
@@ -6,7 +6,7 @@ import com.apollographql.apollo.exception.ApolloException;
 import java.util.concurrent.CompletableFuture;
 import org.jetbrains.annotations.NotNull;
 
-public class GraphQL {
+public class Async {
 
     /**
      * Synchronizes apollographql api calls with the help of dispatcher
@@ -15,7 +15,7 @@ public class GraphQL {
      * @param apolloCall instance of ApolloCall
      * @return synchronous Response from query specified by apolloCall
      */
-    public static <T> CompletableFuture<Response<T>> execute(ApolloCall<T> apolloCall) {
+    public static <T> CompletableFuture<Response<T>> executeSync(ApolloCall<T> apolloCall) {
         CompletableFuture<Response<T>> completableFuture = new CompletableFuture<>();
 
         completableFuture.whenComplete((tResponse, throwable) -> {

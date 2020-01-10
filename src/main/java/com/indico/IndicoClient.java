@@ -1,39 +1,41 @@
 package com.indico;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import com.apollographql.apollo.ApolloClient;
-import com.indico.api.ModelGroup;
-import com.indico.api.PdfExtraction;
-import com.indico.auth.TokenAuthenticator;
-import com.indico.config.IndicoConfig;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import com.apollographql.apollo.ApolloClient;
 import okhttp3.OkHttpClient;
 
+import com.indico.jobs.JobQuery;
+import com.indico.storage.RetrieveBlob;
+import com.indico.storage.PurgeBlob;
+import com.indico.workflows.WorkflowQuery;
+import com.indico.workflows.WorkflowSubmission;
+import com.indico.workflows.ModelGroupQuery;
+import com.indico.auth.TokenAuthenticator;
+import com.indico.workflows.ModelGroupSubmission;
+
+/**
+ * Indico client with all available top level query and mutations
+ */
 public class IndicoClient implements AutoCloseable {
 
+    public final IndicoConfig config;
     private final OkHttpClient okHttpClient;
     private final ApolloClient apolloClient;
     private final ThreadPoolExecutor dispatcher;
 
-    /**
-     * Class Constructor
-     *
-     * @param indicoConfig instance of IndicoConfig
-     * @throws IOException
-     * @throws FileNotFoundException
-     */
-    public IndicoClient(IndicoConfig indicoConfig) throws IOException, FileNotFoundException {
-        String serverURL = indicoConfig.protocol + "://" + indicoConfig.host;
+    public IndicoClient(IndicoConfig config) {
+        this.config = config;
+        String serverURL = config.protocol + "://" + config.host;
 
         this.okHttpClient = new OkHttpClient.Builder()
-                .authenticator(new TokenAuthenticator(serverURL, indicoConfig.apiToken))
+                .authenticator(new TokenAuthenticator(serverURL, config.apiToken))
                 .build();
 
-        this.dispatcher = dispatcher(indicoConfig.maxConnections);
+        this.dispatcher = dispatcher(config.maxConnections);
 
         this.apolloClient = ApolloClient.builder()
                 .serverUrl(serverURL + "/graph/api/graphql")
@@ -42,30 +44,57 @@ public class IndicoClient implements AutoCloseable {
                 .build();
     }
 
+    public ModelGroupQuery modelGroupQuery() {
+        return new ModelGroupQuery(this.apolloClient);
+    }
+
+    public ModelGroupSubmission modelGroupSubmission() {
+        return new ModelGroupSubmission(this.apolloClient);
+    }
+
     /**
-     * Class Constructor with default IndicoConfig
+     * Create a new query for a workflow
      *
-     * @throws IOException
-     * @throws FileNotFoundException
+     * @return WorkflowQuery
      */
-    public IndicoClient() throws IOException, FileNotFoundException {
-        this(new IndicoConfig.Builder().build());
+    public WorkflowQuery workflowQuery() {
+        return new WorkflowQuery();
     }
-    
+
     /**
-     * 
-     * @return Instance of ModelGroup Builder
+     * Create a new mutation to submit documents to process by a workflow
+     *
+     * @return WorkflowSubmission
      */
-    public ModelGroup.Builder getModelGroupBuilder() {
-        return new ModelGroup.Builder(this.apolloClient);
+    public WorkflowSubmission workflowSubmission() {
+        return new WorkflowSubmission();
     }
-    
+
     /**
-     * 
-     * @return Instance of PdfExtraction
+     * Create a query to retrieve async job info
+     *
+     * @return JobQuery
      */
-    public PdfExtraction.Builder getPdfExtractionBuilder() {
-        return new PdfExtraction.Builder(this.apolloClient);
+    public JobQuery jobQuery() {
+        return new JobQuery(this.apolloClient);
+    }
+
+    /**
+     * Retrieve a blob from indico blob storage
+     *
+     * @return RetrieveBlob
+     */
+    public RetrieveBlob retrieveBlob() {
+        return new RetrieveBlob();
+    }
+
+    /**
+     * Create a request to delete a blob fron indico blob storage
+     *
+     * @return PurgeBlob
+     */
+    public PurgeBlob purgeBlob() {
+        return new PurgeBlob();
     }
 
     /**

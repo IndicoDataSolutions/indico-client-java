@@ -1,6 +1,7 @@
-query JobResultQuery($id: String!) {
+query JobResultGraphQL($id: String!) {
   job(id: $id) {
     status
     result
   }
 }
+

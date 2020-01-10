@@ -47,8 +47,8 @@ gradle.projectsEvaluated {
 dependencies {
     testImplementation('org.junit.jupiter:junit-jupiter:5.5.2')
     testImplementation('org.mock-server:mockserver-netty:5.8.0')
-    implementation 'com.apollographql.apollo:apollo-runtime:1.2.2'
-    api 'org.json:json:20190722'
+    implementation('com.apollographql.apollo:apollo-runtime:1.2.2')
+    api('org.json:json:20190722')
     compileOnly("org.jetbrains:annotations:13.0")
     testCompileOnly("org.jetbrains:annotations:13.0")  
 }

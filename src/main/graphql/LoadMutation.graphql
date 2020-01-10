@@ -1,5 +1,0 @@
-mutation LoadMutation($model_id: Int!) {
-  modelLoad(modelId: $model_id) {
-    status
-  }
-}

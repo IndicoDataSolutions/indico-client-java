@@ -1,6 +1,0 @@
-query JobWaitQuery($id: String!) {
-  job(id: $id) {
-    ready
-    status
-  }
-}
