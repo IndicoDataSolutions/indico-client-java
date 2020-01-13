@@ -1,7 +1,5 @@
 package com.indico;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -11,11 +9,13 @@ import okhttp3.OkHttpClient;
 import com.indico.jobs.JobQuery;
 import com.indico.storage.RetrieveBlob;
 import com.indico.storage.PurgeBlob;
-import com.indico.workflows.WorkflowQuery;
-import com.indico.workflows.WorkflowSubmission;
-import com.indico.workflows.ModelGroupQuery;
+import com.indico.query.WorkflowQuery;
+import com.indico.mutation.WorkflowSubmission;
 import com.indico.auth.TokenAuthenticator;
-import com.indico.workflows.ModelGroupSubmission;
+import com.indico.query.ModelGroupQuery;
+import com.indico.mutation.ModelGroupLoad;
+import com.indico.mutation.ModelGroupPredict;
+import com.indico.mutation.PdfExtraction;
 
 /**
  * Indico client with all available top level query and mutations
@@ -44,12 +44,36 @@ public class IndicoClient implements AutoCloseable {
                 .build();
     }
 
+    /**
+     * Create a new Query for ModelGroup
+     * @return ModelGroupQuery
+     */
     public ModelGroupQuery modelGroupQuery() {
         return new ModelGroupQuery(this.apolloClient);
     }
 
-    public ModelGroupSubmission modelGroupSubmission() {
-        return new ModelGroupSubmission(this.apolloClient);
+    /**
+     * Create a new mutation to predict data
+     * @return ModelGroupPredict
+     */
+    public ModelGroupPredict modelGroupPredict() {
+        return new ModelGroupPredict(this.apolloClient);
+    }
+
+    /**
+     * Create a new mutation to load model in ModelGroup
+     * @return ModelGroupLoad
+     */
+    public ModelGroupLoad modelGroupLoad() {
+        return new ModelGroupLoad(this.apolloClient);
+    }
+
+    /**
+     * Create a new mutation to submit PDF(s) to process by a PdfExtraction
+     * @return PdfExtraction
+     */
+    public PdfExtraction pdfExtraction() {
+        return new PdfExtraction(this.apolloClient);
     }
 
     /**

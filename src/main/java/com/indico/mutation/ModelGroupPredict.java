@@ -1,54 +1,55 @@
-package com.indico.workflows;
+package com.indico.mutation;
 
 import java.util.List;
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.api.Response;
 
-import com.indico.Async;
-import com.indico.Mutation;
-import com.indico.PredictGraphQLMutation;
 import com.indico.jobs.Job;
 import com.indico.jobs.JobOptions;
+import com.indico.Async;
+import com.indico.Mutation;
+import com.indico.entity.ModelGroup;
+import com.indico.PredictModelGraphQLMutation;
 
-public class ModelGroupSubmission implements Mutation<Job> {
+public class ModelGroupPredict implements Mutation<Job> {
 
     private int modelId;
     private List<String> data;
     private JobOptions jobOptions;
     private final ApolloClient apolloClient;
     
-    public ModelGroupSubmission(ApolloClient apolloClient) {
+    public ModelGroupPredict(ApolloClient apolloClient) {
         this.apolloClient = apolloClient;
     }
 
-    public ModelGroupSubmission modelGroup(ModelGroup modelGroup) {
+    public ModelGroupPredict modelGroup(ModelGroup modelGroup) {
         modelId = modelGroup.selectedModel.id;
         return this;
     }
 
-    public ModelGroupSubmission modelId(int modelId) {
+    public ModelGroupPredict modelId(int modelId) {
         this.modelId = modelId;
         return this;
     }
 
-    public ModelGroupSubmission data(List<String> data) {
+    public ModelGroupPredict data(List<String> data) {
         this.data = data;
         return this;
     }
 
-    public ModelGroupSubmission jobOptions(JobOptions jobOptions) {
+    public ModelGroupPredict jobOptions(JobOptions jobOptions) {
         this.jobOptions = jobOptions;
         return this;
     }
 
     @Override
     public Job execute() {
-        ApolloCall<PredictGraphQLMutation.Data> apolloCall = this.apolloClient.mutate(PredictGraphQLMutation.builder()
+        ApolloCall<PredictModelGraphQLMutation.Data> apolloCall = this.apolloClient.mutate(PredictModelGraphQLMutation.builder()
                 .modelId(modelId)
                 .data(data)
                 .build());
-        Response<PredictGraphQLMutation.Data> response = (Response<PredictGraphQLMutation.Data>) Async.executeSync(apolloCall).join();
+        Response<PredictModelGraphQLMutation.Data> response = (Response<PredictModelGraphQLMutation.Data>) Async.executeSync(apolloCall).join();
         String jobId = response.data().modelPredict().jobId();
         return new Job(this.apolloClient,jobId);
     }

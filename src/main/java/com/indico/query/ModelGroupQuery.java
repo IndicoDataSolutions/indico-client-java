@@ -1,5 +1,6 @@
-package com.indico.workflows;
+package com.indico.query;
 
+import com.indico.entity.ModelGroup;
 import java.util.ArrayList;
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
@@ -20,7 +21,7 @@ public class ModelGroupQuery implements Query<ModelGroup> {
     }
 
     /**
-     * Use to query workflow by id
+     * Use to query ModelGroup by id
      *
      * @param id
      * @return WorkflowQuery
@@ -31,7 +32,7 @@ public class ModelGroupQuery implements Query<ModelGroup> {
     }
 
     /**
-     * Use to query workflow by name
+     * Use to query ModelGroup by name
      *
      * @param name
      * @return WorkflowQuery

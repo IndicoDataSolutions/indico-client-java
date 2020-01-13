@@ -18,7 +18,7 @@ public class RetrieveBlob {
 
     /**
      * Initiates the request to retrieve the blob and returns a InputStream
-     * @return
+     * @return InputStream
      */
     public InputStream getInputStream() {
         return new BufferedInputStream(null);

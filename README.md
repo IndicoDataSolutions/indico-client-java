@@ -41,32 +41,31 @@
     try (IndicoClient indico = new IndicoClient([IndicoConfig config])) {
 
         // Get Model Group
-        ModelGroup modelGroup = indico.getModelGroupBuilder()
-                                        .id(int id)
-                                        .build();
+        ModelGroup mg = indico.modelGroupQuery()
+                              .id(int id)
+                              .query();
         // Load Model
-        String status = modelGroup.load([int id]);
-        // Model Info
-        JSONObject modelInfo = modelGroup.info();
-        // Selected Model
-        JSONObject selectedModel = modelGroup.getSelectedModel();
+        String status = indico.modelGroupLoad()
+                              .modelGroup(mg)
+                              .execute();
         // Predict Data
-        Job job = modelGroup.predict(List data,[int id]);
-        job.await();
+        Job job = indico.modelGroupPredict()
+                        .modelGroup(mg)
+                        .data(List<String>)
+                        .execute();
+        while(job.status() == JobStatus.PENDING) {
+            Thread.sleep(1000);
+        }
         JSONArray jobResult = job.result();
-        // or use sync
-        JSONArray jobResult = modelGroup.predict(List data,[int id]).sync();
 
         // For Pdf Extraction
-        PdfExtraction pdfExtraction = indico.getPdfExtractionBuilder()
-                                              .setFilePaths(List<String> filePaths)
-                                              .setPdfExtractionOptions(PdfExtractionOptions options)
-                                              .build();
-        Job job = pdfExtraction.extract();
-        job.await();
+        Job job = indico.pdfExtraction()
+                        .data(List<String>)
+                        .pdfExtractionOptions(PdfExtractionOptions)
+                        .execute();
+        while(job.status() == JobStatus.PENDING) {
+            Thread.sleep(1000);
+        }
         JSONArray jobResult = job.result();
-        // or use sync
-        JSONArray jobResult = pdfExtraction.extract().sync();
-
     }
 ```

@@ -1,5 +1,10 @@
 package com.indico;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 /**
  * Indico client configuration
  *
@@ -40,9 +45,35 @@ public class IndicoConfig {
             return this;
         }
 
+        public Builder tokenPath(String tokenPath) throws IOException {
+            this.apiToken = this.resolveApiToken(tokenPath);
+            return this;
+        }
+
         public IndicoConfig build() {
             IndicoConfig config = new IndicoConfig(this);
             return config;
+        }
+
+        /**
+         *
+         * Returns api token from indico_api_token.txt from path
+         *
+         * @param path path to indico_api_token.txt
+         * @return api token from indico_api_token.txt
+         * @throws IOException
+         */
+        private String resolveApiToken(String path) throws IOException {
+            String apiTokenPath = path;
+            File apiTokenFile = new File(apiTokenPath.concat("/indico_api_token.txt"));
+            if (!(apiTokenFile.exists() && apiTokenFile.isFile())) {
+                throw new RuntimeException("File " + apiTokenFile.getPath() + " not found.");
+            } else {
+                try (BufferedReader reader = new BufferedReader(new FileReader(apiTokenFile))) {
+                    apiToken = reader.readLine();
+                }
+            }
+            return apiToken.trim();
         }
     }
 

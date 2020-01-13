@@ -1,5 +1,6 @@
-package com.indico.workflows;
+package com.indico.mutation;
 
+import com.indico.entity.Workflow;
 import java.io.BufferedOutputStream;
 import java.nio.*;
 import com.indico.Mutation;

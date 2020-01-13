@@ -9,6 +9,7 @@ import com.indico.Async;
 import com.indico.type.JobStatus;
 import com.indico.JobStatusGraphQLQuery;
 import com.indico.JobResultGraphQLQuery;
+import org.json.JSONArray;
 
 /**
  * Async Job information
@@ -26,7 +27,7 @@ public class Job {
     /**
      * Retrieve job status
      *
-     * @return
+     * @return JobStatus
      */
     public JobStatus status() {
         ApolloCall<JobStatusGraphQLQuery.Data> apolloCall = this.apolloClient.query(JobStatusGraphQLQuery.builder()
@@ -41,23 +42,28 @@ public class Job {
     /**
      * Retrieve results. Status must be success or an error will be thrown.
      *
-     * @return
+     * @return JSONArray
      */
-    public String result() {
+    public JSONArray result() {
         ApolloCall<JobResultGraphQLQuery.Data> apolloCall = this.apolloClient.query(JobResultGraphQLQuery.builder()
                 .id(this.id)
                 .build());
         Response<JobResultGraphQLQuery.Data> response = (Response<JobResultGraphQLQuery.Data>) Async.executeSync(apolloCall).join();
         JobResultGraphQLQuery.Data data = response.data();
-        String result = response.data().job().result().toString();
-        return result;
+        JobStatus status = data.job().status();
+        if (status != JobStatus.SUCCESS) {
+            throw new RuntimeException("Job finished with status : " + status.rawValue());
+        }
+        String result = data.job().result().toString();
+        return new JSONArray(result);
     }
 
     /**
      * If job status is FAILURE returns the list of errors encoutered
+     * @return List of Errors
      */
     public List<String> errors() {
+        //TODO:
         return new ArrayList<String>();
     }
-;
 }

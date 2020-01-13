@@ -1,4 +1,4 @@
-package com.indico.workflows;
+package com.indico.entity;
 
 import com.indico.Enums;
 
