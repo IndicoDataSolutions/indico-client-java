@@ -10,6 +10,7 @@ import com.indico.type.JobStatus;
 import com.indico.JobStatusGraphQLQuery;
 import com.indico.JobResultGraphQLQuery;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * Async Job information
@@ -40,11 +41,31 @@ public class Job {
     }
 
     /**
+     * Retrieve result. Status must be success or an error will be thrown.
+     *
+     * @return JSONObject
+     */
+    public JSONObject result() {
+        String result = this.fetchResult();
+        return new JSONObject(result);
+    }
+
+    /**
      * Retrieve results. Status must be success or an error will be thrown.
      *
      * @return JSONArray
      */
-    public JSONArray result() {
+    public JSONArray results() {
+        String result = this.fetchResult();
+        return new JSONArray(result);
+    }
+
+    /**
+     * Retrieve results as String
+     *
+     * @return Result String
+     */
+    private String fetchResult() {
         ApolloCall<JobResultGraphQLQuery.Data> apolloCall = this.apolloClient.query(JobResultGraphQLQuery.builder()
                 .id(this.id)
                 .build());
@@ -55,11 +76,12 @@ public class Job {
             throw new RuntimeException("Job finished with status : " + status.rawValue());
         }
         String result = data.job().result().toString();
-        return new JSONArray(result);
+        return result;
     }
 
     /**
      * If job status is FAILURE returns the list of errors encoutered
+     *
      * @return List of Errors
      */
     public List<String> errors() {

@@ -57,7 +57,7 @@ public class LibraryTest {
                 .data(new ArrayList<String>())
                 .execute();
         Assert.assertEquals(JobStatus.SUCCESS, job.status());
-        JSONArray result = job.result();
+        JSONArray result = job.results();
         Assert.assertEquals("test_value", result.getJSONObject(0).getString("test_key"));
     }
 
@@ -68,7 +68,7 @@ public class LibraryTest {
                 .pdfExtractionOptions(new PdfExtractionOptions.Builder().build())
                 .execute();
         Assert.assertEquals(JobStatus.SUCCESS, job.status());
-        JSONArray result = job.result();
+        JSONArray result = job.results();
         Assert.assertEquals("test_value", result.getJSONObject(0).getString("test_key"));
     }
 }
