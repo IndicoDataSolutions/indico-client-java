@@ -56,7 +56,7 @@
         while(job.status() == JobStatus.PENDING) {
             Thread.sleep(1000);
         }
-        JSONArray jobResult = job.result();
+        JSONArray jobResult = job.results();
 
         // For Pdf Extraction
         Job job = indico.pdfExtraction()
@@ -66,6 +66,6 @@
         while(job.status() == JobStatus.PENDING) {
             Thread.sleep(1000);
         }
-        JSONArray jobResult = job.result();
+        JSONArray jobResult = job.results();
     }
 ```
