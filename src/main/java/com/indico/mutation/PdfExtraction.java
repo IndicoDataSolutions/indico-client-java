@@ -26,6 +26,7 @@ public class PdfExtraction implements Mutation<Job> {
 
     public PdfExtraction(ApolloClient apolloClient) {
         this.apolloClient = apolloClient;
+        this.options = new PdfExtractionOptions.Builder().build();
     }
 
     public PdfExtraction data(List<String> data) {
