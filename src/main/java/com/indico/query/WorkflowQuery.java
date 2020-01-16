@@ -1,6 +1,6 @@
+package com.indico.query;
 
-package com.indico.workflows;
-
+import com.indico.entity.Workflow;
 import java.util.List;
 import com.indico.Query;
 

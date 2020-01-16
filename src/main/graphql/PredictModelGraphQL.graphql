@@ -1,0 +1,5 @@
+mutation PredictModelGraphQL($modelId: Int!, $data: [String]!) {
+  modelPredict(modelId: $modelId, data: $data) {
+    jobId
+  }
+}

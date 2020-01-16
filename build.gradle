@@ -1,0 +1,62 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath("com.apollographql.apollo:apollo-gradle-plugin:1.2.2")
+    }
+}
+
+plugins {
+    id 'java-library'
+    id 'maven-publish'
+    id 'eclipse'
+    id 'idea'
+}
+
+apply plugin: 'com.apollographql.android'
+
+repositories {
+    jcenter()
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+//Local Maven Publishing
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            group='com.indico'
+            artifactId = 'indico-client'
+            version = '1.0-SNAPSHOT'
+            
+            from components.java
+        }
+    }
+}
+
+gradle.projectsEvaluated {
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked"
+    }
+}
+
+dependencies {
+    testImplementation('org.junit.jupiter:junit-jupiter:5.5.2')
+    testImplementation('org.mock-server:mockserver-netty:5.8.0')
+    implementation('com.apollographql.apollo:apollo-runtime:1.2.2')
+    api('org.json:json:20190722')
+    compileOnly("org.jetbrains:annotations:13.0")
+    testCompileOnly("org.jetbrains:annotations:13.0")  
+}
+
+apollo {
+    outputPackageName = "com.indico"
+}
+
+test {
+    useJUnitPlatform()
+}

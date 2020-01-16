@@ -1,0 +1,14 @@
+query ModelGroupGraphQL($modelGroupIds: [Int]!) {
+  modelGroups(modelGroupIds: $modelGroupIds) {
+    modelGroups {
+      id
+      name
+      status
+      selectedModel {
+        id
+        modelInfo
+      }
+    }
+  }
+}
+

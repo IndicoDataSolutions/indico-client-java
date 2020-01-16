@@ -1,5 +1,6 @@
-package com.indico.workflows;
+package com.indico.mutation;
 
+import com.indico.entity.Workflow;
 import java.io.BufferedOutputStream;
 import java.nio.*;
 import com.indico.Mutation;
@@ -45,6 +46,7 @@ public class WorkflowSubmission implements Mutation<Job> {
     }
 
     public Job execute() {
-        return new Job();
+        return null;
+        //return new Job();
     }
 }
