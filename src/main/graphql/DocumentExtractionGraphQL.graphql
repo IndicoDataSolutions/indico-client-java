@@ -1,0 +1,5 @@
+mutation DocumentExtractionGraphQL($data: [String]!, $singleColumn: Boolean!, $text: Boolean!, $rawText: Boolean!, $tables: Boolean!, $metadata: Boolean!, $forceRender: Boolean!, $detailed: Boolean!){
+    documentExtraction(data: $data, singleColumn: $singleColumn, text: $text, rawText: $rawText, tables: $tables, metadata: $metadata, forceRender: $forceRender, detailed: $detailed){
+        jobId
+    }
+}
