@@ -27,7 +27,7 @@ public class IndicoConfig {
         protected String protocol = "https";
         protected int maxConnections = 10;
         protected int connectionReadTimeout = 60;
-        protected  int connectionWriteTimeout = 60;
+        protected int connectionWriteTimeout = 60;
 
         public Builder apiToken(String apiToken) {
             this.apiToken = apiToken;
