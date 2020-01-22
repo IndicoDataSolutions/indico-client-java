@@ -30,6 +30,8 @@ public class IndicoClient implements AutoCloseable {
 
         this.okHttpClient = new OkHttpClient.Builder()
                 .authenticator(new TokenAuthenticator(serverURL, config.apiToken))
+                .readTimeout(config.connectionReadTimeout, TimeUnit.SECONDS)
+                .writeTimeout(config.connectionWriteTimeout, TimeUnit.SECONDS)
                 .build();
 
         this.dispatcher = dispatcher(config.maxConnections);

@@ -17,6 +17,8 @@ public class IndicoConfig {
     public final String host;
     public final String protocol;
     public final int maxConnections;
+    public final int connectionReadTimeout;
+    public final int connectionWriteTimeout;
 
     public static class Builder {
 
@@ -24,6 +26,8 @@ public class IndicoConfig {
         protected String host = "app.indico.io";
         protected String protocol = "https";
         protected int maxConnections = 10;
+        protected int connectionReadTimeout = 60;
+        protected int connectionWriteTimeout = 60;
 
         public Builder apiToken(String apiToken) {
             this.apiToken = apiToken;
@@ -42,6 +46,16 @@ public class IndicoConfig {
 
         public Builder maxConnections(int maxConnections) {
             this.maxConnections = maxConnections;
+            return this;
+        }
+
+        public Builder connectionReadTimeout(int connectionReadTimeout) {
+            this.connectionReadTimeout = connectionReadTimeout;
+            return this;
+        }
+
+        public Builder connectionWriteTimeout(int connectionWriteTimeout) {
+            this.connectionWriteTimeout = connectionWriteTimeout;
             return this;
         }
 
@@ -82,5 +96,7 @@ public class IndicoConfig {
         this.host = builder.host;
         this.protocol = builder.protocol;
         this.maxConnections = builder.maxConnections;
+        this.connectionWriteTimeout = builder.connectionWriteTimeout;
+        this.connectionReadTimeout = builder.connectionReadTimeout;
     }
 }
