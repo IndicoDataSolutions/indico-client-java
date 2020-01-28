@@ -4,6 +4,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import com.apollographql.apollo.ApolloClient;
+import com.indico.mutation.*;
 import okhttp3.OkHttpClient;
 
 import com.indico.jobs.JobQuery;
@@ -12,9 +13,6 @@ import com.indico.storage.PurgeBlob;
 import com.indico.query.WorkflowQuery;
 import com.indico.mutation.WorkflowSubmission;
 import com.indico.query.ModelGroupQuery;
-import com.indico.mutation.ModelGroupLoad;
-import com.indico.mutation.ModelGroupPredict;
-import com.indico.mutation.PdfExtraction;
 
 /**
  * Indico client with all available top level query and mutations
@@ -32,6 +30,8 @@ public class IndicoClient implements AutoCloseable {
 
         this.okHttpClient = new OkHttpClient.Builder()
                 .authenticator(new TokenAuthenticator(serverURL, config.apiToken))
+                .readTimeout(config.connectionReadTimeout, TimeUnit.SECONDS)
+                .writeTimeout(config.connectionWriteTimeout, TimeUnit.SECONDS)
                 .build();
 
         this.dispatcher = dispatcher(config.maxConnections);
@@ -75,6 +75,11 @@ public class IndicoClient implements AutoCloseable {
         return new PdfExtraction(this.apolloClient);
     }
 
+    /**
+     * Create a new mutation to submit document for extraction
+     * @return DocumentExtraction
+     */
+    public DocumentExtraction documentExtraction() { return new DocumentExtraction(this.apolloClient); }
     /**
      * Create a new query for a workflow
      *
