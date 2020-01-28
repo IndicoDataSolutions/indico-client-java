@@ -18,16 +18,33 @@ public class ModelGroupLoad implements Mutation<String> {
         this.apolloClient = apolloClient;
     }
 
+    /**
+     * Use to load ModelGroup
+     * 
+     * @param modelGroup ModelGroup
+     * @return ModelGroupLoad
+     */
     public ModelGroupLoad modelGroup(ModelGroup modelGroup) {
         modelId = modelGroup.selectedModel.id;
         return this;
     }
 
+    /**
+     * Use to load ModelGroup by id
+     * 
+     * @param modelId Model id
+     * @return ModelGroupLoad
+     */
     public ModelGroupLoad modelId(int modelId) {
         this.modelId = modelId;
         return this;
     }
 
+    /**
+     * Executes request and returns load status 
+     * 
+     * @return Load status
+     */
     @Override
     public String execute() {
         ApolloCall<LoadModelGraphQLMutation.Data> apolloCall = this.apolloClient.mutate(LoadModelGraphQLMutation.builder()

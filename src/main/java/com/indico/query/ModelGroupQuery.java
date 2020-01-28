@@ -24,7 +24,7 @@ public class ModelGroupQuery implements Query<ModelGroup> {
      * Use to query ModelGroup by id
      *
      * @param id
-     * @return WorkflowQuery
+     * @return ModelGroupQuery
      */
     public ModelGroupQuery id(int id) {
         this.id = id;
@@ -35,13 +35,18 @@ public class ModelGroupQuery implements Query<ModelGroup> {
      * Use to query ModelGroup by name
      *
      * @param name
-     * @return WorkflowQuery
+     * @return ModelGroupQuery
      */
     public ModelGroupQuery name(String name) {
         this.name = name;
         return this;
     }
 
+    /**
+     * Queries the server and returns ModelGroup
+     * 
+     * @return ModelGroup
+     */
     @Override
     public ModelGroup query() {
         ArrayList<Integer> modelGroupIds = new ArrayList<>();
@@ -53,6 +58,12 @@ public class ModelGroupQuery implements Query<ModelGroup> {
         return new ModelGroup(response.data().modelGroups().modelGroups().get(0));
     }
 
+    /**
+     * Refreshes the ModelGroup Object
+     * 
+     * @param obj ModelGroup
+     * @return ModelGroup
+     */
     @Override
     public ModelGroup refresh(ModelGroup obj) {
         return obj;

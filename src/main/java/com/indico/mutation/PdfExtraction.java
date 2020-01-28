@@ -29,21 +29,44 @@ public class PdfExtraction implements Mutation<Job> {
         this.options = new PdfExtractionOptions.Builder().build();
     }
 
+    /**
+     * List of PDF File(s)
+     * 
+     * @param data List of files
+     * @return PdfExtraction
+     */
     public PdfExtraction data(List<String> data) {
         this.data = data;
         return this;
     }
 
+    /**
+     * Options for pdf extraction
+     * 
+     * @param options Extraction options
+     * @return PdfExtraction
+     */
     public PdfExtraction pdfExtractionOptions(PdfExtractionOptions options) {
         this.options = options;
         return this;
     }
 
+    /**
+     * Job Options for Job
+     * 
+     * @param jobOptions Job options
+     * @return PdfExtraction
+     */
     public PdfExtraction jobOptions(JobOptions jobOptions) {
         this.jobOptions = jobOptions;
         return this;
     }
 
+    /**
+     * Executes request and returns job
+     * 
+     * @return Job 
+     */
     @Override
     public Job execute() {
         List<String> files;

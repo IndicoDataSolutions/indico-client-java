@@ -14,16 +14,33 @@ public class JobQuery implements Query<Job> {
         this.apolloClient = apolloClient;
     }
 
+    /**
+     * Use to query job by id
+     *
+     * @param id job id
+     * @return JobQuery
+     */
     public JobQuery id(String id) {
         this.id = id;
 
         return this;
     }
 
+    /**
+     * Returns Job
+     * 
+     * @return Job 
+     */
     public Job query() {
         return new Job(this.apolloClient, this.id);
     }
 
+    /**
+     * Refresh the Job
+     * 
+     * @param obj Job
+     * @return Job
+     */
     public Job refresh(Job obj) {
         return obj;
     }
