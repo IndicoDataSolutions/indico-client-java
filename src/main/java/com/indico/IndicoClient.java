@@ -11,7 +11,6 @@ import com.indico.storage.RetrieveBlob;
 import com.indico.storage.PurgeBlob;
 import com.indico.query.WorkflowQuery;
 import com.indico.mutation.WorkflowSubmission;
-import com.indico.auth.TokenAuthenticator;
 import com.indico.query.ModelGroupQuery;
 import com.indico.mutation.ModelGroupLoad;
 import com.indico.mutation.ModelGroupPredict;

@@ -1,4 +1,4 @@
-package com.indico.auth;
+package com.indico;
 
 import java.io.IOException;
 import okhttp3.Authenticator;
@@ -11,7 +11,7 @@ import okhttp3.Response;
 import okhttp3.Route;
 import org.json.JSONObject;
 
-public class TokenAuthenticator implements Authenticator {
+class TokenAuthenticator implements Authenticator {
 
     private final static MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     final String refreshToken;
