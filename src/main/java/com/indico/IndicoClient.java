@@ -11,7 +11,7 @@ import com.indico.jobs.JobQuery;
 import com.indico.storage.RetrieveBlob;
 import com.indico.storage.PurgeBlob;
 import com.indico.query.WorkflowQuery;
-import com.indico.auth.TokenAuthenticator;
+import com.indico.mutation.WorkflowSubmission;
 import com.indico.query.ModelGroupQuery;
 
 /**
