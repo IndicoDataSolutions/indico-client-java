@@ -1,0 +1,14 @@
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/Mutation.java
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/jobs/JobOptions.java
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/storage/RetrieveBlob.java
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/storage/PurgeBlobResult.java
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/IndicoClient.java
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/IndicoConfig.java
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/workflows/Workflow.java
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/storage/PurgeBlob.java
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/Enums.java
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/workflows/WorkflowSubmission.java
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/jobs/JobQuery.java
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/jobs/Job.java
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/Query.java
+/home/nkassis/projects/indico-client-java/src/main/java/com/indico/workflows/WorkflowQuery.java

@@ -8,78 +8,96 @@ import java.util.Base64;
 import java.util.List;
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
+import com.apollographql.apollo.api.Error;
 import com.apollographql.apollo.api.Response;
 
 import com.indico.Async;
+import com.indico.IndicoClient;
 import com.indico.Mutation;
 import com.indico.entity.DocumentExtractionOptions;
 import com.indico.jobs.Job;
 import com.indico.jobs.JobOptions;
 import com.indico.DocumentExtractionGraphQLMutation;
+import com.indico.storage.UploadFile;
+import com.indico.type.FileInput;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
-public class DocumentExtraction implements Mutation<Job> {
+public class DocumentExtraction implements Mutation<List<Job>> {
 
-    private List<String> data;
+    private List<String> files;
     private DocumentExtractionOptions options;
-    private JobOptions jobOptions;
-    private final ApolloClient apolloClient;
+    private JSONObject jsonConfig;
+    private final IndicoClient indicoClient;
 
-    public DocumentExtraction(ApolloClient apolloClient) {
-        this.apolloClient = apolloClient;
+    public DocumentExtraction(IndicoClient indicoClient) {
+        this.indicoClient = indicoClient;
         this.options = new DocumentExtractionOptions.Builder().build();
     }
 
-    public DocumentExtraction data(List<String> data) {
-        this.data = data;
+    public DocumentExtraction files(List<String> files) {
+        this.files = files;
+        this.jsonConfig = new JSONObject();
+        this.jsonConfig.put("preset_config", "simple");
         return this;
     }
 
-    public DocumentExtraction DocumentExtractionOptions(DocumentExtractionOptions options) {
-        this.options = options;
-        return this;
-    }
-
-    public DocumentExtraction jobOptions(JobOptions jobOptions) {
-        this.jobOptions = jobOptions;
+    public DocumentExtraction jsonConfig(JSONObject jsonConfig) {
+        this.jsonConfig = jsonConfig;
         return this;
     }
 
     @Override
-    public Job execute() {
-        List<String> files;
+    public List<Job> execute() {
+        JSONArray fileMetadata;
+        List<FileInput> files = new ArrayList<>();
         try {
-            files = this.process(this.data);
+            fileMetadata = this.upload(this.files);
+            for (Object f: fileMetadata) {
+                JSONObject uploadMeta = (JSONObject)f;
+                JSONObject meta = new JSONObject();
+                meta.put("name", uploadMeta.getString("name"));
+                meta.put("path", uploadMeta.getString("path"));
+                meta.put("upload_type", uploadMeta.getString("upload_type"));
+                FileInput input = FileInput.builder().filename(((JSONObject)f).getString("name")).filemeta(meta).build();
+                files.add(input);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e.fillInStackTrace());
         }
 
-        ApolloCall<DocumentExtractionGraphQLMutation.Data> apolloCall = apolloClient.mutate(DocumentExtractionGraphQLMutation.builder()
-                .data(files)
-                .singleColumn(this.options.singleColumn)
-                .text(this.options.text)
-                .rawText(this.options.rawText)
-                .tables(this.options.tables)
-                .metadata(this.options.metadata)
-                .forceRender(this.options.forceRender)
-                .detailed(this.options.detailed)
+        DocumentExtractionGraphQLMutation x = DocumentExtractionGraphQLMutation.builder()
+                .files(files)
+                .jsonConfig(this.jsonConfig)
+                .build();
+
+        ApolloCall<DocumentExtractionGraphQLMutation.Data> apolloCall = indicoClient.apolloClient.mutate(DocumentExtractionGraphQLMutation.builder()
+                .files(files)
+                .jsonConfig(this.jsonConfig)
                 .build());
+
+
         Response<DocumentExtractionGraphQLMutation.Data> response = (Response<DocumentExtractionGraphQLMutation.Data>) Async.executeSync(apolloCall).join();
-        String jobId = response.data().documentExtraction().jobId();
-        return new Job(this.apolloClient, jobId);
+        if (response.hasErrors()) {
+            StringBuilder errors = new StringBuilder();
+            for (Error err: response.errors()) {
+                errors.append(err.toString() + "\n");
+            }
+            String msg = errors.toString();
+            throw new RuntimeException("Failed to extract documents due to following error: \n" + msg);
+        }
+        List<String> jobIds = response.data().documentExtraction().jobIds();
+        List<Job> jobs = new ArrayList<>();
+        for (String id: jobIds) {
+            Job job = new Job(this.indicoClient.apolloClient, id);
+            jobs.add(job);
+        }
+
+        return jobs;
     }
 
-    private List<String> process(List<String> files) throws IOException {
-        ArrayList<String> docList = new ArrayList<>();
-        for (String url : files) {
-            File file = new File(url);
-            if (file.exists()) {
-                byte[] fileBytes = Files.readAllBytes(file.toPath());
-                String encodedb64 = Base64.getEncoder().encodeToString(fileBytes);
-                docList.add(encodedb64);
-            } else {
-                docList.add(url);
-            }
-        }
-        return docList;
+    private JSONArray upload(List<String> filePath) throws IOException {
+            UploadFile uploadRequest = new UploadFile(this.indicoClient);
+            return uploadRequest.filePaths(this.files).call();
     }
 }

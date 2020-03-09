@@ -5,6 +5,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import com.apollographql.apollo.ApolloClient;
 import com.indico.mutation.*;
+import com.indico.storage.UploadFile;
 import okhttp3.OkHttpClient;
 
 import com.indico.jobs.JobQuery;
@@ -20,8 +21,8 @@ import com.indico.query.ModelGroupQuery;
 public class IndicoClient implements AutoCloseable {
 
     public final IndicoConfig config;
-    private final OkHttpClient okHttpClient;
-    private final ApolloClient apolloClient;
+    public final OkHttpClient okHttpClient;
+    public final ApolloClient apolloClient;
     private final ThreadPoolExecutor dispatcher;
 
     public IndicoClient(IndicoConfig config) {
@@ -79,7 +80,7 @@ public class IndicoClient implements AutoCloseable {
      * Create a new mutation to submit document for extraction
      * @return DocumentExtraction
      */
-    public DocumentExtraction documentExtraction() { return new DocumentExtraction(this.apolloClient); }
+    public DocumentExtraction documentExtraction() { return new DocumentExtraction(this); }
     /**
      * Create a new query for a workflow
      *
@@ -113,7 +114,7 @@ public class IndicoClient implements AutoCloseable {
      * @return RetrieveBlob
      */
     public RetrieveBlob retrieveBlob() {
-        return new RetrieveBlob();
+        return new RetrieveBlob(this);
     }
 
     /**
@@ -124,6 +125,8 @@ public class IndicoClient implements AutoCloseable {
     public PurgeBlob purgeBlob() {
         return new PurgeBlob();
     }
+
+    public UploadFile uploadFile() { return new UploadFile( this); }
 
     /**
      * Closes the connnection to graphql server since the ThreadPool remains
