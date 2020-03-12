@@ -45,14 +45,11 @@ public class RetrieveBlob {
         // Drop gzip
         String path = url.split("://")[1];
         this.url = client.config.getAppBaseUrl() + "/" + path;
-        System.out.println(this.url);
         return this;
     }
 
     private Response retrieveBlob() throws IOException {
         Response response = this.client.okHttpClient.newCall(new Request.Builder().url(this.url).get().build()).execute();
-        System.out.println(response.code());
-        System.out.println(response.request().url());
         if (response.isSuccessful()) {
             return response;
         } else {
