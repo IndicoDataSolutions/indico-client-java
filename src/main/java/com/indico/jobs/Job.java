@@ -40,6 +40,11 @@ public class Job {
         return status;
     }
 
+    public String resultAsString() {
+        String result = this.fetchResult();
+        return result;
+    }
+
     /**
      * Retrieve result. Status must be success or an error will be thrown.
      *
@@ -71,12 +76,20 @@ public class Job {
                 .build());
         Response<JobResultGraphQLQuery.Data> response = (Response<JobResultGraphQLQuery.Data>) Async.executeSync(apolloCall).join();
         JobResultGraphQLQuery.Data data = response.data();
-        JobStatus status = data.job().status();
+
+        JobResultGraphQLQuery.Job job = data.job();
+        JobStatus status = job.status();
         if (status != JobStatus.SUCCESS) {
             throw new RuntimeException("Job finished with status : " + status.rawValue());
         }
-        String result = data.job().result().toString();
-        return result;
+
+        Object result = job.result();
+        if (null == result) {
+            throw new RuntimeException("Job has finished with no results");
+        }
+
+        String out = result.toString();
+        return out;
     }
 
     /**

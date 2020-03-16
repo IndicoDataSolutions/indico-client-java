@@ -91,6 +91,10 @@ public class IndicoConfig {
         }
     }
 
+    public String getAppBaseUrl() {
+        return this.protocol + "://" + this.host;
+    }
+
     private IndicoConfig(Builder builder) {
         this.apiToken = builder.apiToken;
         this.host = builder.host;
