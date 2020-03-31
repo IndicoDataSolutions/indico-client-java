@@ -25,6 +25,9 @@ public class DocumentExtractionOptions {
      * author, encryption status, program used to create the file, file size,
      * PDF version, optimized, modification date, title, creation date, number
      * of pages, page size.
+     * @param forceRender Force rendering to PNG instead of using text from
+     * native PDF.
+     * @param detailed Include detailed positional information.
      */
     private DocumentExtractionOptions(Builder builder) {
         this.singleColumn = builder.singleColumn;
@@ -70,7 +73,7 @@ public class DocumentExtractionOptions {
 
         /**
          * returns all body text for the PDF document in a single block.This
- text matches what you would see in Indico Teach.
+         * text matches what you would see in Indico Teach.
          *
          * @param rawText defaults to false
          * @return Builder instance
@@ -109,7 +112,7 @@ public class DocumentExtractionOptions {
         /**
          * Force rendering to PNG instead of using text from native PDF
          *
-         * @param metadata defaults to false
+         * @param forceRender defaults to false
          * @return Builder instance
          */
         public Builder forceRender(Boolean forceRender) {
@@ -120,7 +123,7 @@ public class DocumentExtractionOptions {
         /**
          * Include detailed positional information
          *
-         * @param metadata defaults to false
+         * @param detailed defaults to false
          * @return Builder instance
          */
         public Builder detailed(Boolean detailed) {

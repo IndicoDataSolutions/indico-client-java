@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UploadFile implements RestRequest<JSONArray> {
+
     private IndicoClient client;
     private List<File> files = new ArrayList<>();
 
@@ -20,6 +21,12 @@ public class UploadFile implements RestRequest<JSONArray> {
         this.client = client;
     }
 
+    /**
+     * Files to upload
+     *
+     * @param filePaths File paths
+     * @return UploadFile
+     */
     public UploadFile filePaths(List<String> filePaths) {
         for (String path : filePaths) {
             File file = new File(path);
@@ -33,12 +40,20 @@ public class UploadFile implements RestRequest<JSONArray> {
 
         return this;
     }
+
+    /**
+     * Upload files and return metadata
+     *
+     * @return JSONArray
+     * @throws IOException
+     */
+    @Override
     public JSONArray call() throws IOException {
         String uploadUrl = this.client.config.getAppBaseUrl() + "/storage/files/store";
 
         MultipartBody.Builder multipartBody = new MultipartBody.Builder().setType(MultipartBody.FORM);
 
-        for(File file : files) {
+        for (File file : files) {
             multipartBody.addFormDataPart(file.getName(), "file",
                     RequestBody.create(MediaType.parse("application/octet-stream"), file));
         }
@@ -49,12 +64,9 @@ public class UploadFile implements RestRequest<JSONArray> {
                 .post(requestBody)
                 .build();
 
-
         Response result = client.okHttpClient.newCall(request).execute();
         String body = result.body().string();
         JSONArray fileMeta = new JSONArray(body);
-        return (JSONArray)fileMeta;
+        return (JSONArray) fileMeta;
     }
 }
-
-
