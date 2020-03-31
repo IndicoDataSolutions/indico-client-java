@@ -41,7 +41,7 @@ public class LibraryTest {
         Assert.assertEquals("testModelGroup", mg.name);
         Assert.assertEquals(ModelStatus.COMPLETE, mg.status);
         Assert.assertEquals(1, mg.selectedModel.id);
-        Assert.assertEquals("test_value", mg.selectedModel.modelInfo.getString("test_key"));
+        Assert.assertEquals(ModelStatus.COMPLETE, mg.selectedModel.status);
     }
 
     @Test
