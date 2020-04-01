@@ -72,15 +72,6 @@ public class IndicoClient implements AutoCloseable {
     }
 
     /**
-     * Create a new mutation to submit PDF(s) to process by a PdfExtraction
-     *
-     * @return PdfExtraction
-     */
-    public PdfExtraction pdfExtraction() {
-        return new PdfExtraction(this.apolloClient);
-    }
-
-    /**
      * Create a new mutation to submit document for extraction
      *
      * @return DocumentExtraction
