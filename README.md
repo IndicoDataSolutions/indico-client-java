@@ -62,16 +62,6 @@
         }
         JSONArray jobResult = job.results();
 
-        // For Pdf Extraction
-        Job job = indico.pdfExtraction()
-                        .data(List<String>)
-                        .pdfExtractionOptions(PdfExtractionOptions)
-                        .execute();
-        while(job.status() == JobStatus.PENDING) {
-            Thread.sleep(1000);
-        }
-        JSONArray jobResult = job.results();
-
         // To Extract Documents
         List<Job> jobs = indico.documentExtraction()
                                .files(List<String>)
