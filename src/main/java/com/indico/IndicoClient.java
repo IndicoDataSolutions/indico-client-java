@@ -46,6 +46,7 @@ public class IndicoClient implements AutoCloseable {
 
     /**
      * Create a new Query for ModelGroup
+     *
      * @return ModelGroupQuery
      */
     public ModelGroupQuery modelGroupQuery() {
@@ -54,6 +55,7 @@ public class IndicoClient implements AutoCloseable {
 
     /**
      * Create a new mutation to predict data
+     *
      * @return ModelGroupPredict
      */
     public ModelGroupPredict modelGroupPredict() {
@@ -62,6 +64,7 @@ public class IndicoClient implements AutoCloseable {
 
     /**
      * Create a new mutation to load model in ModelGroup
+     *
      * @return ModelGroupLoad
      */
     public ModelGroupLoad modelGroupLoad() {
@@ -70,6 +73,7 @@ public class IndicoClient implements AutoCloseable {
 
     /**
      * Create a new mutation to submit PDF(s) to process by a PdfExtraction
+     *
      * @return PdfExtraction
      */
     public PdfExtraction pdfExtraction() {
@@ -78,9 +82,13 @@ public class IndicoClient implements AutoCloseable {
 
     /**
      * Create a new mutation to submit document for extraction
+     *
      * @return DocumentExtraction
      */
-    public DocumentExtraction documentExtraction() { return new DocumentExtraction(this); }
+    public DocumentExtraction documentExtraction() {
+        return new DocumentExtraction(this);
+    }
+
     /**
      * Create a new query for a workflow
      *
@@ -126,7 +134,14 @@ public class IndicoClient implements AutoCloseable {
         return new PurgeBlob();
     }
 
-    public UploadFile uploadFile() { return new UploadFile( this); }
+    /**
+     * Uploads files
+     *
+     * @return UploadFile
+     */
+    public UploadFile uploadFile() {
+        return new UploadFile(this);
+    }
 
     /**
      * Closes the connnection to graphql server since the ThreadPool remains

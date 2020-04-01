@@ -11,10 +11,11 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * Retrieve a blob
- * After setting the parameters to retrieve the blob use getInputStream to retrieve the content of the blob
+ * Retrieve a blob After setting the parameters to retrieve the blob use
+ * getInputStream to retrieve the content of the blob
  */
 public class RetrieveBlob {
+
     private String url;
     private IndicoClient client;
 
@@ -22,16 +23,22 @@ public class RetrieveBlob {
         this.client = client;
     }
 
+    /**
+     * Decompress GZip InputStream
+     *
+     * @param compressed Compressed InputStream
+     * @return Decompressed stream as string
+     * @throws IOException
+     */
     public String gzipDecompress(InputStream compressed) throws IOException {
         String uncompressed;
         try (
                 GZIPInputStream gis = new GZIPInputStream(compressed);
                 Reader reader = new InputStreamReader(gis);
-                Writer writer = new StringWriter()
-        ) {
+                Writer writer = new StringWriter()) {
 
             char[] buffer = new char[10240];
-            for (int length = 0; (length = reader.read(buffer)) > 0; ) {
+            for (int length = 0; (length = reader.read(buffer)) > 0;) {
                 writer.write(buffer, 0, length);
             }
             uncompressed = writer.toString();
@@ -40,6 +47,12 @@ public class RetrieveBlob {
         return uncompressed;
     }
 
+    /**
+     * Blob storage url
+     *
+     * @param url Blob url
+     * @return RetrieveBlob
+     */
     public RetrieveBlob url(String url) {
         url = url.replaceAll("\"", "");
         // Drop gzip
@@ -57,7 +70,7 @@ public class RetrieveBlob {
         }
     }
 
-    private InputStream getInputStream() throws IOException{
+    private InputStream getInputStream() throws IOException {
         Response response = this.retrieveBlob();
         InputStream data = response.body().byteStream();
         if (this.url.contains(".gz")) {
@@ -69,12 +82,12 @@ public class RetrieveBlob {
 
     /**
      * Execute retrieve blob from storage call.
+     *
      * @return Blob
      * @throws IOException
      */
     public Blob execute() throws IOException {
         return new Blob(this.getInputStream());
     }
-
 
 }

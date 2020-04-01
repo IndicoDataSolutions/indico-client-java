@@ -14,6 +14,6 @@ public class ModelGroup {
         this.id = modelGroup.id();
         this.name = modelGroup.name();
         this.status = modelGroup.status();
-        this.selectedModel = new Model(modelGroup.selectedModel().id(), modelGroup.selectedModel().modelInfo());
+        this.selectedModel = new Model(modelGroup.selectedModel().id(), modelGroup.selectedModel().status());
     }
 }

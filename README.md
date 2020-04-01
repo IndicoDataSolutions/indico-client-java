@@ -48,6 +48,10 @@
         String status = indico.modelGroupLoad()
                               .modelGroup(mg)
                               .execute();
+        // To Upload Files
+        JSONArray metadata = indico.uploadFile()
+                                   .filePaths(List<String>)
+                                   .call();
         // Predict Data
         Job job = indico.modelGroupPredict()
                         .modelGroup(mg)
@@ -67,5 +71,16 @@
             Thread.sleep(1000);
         }
         JSONArray jobResult = job.results();
+
+        // To Extract Documents
+        List<Job> jobs = indico.documentExtraction()
+                               .files(List<String>)
+                               .jsonConfig(JSONObject)
+                               .execute();
+
+        // To Fetch Result From Storage
+        Blob blob = indico.retrieveBlob()
+                          .url(string)
+                          .execute();
     }
 ```

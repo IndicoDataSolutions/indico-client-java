@@ -1,14 +1,14 @@
 package com.indico.entity;
 
-import org.json.JSONObject;
+import com.indico.type.ModelStatus;
 
 public class Model {
 
     public final int id;
-    public final JSONObject modelInfo;
+    public final ModelStatus status;
 
-    protected Model(int id, Object modelInfo) {
+    protected Model(int id, ModelStatus modelStatus) {
         this.id = id;
-        this.modelInfo = new JSONObject(modelInfo.toString());
+        this.status = modelStatus;
     }
 }
