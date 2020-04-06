@@ -5,15 +5,14 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import com.apollographql.apollo.ApolloClient;
 import com.indico.mutation.*;
+import com.indico.query.*;
 import com.indico.storage.UploadFile;
 import okhttp3.OkHttpClient;
 
 import com.indico.jobs.JobQuery;
 import com.indico.storage.RetrieveBlob;
 import com.indico.storage.PurgeBlob;
-import com.indico.query.WorkflowQuery;
 import com.indico.mutation.WorkflowSubmission;
-import com.indico.query.ModelGroupQuery;
 
 /**
  * Indico client with all available top level query and mutations
@@ -54,6 +53,15 @@ public class IndicoClient implements AutoCloseable {
     }
 
     /**
+     * Create a new Query for TrainingModelWithProgress
+     *
+     * @return TrainingModelWithProgressQuery
+     */
+    public TrainingModelWithProgressQuery trainingModelWithProgressQuery() {
+        return new TrainingModelWithProgressQuery(this);
+    }
+
+    /**
      * Create a new mutation to predict data
      *
      * @return ModelGroupPredict
@@ -69,15 +77,6 @@ public class IndicoClient implements AutoCloseable {
      */
     public ModelGroupLoad modelGroupLoad() {
         return new ModelGroupLoad(this.apolloClient);
-    }
-
-    /**
-     * Create a new mutation to submit PDF(s) to process by a PdfExtraction
-     *
-     * @return PdfExtraction
-     */
-    public PdfExtraction pdfExtraction() {
-        return new PdfExtraction(this.apolloClient);
     }
 
     /**

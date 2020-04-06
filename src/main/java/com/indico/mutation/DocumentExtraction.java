@@ -14,7 +14,6 @@ import com.apollographql.apollo.api.Response;
 import com.indico.Async;
 import com.indico.IndicoClient;
 import com.indico.Mutation;
-import com.indico.entity.DocumentExtractionOptions;
 import com.indico.jobs.Job;
 import com.indico.jobs.JobOptions;
 import com.indico.DocumentExtractionGraphQLMutation;
@@ -26,13 +25,11 @@ import org.json.JSONObject;
 public class DocumentExtraction implements Mutation<List<Job>> {
 
     private List<String> files;
-    private DocumentExtractionOptions options;
     private JSONObject jsonConfig;
     private final IndicoClient indicoClient;
 
     public DocumentExtraction(IndicoClient indicoClient) {
         this.indicoClient = indicoClient;
-        this.options = new DocumentExtractionOptions.Builder().build();
     }
 
     /**

@@ -1,5 +1,0 @@
-mutation PdfExtractionGraphQL($data: [String]!, $singleColumn: Boolean!, $text: Boolean!, $rawText: Boolean!, $tables: Boolean!, $metadata: Boolean!){
-    pdfExtraction(data: $data, singleColumn: $singleColumn, text: $text, rawText: $rawText, tables: $tables, metadata: $metadata){
-        jobId
-    }
-}

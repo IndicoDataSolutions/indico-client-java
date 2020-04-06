@@ -9,6 +9,7 @@ import com.apollographql.apollo.api.Response;
 import com.indico.Query;
 import com.indico.Async;
 import com.indico.ModelGroupGraphQLQuery;
+import com.indico.entity.Model;
 
 public class ModelGroupQuery implements Query<ModelGroup> {
 
@@ -44,7 +45,7 @@ public class ModelGroupQuery implements Query<ModelGroup> {
 
     /**
      * Queries the server and returns ModelGroup
-     * 
+     *
      * @return ModelGroup
      */
     @Override
@@ -55,12 +56,22 @@ public class ModelGroupQuery implements Query<ModelGroup> {
                 .modelGroupIds(modelGroupIds)
                 .build());
         Response<ModelGroupGraphQLQuery.Data> response = (Response<ModelGroupGraphQLQuery.Data>) Async.executeSync(apolloCall).join();
-        return new ModelGroup(response.data().modelGroups().modelGroups().get(0));
+        ModelGroupGraphQLQuery.ModelGroup mg = response.data().modelGroups().modelGroups().get(0);
+        Model model = new Model.Builder()
+                .id(mg.selectedModel().id())
+                .status(mg.selectedModel().status())
+                .build();
+        return new ModelGroup.Builder()
+                .id(mg.id())
+                .name(mg.name())
+                .status(mg.status())
+                .selectedModel(model)
+                .build();
     }
 
     /**
      * Refreshes the ModelGroup Object
-     * 
+     *
      * @param obj ModelGroup
      * @return ModelGroup
      */

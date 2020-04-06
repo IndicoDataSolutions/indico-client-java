@@ -1,0 +1,13 @@
+query ModelGroupProgressGraphQLQuery($id: Int) {
+    modelGroups(modelGroupIds: [$id]) {
+        modelGroups {
+            models {
+                id
+                status
+                trainingProgress {
+                    percentComplete
+                }
+            }
+        }
+    }
+}
