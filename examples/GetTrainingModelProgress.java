@@ -17,8 +17,8 @@ public class GetTrainingModelProgress {
         try (IndicoClient client = new IndicoClient(config)) {
             ModelGroupQuery modelGroupQuery = client.modelGroupQuery();
             TrainingModelWithProgressQuery trainingModelWithProgress = client.trainingModelWithProgressQuery();
-            ModelGroup modelGroup = modelGroupQuery.id(__MODEL_ID__).query();
-            Model model = trainingModelWithProgress.id(__MODEL_ID__).query();
+            ModelGroup modelGroup = modelGroupQuery.id(__MODEL_GROUP_ID__).query();
+            Model model = trainingModelWithProgress.id(__MODEL_GROUP_ID__).query();
             System.out.println(modelGroup.name);
             System.out.println("training status : " + model.status);
             System.out.println("percent complete : " + model.trainingProgress.percentComplete);
