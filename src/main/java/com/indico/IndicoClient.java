@@ -13,6 +13,7 @@ import com.indico.jobs.JobQuery;
 import com.indico.storage.RetrieveBlob;
 import com.indico.storage.PurgeBlob;
 import com.indico.mutation.WorkflowSubmission;
+import com.indico.request.GraphQLRequest;
 
 /**
  * Indico client with all available top level query and mutations
@@ -41,6 +42,14 @@ public class IndicoClient implements AutoCloseable {
                 .okHttpClient(this.okHttpClient)
                 .dispatcher(this.dispatcher)
                 .build();
+    }
+
+    /**
+     * Create a new GraphQL Request
+     * @return GraphQLRequest
+     */
+    public GraphQLRequest graphQLRequest() {
+        return new GraphQLRequest(this);
     }
 
     /**
