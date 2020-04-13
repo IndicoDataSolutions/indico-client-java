@@ -41,7 +41,9 @@ public class GraphQLRequest implements RestRequest<JSONObject> {
     public JSONObject call() throws IOException {
         JSONObject json = new JSONObject();
         json.put("query", this.query);
-        json.put("operationName", this.operationName);
+        if (this.operationName != null) {
+            json.put("operationName", this.operationName);
+        }
         if (this.variables != null) {
             json.put("variables", this.variables);
         }
@@ -55,7 +57,7 @@ public class GraphQLRequest implements RestRequest<JSONObject> {
                 .build();
 
         Response result = this.client.okHttpClient.newCall(request).execute();
-        
+
         String body = result.body().string();
         JSONObject response = new JSONObject(body);
         if (!response.isNull("errors")) {

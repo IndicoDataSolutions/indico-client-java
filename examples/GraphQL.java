@@ -28,7 +28,7 @@ public class GraphQL {
                     + "    }\n"
                     + "}";
 
-            JSONObject response = request.query(query).operationName("GetDatasets").call();
+            JSONObject response = request.query(query).call();
             System.out.println(response.toString());
         } catch (Exception e) {
             e.printStackTrace();
