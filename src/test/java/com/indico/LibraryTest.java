@@ -1,7 +1,6 @@
 package com.indico;
 
 import com.indico.entity.ModelGroup;
-import com.indico.entity.PdfExtractionOptions;
 import com.indico.jobs.Job;
 import com.indico.mutation.ModelGroupLoad;
 import com.indico.type.JobStatus;
@@ -55,17 +54,6 @@ public class LibraryTest {
         Job job = indico.modelGroupPredict()
                 .modelGroup(mg)
                 .data(new ArrayList<String>())
-                .execute();
-        Assert.assertEquals(JobStatus.SUCCESS, job.status());
-        JSONArray result = job.results();
-        Assert.assertEquals("test_value", result.getJSONObject(0).getString("test_key"));
-    }
-
-    @Test
-    void testPdfExtraction() throws IOException {
-        Job job = indico.pdfExtraction()
-                .data(new ArrayList<String>())
-                .pdfExtractionOptions(new PdfExtractionOptions.Builder().build())
                 .execute();
         Assert.assertEquals(JobStatus.SUCCESS, job.status());
         JSONArray result = job.results();

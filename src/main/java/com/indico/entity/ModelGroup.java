@@ -1,6 +1,5 @@
 package com.indico.entity;
 
-import com.indico.ModelGroupGraphQLQuery;
 import com.indico.type.ModelStatus;
 
 public class ModelGroup {
@@ -10,10 +9,42 @@ public class ModelGroup {
     public final ModelStatus status;
     public final Model selectedModel;
 
-    public ModelGroup(ModelGroupGraphQLQuery.ModelGroup modelGroup) {
-        this.id = modelGroup.id();
-        this.name = modelGroup.name();
-        this.status = modelGroup.status();
-        this.selectedModel = new Model(modelGroup.selectedModel().id(), modelGroup.selectedModel().status());
+    private ModelGroup(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.status = builder.status;
+        this.selectedModel = builder.selectedModel;
+    }
+
+    public static class Builder {
+
+        protected int id;
+        protected String name;
+        protected ModelStatus status;
+        protected Model selectedModel;
+
+        public Builder id(int id) {
+            this.id = id;
+            return this;
+        }
+
+        public Builder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public Builder status(ModelStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public Builder selectedModel(Model model) {
+            this.selectedModel = model;
+            return this;
+        }
+
+        public ModelGroup build() {
+            return new ModelGroup(this);
+        }
     }
 }

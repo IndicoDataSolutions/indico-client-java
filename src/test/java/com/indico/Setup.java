@@ -29,9 +29,6 @@ public class Setup {
         mockServer.when(getRequest("PredictModelGraphQL")).respond(
                 response().withBody(this.getPredictResponse().toString())
         );
-        mockServer.when(getRequest("PdfExtractionGraphQL")).respond(
-                response().withBody(this.getPdfExtractionResponse().toString())
-        );
         mockServer.when(getRequest("JobStatusGraphQL")).respond(
                 response().withBody(this.getJobResponse().toString())
         );
@@ -107,17 +104,6 @@ public class Setup {
         response.put("data", new JSONObject()
                 .put("modelPredict", new JSONObject()
                         .put("__typename", "ModelPredict")
-                        .put("jobId", "jobId_test")
-                )
-        );
-        return response;
-    }
-
-    private JSONObject getPdfExtractionResponse() {
-        JSONObject response = new JSONObject();
-        response.put("data", new JSONObject()
-                .put("pdfExtraction", new JSONObject()
-                        .put("__typename", "PDFExtraction")
                         .put("jobId", "jobId_test")
                 )
         );

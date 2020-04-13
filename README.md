@@ -44,6 +44,10 @@
         ModelGroup mg = indico.modelGroupQuery()
                               .id(int id)
                               .query();
+        // Get Training Model With Progress
+        ModelGroup mg = indico.trainingModelWithProgressQuery()
+                              .id(int id)
+                              .query();
         // Load Model
         String status = indico.modelGroupLoad()
                               .modelGroup(mg)
@@ -56,16 +60,6 @@
         Job job = indico.modelGroupPredict()
                         .modelGroup(mg)
                         .data(List<String>)
-                        .execute();
-        while(job.status() == JobStatus.PENDING) {
-            Thread.sleep(1000);
-        }
-        JSONArray jobResult = job.results();
-
-        // For Pdf Extraction
-        Job job = indico.pdfExtraction()
-                        .data(List<String>)
-                        .pdfExtractionOptions(PdfExtractionOptions)
                         .execute();
         while(job.status() == JobStatus.PENDING) {
             Thread.sleep(1000);
