@@ -51,3 +51,6 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 
 .idea
+
+# Ignore Gradle Peoperties
+gradle.properties

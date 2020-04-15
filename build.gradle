@@ -9,7 +9,8 @@ buildscript {
 
 plugins {
     id 'java-library'
-    id 'maven-publish'
+    id 'maven'
+    id 'signing'
     id 'eclipse'
     id 'idea'
 }
@@ -20,20 +21,64 @@ repositories {
     jcenter()
 }
 
-java {
-    withSourcesJar()
-    withJavadocJar()
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
 }
 
-//Local Maven Publishing
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            group='com.indico'
-            artifactId = 'indico-client'
-            version = '1.0-SNAPSHOT'
-            
-            from components.java
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+group = "com.indico"
+archivesBaseName = "indico-client-java"
+version = "3.1.0"
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUsername, password: ossrhPassword)
+            }
+
+            pom.project {
+                name 'Indico IPA Client'
+                packaging 'jar'
+                description 'Java client to the Indico IPA platform'
+                scm {
+                    connection 'scm:github.com:IndicoDataSolutions/indico-client-java.git'
+                    developerConnection 'scm:github.com:IndicoDataSolutions/indico-client-java.git'
+                    url 'https://github.com/IndicoDataSolutions/indico-client-java'
+                }
+                licenses {
+                    license {
+                        name 'MIT'
+                        url 'https://github.com/IndicoDataSolutions/indico-client-java/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'Indico'
+                        name 'Indico Engineering'
+                        email 'contact@indico.io'
+                    }
+                }
+            }
         }
     }
 }
