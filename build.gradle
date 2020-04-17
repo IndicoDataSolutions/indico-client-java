@@ -60,6 +60,7 @@ uploadArchives {
                 name 'Indico IPA Client'
                 packaging 'jar'
                 description 'Java client to the Indico IPA platform'
+                url 'http://indico.com'
                 scm {
                     connection 'scm:github.com:IndicoDataSolutions/indico-client-java.git'
                     developerConnection 'scm:github.com:IndicoDataSolutions/indico-client-java.git'
