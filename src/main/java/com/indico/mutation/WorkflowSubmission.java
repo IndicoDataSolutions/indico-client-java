@@ -1,8 +1,8 @@
 package com.indico.mutation;
 
 import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.api.Error;
+import com.apollographql.apollo.api.Response;
 import com.indico.Async;
 import com.indico.IndicoClient;
 import com.indico.Mutation;
