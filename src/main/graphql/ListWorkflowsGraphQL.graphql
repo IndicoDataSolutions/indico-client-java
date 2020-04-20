@@ -1,0 +1,8 @@
+query ListWorkflowsGraphQL($datasetId: Int){
+    workflows(datasetIds: [$datasetId]){
+        workflows {
+            id
+            name
+        }
+    }
+}

@@ -46,6 +46,7 @@ public class IndicoClient implements AutoCloseable {
 
     /**
      * Create a new GraphQL Request
+     *
      * @return GraphQLRequest
      */
     public GraphQLRequest graphQLRequest() {
@@ -113,6 +114,10 @@ public class IndicoClient implements AutoCloseable {
      */
     public WorkflowSubmission workflowSubmission() {
         return new WorkflowSubmission();
+    }
+
+    public ListWorkflowsForDatasetQuery listWorkflowsForDatasetQuery() {
+        return new ListWorkflowsForDatasetQuery(this);
     }
 
     /**
