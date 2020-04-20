@@ -113,7 +113,7 @@ public class IndicoClient implements AutoCloseable {
      * @return WorkflowSubmission
      */
     public WorkflowSubmission workflowSubmission() {
-        return new WorkflowSubmission();
+        return new WorkflowSubmission(this);
     }
 
     public ListWorkflowsForDatasetQuery listWorkflowsForDatasetQuery() {
