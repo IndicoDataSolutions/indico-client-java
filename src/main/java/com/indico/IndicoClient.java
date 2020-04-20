@@ -116,6 +116,10 @@ public class IndicoClient implements AutoCloseable {
         return new WorkflowSubmission(this);
     }
 
+    /**
+     * Create a new query to list workflows for dataset
+     * @return ListWorkflowsForDatasetQuery
+     */
     public ListWorkflowsForDatasetQuery listWorkflowsForDatasetQuery() {
         return new ListWorkflowsForDatasetQuery(this);
     }

@@ -25,17 +25,33 @@ public class WorkflowSubmission implements Mutation<Job> {
     public WorkflowSubmission(IndicoClient client) {
         this.client = client;
     }
-
+    
+    /**
+     * Files to submit
+     *
+     * @param files File paths
+     * @return WorkflowSubmission
+     */
     public WorkflowSubmission files(List<String> files) {
         this.files = files;
         return this;
     }
 
+    /**
+     * Workflow Id
+     * @param id Workflow Id
+     * @return WorkflowSubmission
+     */
     public WorkflowSubmission workflowId(int id) {
         this.id = id;
         return this;
     }
 
+    /**
+     * Executes request and returns Job
+     * @return Job 
+     */
+    @Override
     public Job execute() {
         JSONArray fileMetadata;
         List<FileInput> files = new ArrayList<>();

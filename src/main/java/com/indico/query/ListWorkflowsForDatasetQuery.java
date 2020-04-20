@@ -19,11 +19,20 @@ public class ListWorkflowsForDatasetQuery implements Query<List<Workflow>> {
         this.client = client;
     }
 
+    /**
+     * Use to query workflows by datasetId
+     * @param id Dataset Id
+     * @return ListWorkflowsForDatasetQuery
+     */
     public ListWorkflowsForDatasetQuery datasetId(int id) {
         this.datasetId = id;
         return this;
     }
 
+    /**
+     * Queries the server and returns Workflow List
+     * @return Workflow List
+     */
     @Override
     public List<Workflow> query() {
         ApolloCall<ListWorkflowsGraphQLQuery.Data> apolloCall = this.client.apolloClient.query(ListWorkflowsGraphQLQuery.builder()
