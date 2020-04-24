@@ -58,13 +58,16 @@ public class GraphQLRequest implements RestRequest<JSONObject> {
 
         Response result = this.client.okHttpClient.newCall(request).execute();
 
-        String body = result.body().string();
-        JSONObject response = new JSONObject(body);
+        String stringBody = result.body().string();
+        JSONObject response = new JSONObject(stringBody);
+        result.body().close();
+
         if (!response.isNull("errors")) {
             JSONArray errors = response.getJSONArray("errors");
             throw new ApolloException(errors.toString());
         }
         JSONObject data = response.getJSONObject("data");
+
         return data;
     }
 }
