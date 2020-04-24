@@ -41,7 +41,7 @@ signing {
 
 group = "com.indico"
 archivesBaseName = "indico-client-java"
-version = "3.1.0"
+version = "3.1.1"
 
 uploadArchives {
     repositories {
