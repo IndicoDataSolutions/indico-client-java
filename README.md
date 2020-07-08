@@ -80,9 +80,9 @@ queries for you.
 
 Several examples are provided in this repo:
 
-**GraphQL** - Place a GraphQL call to list your datasets
-**SingleDocExtraction** - OCR a single PDF file (a sample PDF is provided)
-**GetModelTrainingProgress** - Get % complete progress on a training model.
+* **GraphQL** - Place a GraphQL call to list your datasets
+* **SingleDocExtraction** - OCR a single PDF file (a sample PDF is provided)
+* **GetModelTrainingProgress** - Get % complete progress on a training model.
 
 The examples are setup as console apps in the repo's Visual Studio project.
 
