@@ -36,14 +36,14 @@
 ## Authentication
 
 The Indico Platform and Client Libraries use JSON Web Tokens (JWT) for user authentication. You can download a token 
-from your [user dashboard](https://app.indico.io/auth/account) by clicking the large, blue “Download new API Token” button. 
-Most browsers will download the API token as indico_api_token.txt and place it in your Downloads directory. You should move 
-the token file from Downloads to either your home directory another convenient location in your development environment. 
+from the account page in the [indico app](https://app.indico.io/auth/account) by clicking the large, blue “Download new API Token” 
+button. Most browsers will download the API token as indico_api_token.txt and place it in your Downloads directory. You should move 
+the token file from Downloads to either your home directory or another convenient location in your development environment. 
 
 ## Configuration
 
 ### IndicoConfig Class
-The IndicoConfig class gives you the maximum control over Java Client Library configuration. Here’s how you might instantiate 
+The IndicoConfig class gives you the maximum control over the Java Client Library's configuration. Here’s how you might instantiate 
 an IndicoConfig object and set the host and path to your API Token:
 ```
 IndicoConfig config = new IndicoConfig.Builder()
@@ -57,7 +57,7 @@ host, tokenPath, etc.
 ### API Client
 
 The Indico Platform uses GraphQL to communicate with ALL clients including the company’s own web application and also the 
-Indico Python Client. You’ll use an IndicoClient object to pass GraphQL queries to the Indico Platform. Here’s a simple way 
+Indico Java Client. You’ll use an IndicoClient object to pass GraphQL queries to the Indico Platform. Here’s a simple way 
 to create a client:
 ```
 IndicoClient client = new IndicoClient(config);
@@ -82,7 +82,7 @@ Several examples are provided in this repo:
 
 * **GraphQL** - Place a GraphQL call to list your datasets
 * **SingleDocExtraction** - OCR a single PDF file (a sample PDF is provided)
-* **GetModelTrainingProgress** - Get % complete progress on a training model.
+* **GetModelTrainingProgress** - Get % complete progress on a model that is training.
 
 The examples are setup as console apps in the repo's Visual Studio project.
 
@@ -97,8 +97,9 @@ IndicoConfig config = new IndicoConfig.Builder()
 IndicoClient client = new IndicoClient(config);
 ```
 
-### Get a Model Group
+### Get a Model Group 
 ```
+// You can find both the model group id and selected model id on the model's page in the "Explain" section of the app. 
 ModelGroup mg = indico.modelGroupQuery()
                     .id(int id)
                     .query();
@@ -113,8 +114,8 @@ String status = indico.modelGroupLoad()
 
 ### Get Model Predictions
 ```
-// It's always much more efficient to pass in a list to predict. A List of 3 or 3,000 samples
-// to predict is fine.
+// It's always much more efficient to pass in a list to predict. A List of either 3 or 3,000 samples
+// to predict would be fine.
 
 Job job = indico.modelGroupPredict()
                 .modelGroup(mg)
@@ -133,8 +134,8 @@ documentExtraction is extremely configurable. Five pre-set configurations are pr
 Most users will only need to use “standard” to get both document and page-level text and block positions in a nested 
 response format (returned object is a nested dictionary).
 
-The “simple” configuration provides a basic and fast (3-5x faster) OCR option for native PDFs- i.e. it will not work 
-with scanned documents. Returns document, page, and block-level text and the returned object is a nested dictionary.
+The “simple” configuration provides a basic and fast (3-5x faster) OCR option for native PDFs- i.e. it will NOT work 
+with scanned documents. It returns document, page, and block-level text and the returned object is a nested dictionary.
 
 The “legacy” configuration is principally intended for users who ran Indico’s original pdf_extraction function to 
 extract text and train models. Use “legacy” if you are adding samples to models that were trained with data using 
@@ -155,9 +156,9 @@ All of the available configuration options are described [here](https://indicoda
 DocumentExtraction extraction = client.documentExtraction();
 
 ArrayList<String> files = new ArrayList<>();
-files.add("__PDF_PATH__");
+files.add("__PATH_TO_A_PDF_");
 JSONObject json = new JSONObject();
-json.put("preset_config", "simple");
+json.put("preset_config", "standard");
 List<Job> jobs = extraction.files(files).jsonConfig(json).execute();
 
 Job job = jobs.get(0);
