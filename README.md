@@ -17,20 +17,11 @@
 ### Maven :
  in pom.xml : 
 ```
-    <dependencies>
-        <dependency>
-            <groupId>com.indico</groupId>
-            <artifactId>indico-client</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
-
-    <repositories>
-        <repository>
-            <id>jcenter</id>
-            <url>https://jcenter.bintray.com/</url>
-        </repository>
-    </repositories>
+<dependency>
+  <groupId>com.indico</groupId>
+  <artifactId>indico-client-java</artifactId>
+  <version>3.1.2</version>
+</dependency>
 ```
 
 ## Authentication
