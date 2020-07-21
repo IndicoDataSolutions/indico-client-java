@@ -1,5 +1,6 @@
 package com.indico;
 
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -180,7 +181,7 @@ public class IndicoClient implements AutoCloseable {
      */
     private ThreadPoolExecutor dispatcher(int maxConnections) {
         return new ThreadPoolExecutor(0, maxConnections, 60, TimeUnit.SECONDS,
-                new SynchronousQueue<>(), (Runnable runnable)
+                new LinkedBlockingQueue<>(), (Runnable runnable)
                 -> new Thread(runnable, "Apollo Dispatcher"));
     }
 }
