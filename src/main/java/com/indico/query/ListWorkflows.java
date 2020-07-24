@@ -7,25 +7,37 @@ import com.indico.IndicoClient;
 import com.indico.ListWorkflowsGraphQLQuery;
 import com.indico.Query;
 import com.indico.entity.Workflow;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListWorkflowsForDatasetQuery implements Query<List<Workflow>> {
+public class ListWorkflows implements Query<List<Workflow>> {
 
-    private int datasetId;
+    private List<Integer> datasetIds;
+    private List<Integer> workflowIds;
     private final IndicoClient client;
 
-    public ListWorkflowsForDatasetQuery(IndicoClient client) {
+    public ListWorkflows(IndicoClient client) {
         this.client = client;
     }
 
     /**
-     * Use to query workflows by datasetId
-     * @param id Dataset Id
-     * @return ListWorkflowsForDatasetQuery
+     * List of dataset ids to filter by
+     * @param ids Dataset Ids
+     * @return ListWorkflows
      */
-    public ListWorkflowsForDatasetQuery datasetId(int id) {
-        this.datasetId = id;
+    public ListWorkflows datasetIds(List<Integer> ids) {
+        this.datasetIds = ids;
+        return this;
+    }
+
+    /**
+     * List of workflow ids to filter by
+     * @param ids
+     * @return ListWorkflows
+     */
+    public ListWorkflows workflowIds(List<Integer> ids) {
+        this.workflowIds = ids;
         return this;
     }
 
@@ -36,7 +48,8 @@ public class ListWorkflowsForDatasetQuery implements Query<List<Workflow>> {
     @Override
     public List<Workflow> query() {
         ApolloCall<ListWorkflowsGraphQLQuery.Data> apolloCall = this.client.apolloClient.query(ListWorkflowsGraphQLQuery.builder()
-                .datasetId(this.datasetId)
+                .datasetIds(this.datasetIds)
+                .workflowIds(this.workflowIds)
                 .build());
         Response<ListWorkflowsGraphQLQuery.Data> response = (Response<ListWorkflowsGraphQLQuery.Data>) Async.executeSync(apolloCall).join();
         List<ListWorkflowsGraphQLQuery.Workflow> wf = response.data().workflows().workflows();
@@ -44,6 +57,7 @@ public class ListWorkflowsForDatasetQuery implements Query<List<Workflow>> {
         wf.forEach(workflow -> workflows.add(new Workflow.Builder()
                 .id(workflow.id())
                 .name(workflow.name())
+                .reviewEnabled(workflow.reviewEnabled())
                 .build()));
         return workflows;
     }
