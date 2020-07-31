@@ -18,7 +18,7 @@ public class WorkflowSubmission {
 
     public static void main(String args[]) throws IOException {
         IndicoConfig config = new IndicoConfig.Builder()
-                .host("dev.indico.io")
+                .host("app.indico.io")
                 .tokenPath("__TOKEN_PATH__")
                 .build();
 
