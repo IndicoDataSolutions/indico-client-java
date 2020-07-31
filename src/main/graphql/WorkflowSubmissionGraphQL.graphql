@@ -1,5 +1,5 @@
-mutation WorkflowSubmissionGraphQL($workflowId: Int!, $files: [FileInput]!) {
-    workflowSubmission(workflowId: $workflowId, files: $files) {
+mutation WorkflowSubmissionGraphQL($workflowId: Int!, $files: [FileInput]!, $recordSubmission: Boolean) {
+    workflowSubmission(workflowId: $workflowId, files: $files, recordSubmission: $recordSubmission) {
         submissionIds
     }
 }
