@@ -1,0 +1,5 @@
+mutation WorkflowSubmissionGraphQL($workflowId: Int!, $files: [FileInput]!, $recordSubmission: Boolean) {
+    workflowSubmission(workflowId: $workflowId, files: $files, recordSubmission: $recordSubmission) {
+        submissionIds
+    }
+}

@@ -32,7 +32,7 @@ public class WorkflowQuery implements Query<Workflow> {
     }
 
     public Workflow query() {
-        return new Workflow();
+        return new Workflow.Builder().build();
     }
 
     public Workflow refresh(Workflow obj) {

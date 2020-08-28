@@ -1,24 +1,18 @@
 package com.indico.mutation;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
 import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.api.Error;
 import com.apollographql.apollo.api.Response;
-
 import com.indico.Async;
+import com.indico.DocumentExtractionGraphQLMutation;
 import com.indico.IndicoClient;
 import com.indico.Mutation;
 import com.indico.jobs.Job;
-import com.indico.jobs.JobOptions;
-import com.indico.DocumentExtractionGraphQLMutation;
 import com.indico.storage.UploadFile;
 import com.indico.type.FileInput;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -80,11 +74,6 @@ public class DocumentExtraction implements Mutation<List<Job>> {
             throw new RuntimeException(e.getMessage(), e.fillInStackTrace());
         }
 
-        DocumentExtractionGraphQLMutation x = DocumentExtractionGraphQLMutation.builder()
-                .files(files)
-                .jsonConfig(this.jsonConfig)
-                .build();
-
         ApolloCall<DocumentExtractionGraphQLMutation.Data> apolloCall = indicoClient.apolloClient.mutate(DocumentExtractionGraphQLMutation.builder()
                 .files(files)
                 .jsonConfig(this.jsonConfig)
@@ -109,8 +98,8 @@ public class DocumentExtraction implements Mutation<List<Job>> {
         return jobs;
     }
 
-    private JSONArray upload(List<String> filePath) throws IOException {
+    private JSONArray upload(List<String> filePaths) throws IOException {
         UploadFile uploadRequest = new UploadFile(this.indicoClient);
-        return uploadRequest.filePaths(this.files).call();
+        return uploadRequest.filePaths(filePaths).call();
     }
 }

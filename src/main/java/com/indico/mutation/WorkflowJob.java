@@ -6,7 +6,8 @@ import com.apollographql.apollo.api.Response;
 import com.indico.Async;
 import com.indico.IndicoClient;
 import com.indico.Mutation;
-import com.indico.WorkflowSubmissionGraphQLMutation;
+import com.indico.WorkflowJobGraphQLMutation;
+import com.indico.jobs.Job;
 import com.indico.storage.UploadFile;
 import com.indico.type.FileInput;
 import org.json.JSONArray;
@@ -16,22 +17,22 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorkflowSubmission implements Mutation<List<Integer>> {
+public class WorkflowJob implements Mutation<List<Job>> {
 
     private final IndicoClient client;
     private List<String> files;
     private int id;
 
-    public WorkflowSubmission(IndicoClient client) {
+    public WorkflowJob(IndicoClient client) {
         this.client = client;
     }
-    
+
     /**
      * List of local file paths to submit
      * @param files File paths
-     * @return WorkflowSubmission
+     * @return WorkflowJob
      */
-    public WorkflowSubmission files(List<String> files) {
+    public WorkflowJob files(List<String> files) {
         this.files = files;
         return this;
     }
@@ -41,17 +42,17 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
      * @param id Workflow Id
      * @return WorkflowSubmission
      */
-    public WorkflowSubmission workflowId(int id) {
+    public WorkflowJob workflowId(int id) {
         this.id = id;
         return this;
     }
 
     /**
-     * Executes request and returns Submissions
-     * @return Integer List
+     * Executes request and returns Job
+     * @return Job
      */
     @Override
-    public List<Integer> execute() {
+    public List<Job> execute() {
         JSONArray fileMetadata;
         List<FileInput> files = new ArrayList<>();
         try {
@@ -69,12 +70,12 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
             throw new RuntimeException(e.getMessage(), e.fillInStackTrace());
         }
 
-        ApolloCall<WorkflowSubmissionGraphQLMutation.Data> apolloCall = this.client.apolloClient.mutate(WorkflowSubmissionGraphQLMutation.builder()
+        ApolloCall<WorkflowJobGraphQLMutation.Data> apolloCall = this.client.apolloClient.mutate(WorkflowJobGraphQLMutation.builder()
                 .files(files)
                 .workflowId(this.id)
                 .build());
 
-        Response<WorkflowSubmissionGraphQLMutation.Data> response = (Response<WorkflowSubmissionGraphQLMutation.Data>) Async.executeSync(apolloCall).join();
+        Response<WorkflowJobGraphQLMutation.Data> response = (Response<WorkflowJobGraphQLMutation.Data>) Async.executeSync(apolloCall).join();
         if (response.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             for (Error err : response.errors()) {
@@ -83,8 +84,14 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
             String msg = errors.toString();
             throw new RuntimeException("Failed to extract documents due to following error: \n" + msg);
         }
-        WorkflowSubmissionGraphQLMutation.WorkflowSubmission workflowSubmission = response.data().workflowSubmission();
-        return workflowSubmission.submissionIds();
+        WorkflowJobGraphQLMutation.WorkflowSubmission workflowSubmission = response.data().workflowSubmission();
+        List<String> jobIds = workflowSubmission.jobIds();
+        if(jobIds.isEmpty()) {
+            throw new RuntimeException("Failed to submit to workflow " + this.id);
+        }
+        List<Job> jobs = new ArrayList<>();
+        jobIds.forEach(jobId -> jobs.add(new Job(this.client.apolloClient, jobId)));
+        return jobs;
     }
 
     private JSONArray upload(List<String> filePaths) throws IOException {

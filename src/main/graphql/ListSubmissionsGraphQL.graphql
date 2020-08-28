@@ -1,0 +1,23 @@
+query ListSubmissionsGraphQL(
+    $submissionIds: [Int],
+    $workflowIds: [Int],
+    $filters: SubmissionFilter,
+    $limit: Int
+){
+    submissions(
+        submissionIds: $submissionIds,
+        workflowIds: $workflowIds,
+        filters: $filters,
+        limit: $limit
+    ){
+        submissions {
+            id
+            datasetId
+            workflowId
+            status
+            inputFile
+            inputFilename
+            resultFile
+        }
+    }
+}
