@@ -11,6 +11,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Hashtable;
+import java.util.Set;
+
+import com.indico.type.SubmissionStatus;
 import org.json.JSONObject;
 
 public class Submission {
@@ -33,7 +36,7 @@ public class Submission {
             ArrayList<String> files = new ArrayList<>();
             files.add("./path_to_file.pdf");
             List<Integer> submissionIds = workflowSubmission.files(files).workflowId(workflowId).execute();
-            int submissionId = submissionIds[0];
+            int submissionId = submissionIds.get(0);
             Job job = client.submissionResult().submission(submissionId).execute();
             
             while (job.status() == JobStatus.PENDING) {
@@ -61,14 +64,14 @@ public class Submission {
 
             for(Submission s : submissions) {
                 Job j = client.generateSubmissionResult().submission(s).execute();
-                resultFiles.put(submission, j);
+                resultFiles.put(s, j);
             }
             
             // Do other fun things
 
             Set<Submission> keySet = resultFiles.keySet();
-            for(Submission submission : keySet) {
-                Job job = resultFiles.get(submission);
+            for(Submission s : keySet) {
+                Job job = resultFiles.get(s);
 
                 while (job.status() == JobStatus.PENDING) {
                     Thread.sleep(1000);
