@@ -70,6 +70,6 @@ public class SubmissionResult implements Mutation<Job> {
         if(checkStatus != null) {
             return status.equals(checkStatus);
         }
-        return status.equals(SubmissionStatus.PROCESSING);
+        return !status.equals(SubmissionStatus.PROCESSING);
     }
 }
