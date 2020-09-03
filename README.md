@@ -20,7 +20,7 @@
 <dependency>
   <groupId>com.indico</groupId>
   <artifactId>indico-client-java</artifactId>
-  <version>3.1.2</version>
+  <version>4.0.2</version>
 </dependency>
 ```
 
