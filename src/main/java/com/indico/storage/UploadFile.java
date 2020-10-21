@@ -1,11 +1,10 @@
 package com.indico.storage;
 
 import com.indico.IndicoClient;
+import com.indico.JSON;
 import com.indico.RestRequest;
 import okhttp3.*;
 import org.json.JSONArray;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,7 +65,7 @@ public class UploadFile implements RestRequest<JSONArray> {
 
         Response result = client.okHttpClient.newCall(request).execute();
         String body = result.body().string();
-        JSONArray fileMeta = new JSONArray(body);
+        JSONArray fileMeta = new JSON(body).asJSONArray();
         return (JSONArray) fileMeta;
     }
 }

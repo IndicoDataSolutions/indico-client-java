@@ -6,6 +6,7 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.api.Response;
 import com.indico.Async;
+import com.indico.JSON;
 import com.indico.type.JobStatus;
 import com.indico.JobStatusGraphQLQuery;
 import com.indico.JobResultGraphQLQuery;
@@ -52,7 +53,7 @@ public class Job {
      */
     public JSONObject result() {
         String result = this.fetchResult();
-        return new JSONObject(result);
+        return new JSON(result).asJSONObject();
     }
 
     /**
@@ -62,7 +63,7 @@ public class Job {
      */
     public JSONArray results() {
         String result = this.fetchResult();
-        return new JSONArray(result);
+        return new JSON(result).asJSONArray();
     }
 
     /**

@@ -44,7 +44,7 @@ class TokenAuthenticator implements Authenticator {
             Response refreshResponse = refreshCall.execute();
             if (refreshResponse != null && refreshResponse.code() == 200) {
                 String responseBody = refreshResponse.body().string();
-                JSONObject json = new JSONObject(responseBody);
+                JSONObject json = new JSON(responseBody).asJSONObject();
                 String authToken = (String) json.get("auth_token");
                 return response.request().newBuilder()
                         .header("Authorization", "Bearer " + authToken)
