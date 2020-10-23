@@ -3,6 +3,7 @@ package com.indico.request;
 import com.apollographql.apollo.exception.ApolloException;
 import com.indico.IndicoClient;
 import com.indico.RestRequest;
+import com.indico.JSON;
 import java.io.IOException;
 import okhttp3.MediaType;
 import okhttp3.Request;
@@ -59,7 +60,7 @@ public class GraphQLRequest implements RestRequest<JSONObject> {
         Response result = this.client.okHttpClient.newCall(request).execute();
 
         String stringBody = result.body().string();
-        JSONObject response = new JSONObject(stringBody);
+        JSONObject response = new JSON(stringBody).asJSONObject();
         result.body().close();
 
         if (!response.isNull("errors")) {

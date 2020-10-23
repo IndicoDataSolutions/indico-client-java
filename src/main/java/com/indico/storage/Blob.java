@@ -1,6 +1,8 @@
 package com.indico.storage;
 
+import com.indico.JSON;
 import okhttp3.Response;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.*;
@@ -51,7 +53,7 @@ public class Blob {
      */
     public JSONObject asJSONObject() throws IOException {
         String jsonString = this.asString();
-        return new JSONObject(jsonString);
+        return new JSON(jsonString).asJSONObject();
     }
 
     /**
@@ -60,8 +62,8 @@ public class Blob {
      * @return JSONArray
      * @throws IOException
      */
-    public JSONObject asJSONArray() throws IOException {
+    public JSONArray asJSONArray() throws IOException {
         String jsonString = this.asString();
-        return new JSONObject(jsonString);
+        return new JSON(jsonString).asJSONArray();
     }
 }
