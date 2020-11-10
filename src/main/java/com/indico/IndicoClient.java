@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
 import com.apollographql.apollo.ApolloClient;
 import com.indico.mutation.*;
 import com.indico.query.*;
@@ -117,20 +118,33 @@ public class IndicoClient implements AutoCloseable {
         return new WorkflowSubmission(this);
     }
 
-    public WorkflowJob workflowJob() { return new WorkflowJob(this); }
+    public WorkflowSubmissionDetailed workflowSubmissionDetailed() {
+        return new WorkflowSubmissionDetailed(this);
+    }
 
-    public GetSubmission getSubmission() { return new GetSubmission(this); }
+    public GetSubmission getSubmission() {
+        return new GetSubmission(this);
+    }
 
-    public UpdateSubmission updateSubmission() { return new UpdateSubmission(this); }
+    public UpdateSubmission updateSubmission() {
+        return new UpdateSubmission(this);
+    }
 
-    public ListSubmissions listSubmissions() { return new ListSubmissions(this); }
+    public ListSubmissions listSubmissions() {
+        return new ListSubmissions(this);
+    }
 
-    public GenerateSubmissionResult generateSubmissionResult() { return new GenerateSubmissionResult(this); }
+    public GenerateSubmissionResult generateSubmissionResult() {
+        return new GenerateSubmissionResult(this);
+    }
 
-    public SubmissionResult submissionResult() { return new SubmissionResult(this); }
+    public SubmissionResult submissionResult() {
+        return new SubmissionResult(this);
+    }
 
     /**
      * Create a new query to list workflows for dataset
+     *
      * @return ListWorkflowsForDatasetQuery
      */
     public ListWorkflows listWorkflows() {

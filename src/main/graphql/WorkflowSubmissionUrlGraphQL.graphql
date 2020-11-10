@@ -1,0 +1,6 @@
+mutation WorkflowSubmissionUrlGraphQL($workflowId: Int!, $urls: [String]!, $recordSubmission: Boolean) {
+    workflowUrlSubmission(workflowId: $workflowId, urls: $urls, recordSubmission: $recordSubmission) {
+        jobIds
+        submissionIds
+    }
+}

@@ -4,6 +4,7 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Error;
 import com.apollographql.apollo.api.Response;
 import com.indico.*;
+import com.indico.entity.Submission;
 import com.indico.storage.UploadFile;
 import com.indico.type.FileInput;
 import org.json.JSONArray;
@@ -13,33 +14,33 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WorkflowSubmission implements Mutation<List<Integer>> {
+public class WorkflowSubmissionDetailed implements Mutation<List<Submission>> {
     private IndicoClient client;
     private int workflowId;
     private List<String> files;
     private List<String> urls;
 
-    public WorkflowSubmission(IndicoClient client) {
+    public WorkflowSubmissionDetailed(IndicoClient client) {
         this.client = client;
     }
 
-    public WorkflowSubmission workflowId(int workflowId) {
+    public WorkflowSubmissionDetailed workflowId(int workflowId) {
         this.workflowId = workflowId;
         return this;
     }
 
-    public WorkflowSubmission files(List<String> files) {
+    public WorkflowSubmissionDetailed files(List<String> files) {
         this.files = files;
         return this;
     }
 
-    public WorkflowSubmission urls(List<String> urls) {
+    public WorkflowSubmissionDetailed urls(List<String> urls) {
         this.urls = urls;
         return this;
     }
 
     @Override
-    public List<Integer> execute() {
+    public List<Submission> execute() {
         if (this.files == null && this.urls == null) {
             throw new RuntimeException("One of 'files' or 'urls' must be specified");
         } else if (this.files != null && this.urls != null) {
@@ -64,12 +65,12 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
                 throw new RuntimeException(e.getMessage(), e.fillInStackTrace());
             }
 
-            ApolloCall<WorkflowSubmissionGraphQLMutation.Data> apolloCall = this.client.apolloClient.mutate(WorkflowSubmissionGraphQLMutation.builder()
+            ApolloCall<WorkflowSubmissionDetailedGraphQLMutation.Data> apolloCall = this.client.apolloClient.mutate(WorkflowSubmissionDetailedGraphQLMutation.builder()
                     .files(files)
                     .workflowId(this.workflowId)
                     .build());
 
-            Response<WorkflowSubmissionGraphQLMutation.Data> response = Async.executeSync(apolloCall).join();
+            Response<WorkflowSubmissionDetailedGraphQLMutation.Data> response = Async.executeSync(apolloCall).join();
             if (response.hasErrors()) {
                 StringBuilder errors = new StringBuilder();
                 for (Error err : response.errors()) {
@@ -79,14 +80,26 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
                 throw new RuntimeException("Failed to extract documents due to following error: \n" + msg);
             }
 
-            return response.data().workflowSubmission().submissionIds();
+            List<Submission> submissions = new ArrayList<>();
+            response.data().workflowSubmission().submissions().forEach(submission -> submissions.add(
+                    new Submission.Builder()
+                            .id(submission.id())
+                            .datasetId(submission.datasetId())
+                            .workflowId(submission.workflowId())
+                            .status(submission.status())
+                            .inputFile(submission.inputFile())
+                            .inputFilename(submission.inputFilename())
+                            .resultFile(submission.resultFile())
+                            .retrieved(submission.retrieved())
+                            .build()));
+            return submissions;
         } else {
-            ApolloCall<WorkflowSubmissionUrlGraphQLMutation.Data> apolloCall = this.client.apolloClient.mutate(WorkflowSubmissionUrlGraphQLMutation.builder()
+            ApolloCall<WorkflowSubmissionUrlDetailedGraphQLMutation.Data> apolloCall = this.client.apolloClient.mutate(WorkflowSubmissionUrlDetailedGraphQLMutation.builder()
                     .urls(this.urls)
                     .workflowId(this.workflowId)
                     .build());
 
-            Response<WorkflowSubmissionUrlGraphQLMutation.Data> response = Async.executeSync(apolloCall).join();
+            Response<WorkflowSubmissionUrlDetailedGraphQLMutation.Data> response = Async.executeSync(apolloCall).join();
             if (response.hasErrors()) {
                 StringBuilder errors = new StringBuilder();
                 for (Error err : response.errors()) {
@@ -96,7 +109,19 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
                 throw new RuntimeException("Failed to extract documents due to following error: \n" + msg);
             }
 
-            return response.data().workflowUrlSubmission().submissionIds();
+            List<Submission> submissions = new ArrayList<>();
+            response.data().workflowUrlSubmission().submissions().forEach(submission -> submissions.add(
+                    new Submission.Builder()
+                            .id(submission.id())
+                            .datasetId(submission.datasetId())
+                            .workflowId(submission.workflowId())
+                            .status(submission.status())
+                            .inputFile(submission.inputFile())
+                            .inputFilename(submission.inputFilename())
+                            .resultFile(submission.resultFile())
+                            .retrieved(submission.retrieved())
+                            .build()));
+            return submissions;
         }
     }
 
