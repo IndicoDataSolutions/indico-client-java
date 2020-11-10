@@ -49,12 +49,4 @@ public class GetSubmission implements Query<Submission> {
                 .retrieved(submission.retrieved())
                 .build();
     }
-
-    /**
-     * Refresh the Submission
-     * @param obj
-     * @return Submission
-     */
-    @Override
-    public Submission refresh(Submission obj) { return obj; }
 }

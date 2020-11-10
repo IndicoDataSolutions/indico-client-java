@@ -68,9 +68,4 @@ public class TrainingModelWithProgressQuery implements Query<Model> {
                 .trainingProgress(progress)
                 .build();
     }
-
-    @Override
-    public Model refresh(Model obj) {
-        return obj;
-    }
 }

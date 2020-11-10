@@ -91,12 +91,4 @@ public class ListSubmissions implements Query<List<Submission>> {
                 .build()));
         return submissions;
     }
-
-    /**
-     * Refresh the Submission List
-     * @param obj
-     * @return Submission List
-     */
-    @Override
-    public List<Submission> refresh(List<Submission> obj) { return obj; }
 }

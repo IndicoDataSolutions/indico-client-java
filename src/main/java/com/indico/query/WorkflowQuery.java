@@ -1,7 +1,6 @@
 package com.indico.query;
 
 import com.indico.entity.Workflow;
-import java.util.List;
 import com.indico.Query;
 
 
@@ -33,9 +32,5 @@ public class WorkflowQuery implements Query<Workflow> {
 
     public Workflow query() {
         return new Workflow.Builder().build();
-    }
-
-    public Workflow refresh(Workflow obj) {
-        return obj;
     }
 }

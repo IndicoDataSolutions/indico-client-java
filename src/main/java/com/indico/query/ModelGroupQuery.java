@@ -68,15 +68,4 @@ public class ModelGroupQuery implements Query<ModelGroup> {
                 .selectedModel(model)
                 .build();
     }
-
-    /**
-     * Refreshes the ModelGroup Object
-     *
-     * @param obj ModelGroup
-     * @return ModelGroup
-     */
-    @Override
-    public ModelGroup refresh(ModelGroup obj) {
-        return obj;
-    }
 }

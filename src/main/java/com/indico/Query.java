@@ -7,6 +7,4 @@ public interface Query<T> {
      * @return result of query of type T
      */
     public T query();
-    public T refresh(T obj);
-
 }

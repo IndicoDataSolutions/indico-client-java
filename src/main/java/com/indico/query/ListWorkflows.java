@@ -61,9 +61,4 @@ public class ListWorkflows implements Query<List<Workflow>> {
                 .build()));
         return workflows;
     }
-
-    @Override
-    public List<Workflow> refresh(List<Workflow> obj) {
-        return obj;
-    }
 }
