@@ -26,8 +26,4 @@ public class JSON {
             throw new JSONException(this.jsonString + " is invalid JSON Array");
         }
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 704f32a... Added better exceptions for json parsing
