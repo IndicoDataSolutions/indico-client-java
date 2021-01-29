@@ -22,7 +22,7 @@ public class LibraryTest {
 
     @BeforeAll
     public static void setup() throws IOException {
-        Setup setup = new Setup(8000);
+        Setup setup = new Setup(20000);
         mockServer = setup.getMockServer();
         indico = setup.getIndico();
         mg = indico.modelGroupQuery().id(1).query();
