@@ -17,8 +17,6 @@ import com.indico.storage.PurgeBlob;
 import com.indico.mutation.WorkflowSubmission;
 import com.indico.request.GraphQLRequest;
 
-import javax.imageio.IIOException;
-
 /**
  * Indico client with all available top level query and mutations
  */
