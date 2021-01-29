@@ -1,5 +1,6 @@
 package com.indico;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -30,8 +31,17 @@ public class IndicoClient implements AutoCloseable {
         this.config = config;
         String serverURL = config.protocol + "://" + config.host;
 
+        AuthorizationInterceptor interceptor = new AuthorizationInterceptor(serverURL, config.apiToken);
+
+        try {
+            interceptor.refreshAuthState();
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+
         this.okHttpClient = new OkHttpClient.Builder()
-                .authenticator(new TokenAuthenticator(serverURL, config.apiToken))
+                .authenticator(new TokenAuthenticator(interceptor))
+                .addInterceptor(interceptor)
                 .readTimeout(config.connectionReadTimeout, TimeUnit.SECONDS)
                 .writeTimeout(config.connectionWriteTimeout, TimeUnit.SECONDS)
                 .build();
