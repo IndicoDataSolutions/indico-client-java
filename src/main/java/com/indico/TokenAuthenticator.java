@@ -35,6 +35,6 @@ class TokenAuthenticator implements Authenticator {
     @Override
     public Request authenticate(Route route, Response response) throws IOException {
         interceptor.refreshAuthState();
-        return response.request().newBuilder().build();
+        return response.request().newBuilder().header("Authorization", interceptor.authHeader()).build();
     }
 }

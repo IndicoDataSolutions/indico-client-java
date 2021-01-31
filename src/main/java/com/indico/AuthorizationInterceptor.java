@@ -16,16 +16,20 @@ public class AuthorizationInterceptor implements Interceptor{
         this.refreshToken = refreshToken;
         this.serverURL = serverURL;
     }
-
+    
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request().newBuilder()
-                .addHeader("Authorization", "Bearer " + authToken)
+                .addHeader("Authorization", authHeader())
                 .build();
 
         return chain.proceed(request);
     }
 
+    public String authHeader() {
+        return "Bearer " + authToken;
+    }
+    
     public void refreshAuthState() throws IOException {
         Call refreshCall = refreshAccessToken(this.serverURL, this.refreshToken);
         Response refreshResponse = refreshCall.execute();
