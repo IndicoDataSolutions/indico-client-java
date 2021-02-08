@@ -11,9 +11,11 @@ import com.indico.entity.Submission;
 public class GetSubmission implements Query<Submission> {
     private final IndicoClient client;
     private int submissionId;
+    private final int maxRetries;
 
     public GetSubmission(IndicoClient client) {
         this.client = client;
+        maxRetries = this.client.config.maxRetries;
     }
 
     /**
@@ -36,7 +38,7 @@ public class GetSubmission implements Query<Submission> {
                 .submissionId(this.submissionId)
                 .build());
 
-        Response<GetSubmissionGraphQLQuery.Data> response = (Response<GetSubmissionGraphQLQuery.Data>) Async.executeSync(apolloCall).join();
+        Response<GetSubmissionGraphQLQuery.Data> response = (Response<GetSubmissionGraphQLQuery.Data>) Async.executeSync(apolloCall, maxRetries).join();
         GetSubmissionGraphQLQuery.Submission submission = response.data().submission();
         return new Submission.Builder()
                 .id(submission.id())

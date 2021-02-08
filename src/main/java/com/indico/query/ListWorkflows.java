@@ -51,7 +51,7 @@ public class ListWorkflows implements Query<List<Workflow>> {
                 .datasetIds(this.datasetIds)
                 .workflowIds(this.workflowIds)
                 .build());
-        Response<ListWorkflowsGraphQLQuery.Data> response = (Response<ListWorkflowsGraphQLQuery.Data>) Async.executeSync(apolloCall).join();
+        Response<ListWorkflowsGraphQLQuery.Data> response = (Response<ListWorkflowsGraphQLQuery.Data>) Async.executeSync(apolloCall, this.client.config).join();
         List<ListWorkflowsGraphQLQuery.Workflow> wf = response.data().workflows().workflows();
         List<Workflow> workflows = new ArrayList<>();
         wf.forEach(workflow -> workflows.add(new Workflow.Builder()

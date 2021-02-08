@@ -44,6 +44,7 @@ public class IndicoClient implements AutoCloseable {
                 .addInterceptor(interceptor)
                 .readTimeout(config.connectionReadTimeout, TimeUnit.SECONDS)
                 .writeTimeout(config.connectionWriteTimeout, TimeUnit.SECONDS)
+                .connectTimeout(config.connectTimeout, TimeUnit.SECONDS)
                 .build();
 
         this.dispatcher = dispatcher(config.maxConnections);
@@ -70,7 +71,7 @@ public class IndicoClient implements AutoCloseable {
      * @return ModelGroupQuery
      */
     public ModelGroupQuery modelGroupQuery() {
-        return new ModelGroupQuery(this.apolloClient);
+        return new ModelGroupQuery(this);
     }
 
     /**
@@ -88,7 +89,7 @@ public class IndicoClient implements AutoCloseable {
      * @return ModelGroupPredict
      */
     public ModelGroupPredict modelGroupPredict() {
-        return new ModelGroupPredict(this.apolloClient);
+        return new ModelGroupPredict(this);
     }
 
     /**
@@ -97,7 +98,7 @@ public class IndicoClient implements AutoCloseable {
      * @return ModelGroupLoad
      */
     public ModelGroupLoad modelGroupLoad() {
-        return new ModelGroupLoad(this.apolloClient);
+        return new ModelGroupLoad(this);
     }
 
     /**
@@ -153,7 +154,7 @@ public class IndicoClient implements AutoCloseable {
      * @return JobQuery
      */
     public JobQuery jobQuery() {
-        return new JobQuery(this.apolloClient);
+        return new JobQuery(this);
     }
 
     /**

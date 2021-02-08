@@ -75,7 +75,7 @@ public class WorkflowJob implements Mutation<List<Job>> {
                 .workflowId(this.id)
                 .build());
 
-        Response<WorkflowJobGraphQLMutation.Data> response = (Response<WorkflowJobGraphQLMutation.Data>) Async.executeSync(apolloCall).join();
+        Response<WorkflowJobGraphQLMutation.Data> response = (Response<WorkflowJobGraphQLMutation.Data>) Async.executeSync(apolloCall, this.client.config).join();
         if (response.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             for (Error err : response.errors()) {
@@ -90,7 +90,7 @@ public class WorkflowJob implements Mutation<List<Job>> {
             throw new RuntimeException("Failed to submit to workflow " + this.id);
         }
         List<Job> jobs = new ArrayList<>();
-        jobIds.forEach(jobId -> jobs.add(new Job(this.client.apolloClient, jobId)));
+        jobIds.forEach(jobId -> jobs.add(new Job(this.client, jobId)));
         return jobs;
     }
 

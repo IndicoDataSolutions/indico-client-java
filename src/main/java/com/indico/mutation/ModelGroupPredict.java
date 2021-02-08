@@ -5,6 +5,7 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.api.Response;
 
+import com.indico.IndicoClient;
 import com.indico.jobs.Job;
 import com.indico.jobs.JobOptions;
 import com.indico.Async;
@@ -17,10 +18,10 @@ public class ModelGroupPredict implements Mutation<Job> {
     private int modelId;
     private List<String> data;
     private JobOptions jobOptions;
-    private final ApolloClient apolloClient;
-    
-    public ModelGroupPredict(ApolloClient apolloClient) {
-        this.apolloClient = apolloClient;
+    private final IndicoClient indicoClient;
+
+    public ModelGroupPredict(IndicoClient indicoClient) {
+        this.indicoClient = indicoClient;
     }
 
     /**
@@ -74,12 +75,12 @@ public class ModelGroupPredict implements Mutation<Job> {
      */
     @Override
     public Job execute() {
-        ApolloCall<PredictModelGraphQLMutation.Data> apolloCall = this.apolloClient.mutate(PredictModelGraphQLMutation.builder()
+        ApolloCall<PredictModelGraphQLMutation.Data> apolloCall = this.indicoClient.apolloClient.mutate(PredictModelGraphQLMutation.builder()
                 .modelId(modelId)
                 .data(data)
                 .build());
-        Response<PredictModelGraphQLMutation.Data> response = (Response<PredictModelGraphQLMutation.Data>) Async.executeSync(apolloCall).join();
+        Response<PredictModelGraphQLMutation.Data> response = (Response<PredictModelGraphQLMutation.Data>) Async.executeSync(apolloCall, this.indicoClient.config).join();
         String jobId = response.data().modelPredict().jobId();
-        return new Job(this.apolloClient,jobId);
+        return new Job(this.indicoClient,jobId);
     }
 }

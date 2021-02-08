@@ -1,5 +1,6 @@
 package com.indico.query;
 
+import com.indico.IndicoClient;
 import com.indico.entity.ModelGroup;
 import java.util.ArrayList;
 import com.apollographql.apollo.ApolloCall;
@@ -15,10 +16,10 @@ public class ModelGroupQuery implements Query<ModelGroup> {
 
     private int id;
     private String name;
-    private final ApolloClient apolloClient;
+    private final IndicoClient indicoClient;
 
-    public ModelGroupQuery(ApolloClient apolloClient) {
-        this.apolloClient = apolloClient;
+    public ModelGroupQuery(IndicoClient indicoClient) {
+        this.indicoClient = indicoClient;
     }
 
     /**
@@ -52,10 +53,10 @@ public class ModelGroupQuery implements Query<ModelGroup> {
     public ModelGroup query() {
         ArrayList<Integer> modelGroupIds = new ArrayList<>();
         modelGroupIds.add(this.id);
-        ApolloCall<ModelGroupGraphQLQuery.Data> apolloCall = this.apolloClient.query(ModelGroupGraphQLQuery.builder()
+        ApolloCall<ModelGroupGraphQLQuery.Data> apolloCall = this.indicoClient.apolloClient.query(ModelGroupGraphQLQuery.builder()
                 .modelGroupIds(modelGroupIds)
                 .build());
-        Response<ModelGroupGraphQLQuery.Data> response = (Response<ModelGroupGraphQLQuery.Data>) Async.executeSync(apolloCall).join();
+        Response<ModelGroupGraphQLQuery.Data> response = (Response<ModelGroupGraphQLQuery.Data>) Async.executeSync(apolloCall, this.indicoClient.config).join();
         ModelGroupGraphQLQuery.ModelGroup mg = response.data().modelGroups().modelGroups().get(0);
         Model model = new Model.Builder()
                 .id(mg.selectedModel().id())

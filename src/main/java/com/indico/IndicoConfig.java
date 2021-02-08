@@ -19,6 +19,8 @@ public class IndicoConfig {
     public final int maxConnections;
     public final int connectionReadTimeout;
     public final int connectionWriteTimeout;
+    public final int connectTimeout;
+    public final int maxRetries;
 
     public static class Builder {
 
@@ -28,6 +30,8 @@ public class IndicoConfig {
         protected int maxConnections = 10;
         protected int connectionReadTimeout = 60;
         protected int connectionWriteTimeout = 60;
+        protected int connectTimeout = 60;
+        protected int maxRetries = 2;
 
         public Builder apiToken(String apiToken) {
             this.apiToken = apiToken;
@@ -49,18 +53,49 @@ public class IndicoConfig {
             return this;
         }
 
+        /**
+         * Set the max read timeout in seconds for okHttpClient.
+         * Default: 60
+         * @param connectionReadTimeout
+         * @return
+         */
         public Builder connectionReadTimeout(int connectionReadTimeout) {
             this.connectionReadTimeout = connectionReadTimeout;
             return this;
         }
-
+        /**
+         * Set the max write timeout in seconds for okHttpClient.
+         * Default: 60
+         * @param connectionWriteTimeout
+         * @return
+         */
         public Builder connectionWriteTimeout(int connectionWriteTimeout) {
             this.connectionWriteTimeout = connectionWriteTimeout;
+            return this;
+        }
+        /**
+         * Set the max initial connection timeout in seconds for okHttpClient.
+         * Default: 60
+         * @param connectTimeout
+         * @return
+         */
+        public Builder connectTimeout(int connectTimeout) {
+            this.connectTimeout = connectTimeout;
             return this;
         }
 
         public Builder tokenPath(String tokenPath) throws IOException {
             this.apiToken = this.resolveApiToken(tokenPath);
+            return this;
+        }
+        /**
+         * Set the max initial retries of a call for network-related failures.
+         * Default: 5
+         * @param maxRetries
+         * @return
+         */
+        public Builder maxRetries(int maxRetries){
+            this.maxRetries = maxRetries;
             return this;
         }
 
@@ -102,5 +137,7 @@ public class IndicoConfig {
         this.maxConnections = builder.maxConnections;
         this.connectionWriteTimeout = builder.connectionWriteTimeout;
         this.connectionReadTimeout = builder.connectionReadTimeout;
+        this.connectTimeout = builder.connectTimeout;
+        this.maxRetries = builder.maxRetries;
     }
 }

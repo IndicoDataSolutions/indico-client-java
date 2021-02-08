@@ -3,15 +3,16 @@ package com.indico.jobs;
 import com.apollographql.apollo.ApolloClient;
 import java.util.List;
 
+import com.indico.IndicoClient;
 import com.indico.Query;
 
 public class JobQuery implements Query<Job> {
 
     private String id;
-    private final ApolloClient apolloClient;
+    private final IndicoClient indicoClient;
 
-    public JobQuery(ApolloClient apolloClient) {
-        this.apolloClient = apolloClient;
+    public JobQuery(IndicoClient indicoClient) {
+        this.indicoClient = indicoClient;
     }
 
     /**
@@ -32,7 +33,7 @@ public class JobQuery implements Query<Job> {
      * @return Job 
      */
     public Job query() {
-        return new Job(this.apolloClient, this.id);
+        return new Job(this.indicoClient, this.id);
     }
 
     /**
