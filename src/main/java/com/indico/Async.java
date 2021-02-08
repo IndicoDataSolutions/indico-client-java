@@ -3,6 +3,8 @@ package com.indico;
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
+
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 import com.apollographql.apollo.exception.ApolloHttpException;
@@ -10,7 +12,6 @@ import com.apollographql.apollo.exception.ApolloNetworkException;
 import org.jetbrains.annotations.NotNull;
 
 public class Async {
-
     /**
      * Synchronizes apollographql api calls with the help of dispatcher
      * Retries up to 3 times by default on Network or Http Exception.
@@ -56,8 +57,18 @@ public class Async {
                     throw e;
                 }
             });}
-            catch(ApolloNetworkException|ApolloHttpException e){
+            catch(ApolloNetworkException e){
+
                 if(retry < retries){
+                    retry++;
+                    return executeSync(apolloCall, retries, retry);
+                }
+                else{
+                    completableFuture.completeExceptionally(e);
+                }
+            }catch(ApolloHttpException e){
+                // could store this in an array but let's try this for now.
+                if(retry < retries && e.code() == 504 || e.code() == 503 || e.code() == 502){
                     retry++;
                     return executeSync(apolloCall, retries, retry);
                 }
