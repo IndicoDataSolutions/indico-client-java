@@ -31,7 +31,7 @@ public class IndicoConfig {
         protected int connectionReadTimeout = 60;
         protected int connectionWriteTimeout = 60;
         protected int connectTimeout = 60;
-        protected int maxRetries = 5;
+        protected int maxRetries = 2;
 
         public Builder apiToken(String apiToken) {
             this.apiToken = apiToken;
