@@ -48,7 +48,7 @@ public class UpdateSubmission implements Mutation<Submission> {
                 .retrieved(this.retrieved)
                 .build());
 
-        Response<UpdateSubmissionGraphQLMutation.Data> response = (Response<UpdateSubmissionGraphQLMutation.Data>) Async.executeSync(apolloCall).join();
+        Response<UpdateSubmissionGraphQLMutation.Data> response = (Response<UpdateSubmissionGraphQLMutation.Data>) Async.executeSync(apolloCall, this.client.config).join();
         UpdateSubmissionGraphQLMutation.UpdateSubmission submission = response.data().updateSubmission();
         return new Submission.Builder()
                 .id(submission.id())

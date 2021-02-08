@@ -76,7 +76,7 @@ public class ListSubmissions implements Query<List<Submission>> {
                 .limit(this.limit)
                 .build());
 
-        Response<ListSubmissionsGraphQLQuery.Data> response = (Response<ListSubmissionsGraphQLQuery.Data>) Async.executeSync(apolloCall).join();
+        Response<ListSubmissionsGraphQLQuery.Data> response = (Response<ListSubmissionsGraphQLQuery.Data>) Async.executeSync(apolloCall, this.client.config).join();
 
         List<ListSubmissionsGraphQLQuery.Submission> submissionList = response.data().submissions().submissions();
         ArrayList<Submission> submissions = new ArrayList<>();

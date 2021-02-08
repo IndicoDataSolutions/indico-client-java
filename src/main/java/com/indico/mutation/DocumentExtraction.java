@@ -79,7 +79,7 @@ public class DocumentExtraction implements Mutation<List<Job>> {
                 .jsonConfig(this.jsonConfig)
                 .build());
 
-        Response<DocumentExtractionGraphQLMutation.Data> response = (Response<DocumentExtractionGraphQLMutation.Data>) Async.executeSync(apolloCall).join();
+        Response<DocumentExtractionGraphQLMutation.Data> response = (Response<DocumentExtractionGraphQLMutation.Data>) Async.executeSync(apolloCall, indicoClient.config.maxRetries).join();
         if (response.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             for (Error err : response.errors()) {
@@ -91,7 +91,7 @@ public class DocumentExtraction implements Mutation<List<Job>> {
         List<String> jobIds = response.data().documentExtraction().jobIds();
         List<Job> jobs = new ArrayList<>();
         for (String id : jobIds) {
-            Job job = new Job(this.indicoClient.apolloClient, id);
+            Job job = new Job(this.indicoClient, id);
             jobs.add(job);
         }
 

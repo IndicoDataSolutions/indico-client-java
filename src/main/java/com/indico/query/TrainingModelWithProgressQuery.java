@@ -54,7 +54,7 @@ public class TrainingModelWithProgressQuery implements Query<Model> {
         ApolloCall<ModelGroupProgressGraphQLQuery.Data> apolloCall = this.client.apolloClient.query(ModelGroupProgressGraphQLQuery.builder()
                 .id(this.id)
                 .build());
-        Response<ModelGroupProgressGraphQLQuery.Data> response = (Response<ModelGroupProgressGraphQLQuery.Data>) Async.executeSync(apolloCall).join();
+        Response<ModelGroupProgressGraphQLQuery.Data> response = (Response<ModelGroupProgressGraphQLQuery.Data>) Async.executeSync(apolloCall, this.client.config).join();
         List<ModelGroupProgressGraphQLQuery.ModelGroup> modelGroups = response.data().modelGroups().modelGroups();
         if (modelGroups.size() != 1) {
             throw new RuntimeException("Cannot find Model Group");

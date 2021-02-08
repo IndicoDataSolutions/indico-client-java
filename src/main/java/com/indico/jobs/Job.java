@@ -5,11 +5,8 @@ import java.util.ArrayList;
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.api.Response;
-import com.indico.Async;
-import com.indico.JSON;
+import com.indico.*;
 import com.indico.type.JobStatus;
-import com.indico.JobStatusGraphQLQuery;
-import com.indico.JobResultGraphQLQuery;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -19,10 +16,10 @@ import org.json.JSONObject;
 public class Job {
 
     public final String id;
-    private final ApolloClient apolloClient;
+    private final IndicoClient indicoClient;
 
-    public Job(ApolloClient apolloClient, String id) {
-        this.apolloClient = apolloClient;
+    public Job(IndicoClient indicoClient, String id) {
+        this.indicoClient = indicoClient;
         this.id = id;
     }
 
@@ -32,10 +29,10 @@ public class Job {
      * @return JobStatus
      */
     public JobStatus status() {
-        ApolloCall<JobStatusGraphQLQuery.Data> apolloCall = this.apolloClient.query(JobStatusGraphQLQuery.builder()
+        ApolloCall<JobStatusGraphQLQuery.Data> apolloCall = this.indicoClient.apolloClient.query(JobStatusGraphQLQuery.builder()
                 .id(this.id)
                 .build());
-        Response<JobStatusGraphQLQuery.Data> response = (Response<JobStatusGraphQLQuery.Data>) Async.executeSync(apolloCall).join();
+        Response<JobStatusGraphQLQuery.Data> response = (Response<JobStatusGraphQLQuery.Data>) Async.executeSync(apolloCall, this.indicoClient.config).join();
         JobStatusGraphQLQuery.Data data = response.data();
         JobStatus status = data.job().status();
         return status;
@@ -72,10 +69,10 @@ public class Job {
      * @return Result String
      */
     private String fetchResult() {
-        ApolloCall<JobResultGraphQLQuery.Data> apolloCall = this.apolloClient.query(JobResultGraphQLQuery.builder()
+        ApolloCall<JobResultGraphQLQuery.Data> apolloCall = this.indicoClient.apolloClient.query(JobResultGraphQLQuery.builder()
                 .id(this.id)
                 .build());
-        Response<JobResultGraphQLQuery.Data> response = (Response<JobResultGraphQLQuery.Data>) Async.executeSync(apolloCall).join();
+        Response<JobResultGraphQLQuery.Data> response = (Response<JobResultGraphQLQuery.Data>) Async.executeSync(apolloCall, this.indicoClient.config).join();
         JobResultGraphQLQuery.Data data = response.data();
 
         JobResultGraphQLQuery.Job job = data.job();

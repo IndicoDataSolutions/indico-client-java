@@ -74,7 +74,7 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
                 .workflowId(this.id)
                 .build());
 
-        Response<WorkflowSubmissionGraphQLMutation.Data> response = (Response<WorkflowSubmissionGraphQLMutation.Data>) Async.executeSync(apolloCall).join();
+        Response<WorkflowSubmissionGraphQLMutation.Data> response = (Response<WorkflowSubmissionGraphQLMutation.Data>) Async.executeSync(apolloCall, this.client.config).join();
         if (response.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             for (Error err : response.errors()) {

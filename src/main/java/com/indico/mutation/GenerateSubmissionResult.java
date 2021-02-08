@@ -34,9 +34,9 @@ public class GenerateSubmissionResult implements Mutation<Job> {
                 .submissionId(this.submissionId)
                 .build());
 
-        Response<CreateSubmissionResultsGraphQLMutation.Data> response = (Response<CreateSubmissionResultsGraphQLMutation.Data>) Async.executeSync(apolloCall).join();
+        Response<CreateSubmissionResultsGraphQLMutation.Data> response = (Response<CreateSubmissionResultsGraphQLMutation.Data>) Async.executeSync(apolloCall, this.client.config).join();
         CreateSubmissionResultsGraphQLMutation.SubmissionResults submissionResults = response.data().submissionResults();
         String jobId = submissionResults.jobId();
-        return new Job(this.client.apolloClient, jobId);
+        return new Job(this.client, jobId);
     }
 }
