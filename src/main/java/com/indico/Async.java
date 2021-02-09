@@ -4,6 +4,7 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -40,6 +41,7 @@ public class Async {
             CompletableFuture<Response<T>> completableFuture = new CompletableFuture<>();
             completableFuture.whenComplete((tResponse, throwable) -> {
             if (completableFuture.isCancelled()) {
+
                 completableFuture.cancel(true);
             }
         });
@@ -47,12 +49,12 @@ public class Async {
                 apolloCall.enqueue(new ApolloCall.Callback<T>() {
 
                     public void onResponse(Response<T> response) {
-                        counter.set(retries);
                         completableFuture.complete(response);
 
                     }
 
-                    public void onFailure(ApolloException e) {
+                    public void onFailure(ApolloException e)
+                    {
                         completableFuture.completeExceptionally(e);
                     }
 
@@ -61,6 +63,7 @@ public class Async {
                 //parse exception can happen when there is a protocol_error
                 //thrown by OKHttpClient
                 if(counter.get() < retries){
+                    System.out.println("Retrying..." + counter.toString());
                     completableFuture.cancel(true);
                     counter.incrementAndGet();
 
@@ -71,13 +74,16 @@ public class Async {
             }catch(ApolloHttpException e){
                 // could store this in an array but let's try this for now.
                 if(counter.get() < retries && e.code() == 504 || e.code() == 503 || e.code() == 502){
+                    System.out.println("Retrying..." + counter.toString());
                     completableFuture.cancel(true);
                     counter.incrementAndGet();
                 }
                 else{
+                    System.out.println("Failing..." + counter.toString());
                     throw new RuntimeException("Max number of retries met, giving up", e);
                 }
-            } catch(Exception ex){
+            }
+            catch(Exception ex){
                 completableFuture.completeExceptionally(ex);
             }
          return completableFuture;

@@ -58,6 +58,7 @@ public class AuthorizationInterceptor implements Interceptor{
     private Call refreshAccessToken(String serverURL, String apiToken) throws IOException {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .readTimeout(indicoConfig.connectionReadTimeout, TimeUnit.SECONDS)
+                .addInterceptor(new RetryInterceptor(indicoConfig))
                 .writeTimeout(indicoConfig.connectionWriteTimeout, TimeUnit.SECONDS)
                 .connectTimeout(indicoConfig.connectTimeout, TimeUnit.SECONDS)
                 .build();
