@@ -4,17 +4,21 @@ import okhttp3.*;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.util.concurrent.TimeUnit;
 
 public class AuthorizationInterceptor implements Interceptor{
     private final static MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     final String refreshToken;
     final String serverURL;
     private String authToken;
+    private final IndicoConfig indicoConfig;
 
 
-    public AuthorizationInterceptor(String serverURL, String refreshToken) {
+    public AuthorizationInterceptor(String serverURL, String refreshToken, IndicoConfig config) {
         this.refreshToken = refreshToken;
         this.serverURL = serverURL;
+        this.indicoConfig = config;
     }
     
     @Override
@@ -31,8 +35,16 @@ public class AuthorizationInterceptor implements Interceptor{
     }
     
     public void refreshAuthState() throws IOException {
-        Call refreshCall = refreshAccessToken(this.serverURL, this.refreshToken);
-        Response refreshResponse = refreshCall.execute();
+        Response refreshResponse = null;
+        for(int counter = 0; counter < indicoConfig.maxRetries; counter++) {
+            try{
+                Call refreshCall = refreshAccessToken(this.serverURL, this.refreshToken);
+                 refreshResponse = refreshCall.execute();
+            }
+            catch(Exception ex) {
+                continue;
+            }
+        }
         if (refreshResponse != null && refreshResponse.code() == 200) {
             String responseBody = refreshResponse.body().string();
             JSONObject json = new JSONObject(responseBody);
@@ -44,7 +56,11 @@ public class AuthorizationInterceptor implements Interceptor{
 
 
     private Call refreshAccessToken(String serverURL, String apiToken) throws IOException {
-        OkHttpClient okHttpClient = new OkHttpClient();
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .readTimeout(indicoConfig.connectionReadTimeout, TimeUnit.SECONDS)
+                .writeTimeout(indicoConfig.connectionWriteTimeout, TimeUnit.SECONDS)
+                .connectTimeout(indicoConfig.connectTimeout, TimeUnit.SECONDS)
+                .build();
         String refreshTokenURL = serverURL + "/auth/users/refresh_token";
         RequestBody requestBody = RequestBody.create(JSON, "{}");
 

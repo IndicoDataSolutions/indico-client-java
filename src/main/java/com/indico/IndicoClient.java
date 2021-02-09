@@ -31,7 +31,7 @@ public class IndicoClient implements AutoCloseable {
         this.config = config;
         String serverURL = config.protocol + "://" + config.host;
 
-        AuthorizationInterceptor interceptor = new AuthorizationInterceptor(serverURL, config.apiToken);
+        AuthorizationInterceptor interceptor = new AuthorizationInterceptor(serverURL, config.apiToken, config);
 
         try {
             interceptor.refreshAuthState();
