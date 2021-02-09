@@ -9,6 +9,7 @@ import java.util.concurrent.CompletableFuture;
 
 import com.apollographql.apollo.exception.ApolloHttpException;
 import com.apollographql.apollo.exception.ApolloNetworkException;
+import com.apollographql.apollo.exception.ApolloParseException;
 import org.jetbrains.annotations.NotNull;
 
 public class Async {
@@ -57,8 +58,9 @@ public class Async {
                     throw e;
                 }
             });}
-            catch(ApolloNetworkException e){
-
+            catch(ApolloNetworkException | ApolloParseException e){
+                //parse exception can happen when there is a protocol_error
+                //thrown by OKHttpClient
                 if(retry < retries){
                     retry++;
                     return executeSync(apolloCall, retries, retry);
