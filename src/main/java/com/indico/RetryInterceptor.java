@@ -29,15 +29,11 @@ public class RetryInterceptor  implements Interceptor {
                 success = false;
             }
             if(!success){
-                System.out.println(request.url());
-                System.out.println("Failed, retrying... " + tryCount);
+                response.close();
 
             }
         }
-        if(tryCount >= indicoConfig.maxRetries){
-            System.out.println(request.url());
-            System.out.println("Gave up...");
-        }
+
 
         return response;
     }
