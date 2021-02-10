@@ -17,12 +17,13 @@ public class SQSExample {
     private static final String HOST = "app.indico.io";
     private static final String TOKEN = "CHANGE_ME_TOKEN_PATH";
     private static final int WORKFLOW_ID = 0;
+    private static final Region REGION = Region.US_WEST_2;
 
     public static void main(String[] args) throws InterruptedException, IOException {
         //todo: configure your access accordingly before running
         //see: https://docs.aws.amazon.com/sdk-for-java/latest/developerx-guide/credentials.html
         SqsClient sqsClient = SqsClient.builder()
-                .region(Region.US_WEST_2)
+                .region(REGION)
                 .build();
         String queueUrl = QUEUE_NAME;
 
@@ -46,7 +47,8 @@ public class SQSExample {
         ReceiveMessageRequest request = ReceiveMessageRequest.builder()
                 .queueUrl(queueUrl)
                 .maxNumberOfMessages(5)
-                .visibilityTimeout(5)
+                //30 seconds -- see: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-visibility-timeout.html
+                .visibilityTimeout(30)
                 .build();
 
         //request the messages
