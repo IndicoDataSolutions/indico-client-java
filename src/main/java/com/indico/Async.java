@@ -4,6 +4,7 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
+
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
@@ -48,6 +49,7 @@ public class Async {
             try{
                 apolloCall.enqueue(new ApolloCall.Callback<T>() {
 
+
                     public void onResponse(Response<T> response) {
                         completableFuture.complete(response);
 
@@ -57,6 +59,7 @@ public class Async {
                     {
                         completableFuture.completeExceptionally(e);
                     }
+
 
                 });}
             catch(ApolloNetworkException | ApolloParseException e){
