@@ -4,14 +4,19 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
+
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.apollographql.apollo.exception.ApolloHttpException;
 import com.apollographql.apollo.exception.ApolloNetworkException;
+import com.apollographql.apollo.exception.ApolloParseException;
 import org.jetbrains.annotations.NotNull;
 
 public class Async {
+    static AtomicInteger counter = new AtomicInteger();
     /**
      * Synchronizes apollographql api calls with the help of dispatcher
      * Retries up to 3 times by default on Network or Http Exception.
@@ -32,52 +37,61 @@ public class Async {
      * @return
      */
     public static <T> CompletableFuture<Response<T>> executeSync(ApolloCall<T> apolloCall, int retries) {
-        CompletableFuture<Response<T>> completableFuture = new CompletableFuture<>();
-        return executeSync(apolloCall, retries, 0);
-    }
-
-    public static <T> CompletableFuture<Response<T>> executeSync(ApolloCall<T> apolloCall, int retries, int retry) {
-        CompletableFuture<Response<T>> completableFuture = new CompletableFuture<>();
-
-        completableFuture.whenComplete((tResponse, throwable) -> {
+        counter.set(0);
+        while(counter.get() < retries){
+            CompletableFuture<Response<T>> completableFuture = new CompletableFuture<>();
+            completableFuture.whenComplete((tResponse, throwable) -> {
             if (completableFuture.isCancelled()) {
+
                 completableFuture.cancel(true);
             }
         });
-
             try{
-            apolloCall.enqueue(new ApolloCall.Callback<T>() {
-                @Override
-                public void onResponse(@NotNull Response<T> response) {
-                    completableFuture.complete(response);
-                }
+                apolloCall.enqueue(new ApolloCall.Callback<T>() {
 
-                @Override
-                public void onFailure(@NotNull ApolloException e) {
-                    throw e;
-                }
-            });}
-            catch(ApolloNetworkException e){
 
-                if(retry < retries){
-                    retry++;
-                    return executeSync(apolloCall, retries, retry);
+                    public void onResponse(Response<T> response) {
+                        completableFuture.complete(response);
+
+                    }
+
+                    public void onFailure(ApolloException e)
+                    {
+                        completableFuture.completeExceptionally(e);
+                    }
+
+
+                });}
+            catch(ApolloNetworkException | ApolloParseException e){
+                //parse exception can happen when there is a protocol_error
+                //thrown by OKHttpClient
+                if(counter.get() < retries){
+                    System.out.println("Retrying..." + counter.toString());
+                    completableFuture.cancel(true);
+                    counter.incrementAndGet();
+
                 }
                 else{
-                    completableFuture.completeExceptionally(e);
+                    throw new RuntimeException("Max number of retries met, giving up", e);
                 }
             }catch(ApolloHttpException e){
                 // could store this in an array but let's try this for now.
-                if(retry < retries && e.code() == 504 || e.code() == 503 || e.code() == 502){
-                    retry++;
-                    return executeSync(apolloCall, retries, retry);
+                if(counter.get() < retries && e.code() == 504 || e.code() == 503 || e.code() == 502){
+                    System.out.println("Retrying..." + counter.toString());
+                    completableFuture.cancel(true);
+                    counter.incrementAndGet();
                 }
                 else{
-                    completableFuture.completeExceptionally(e);
+                    System.out.println("Failing..." + counter.toString());
+                    throw new RuntimeException("Max number of retries met, giving up", e);
                 }
             }
-
-        return completableFuture;
+            catch(Exception ex){
+                completableFuture.completeExceptionally(ex);
+            }
+         return completableFuture;
+        }
+        return new CompletableFuture<>();
     }
 
 

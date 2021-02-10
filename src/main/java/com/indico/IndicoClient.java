@@ -9,6 +9,7 @@ import com.apollographql.apollo.ApolloClient;
 import com.indico.mutation.*;
 import com.indico.query.*;
 import com.indico.storage.UploadFile;
+import com.sun.net.httpserver.Authenticator;
 import okhttp3.OkHttpClient;
 
 import com.indico.jobs.JobQuery;
@@ -31,8 +32,8 @@ public class IndicoClient implements AutoCloseable {
         this.config = config;
         String serverURL = config.protocol + "://" + config.host;
 
-        AuthorizationInterceptor interceptor = new AuthorizationInterceptor(serverURL, config.apiToken);
-
+        AuthorizationInterceptor interceptor = new AuthorizationInterceptor(serverURL, config.apiToken, config);
+        RetryInterceptor retryInterceptor = new RetryInterceptor(config);
         try {
             interceptor.refreshAuthState();
         } catch (IOException exception) {
@@ -42,6 +43,7 @@ public class IndicoClient implements AutoCloseable {
         this.okHttpClient = new OkHttpClient.Builder()
                 .authenticator(new TokenAuthenticator(interceptor))
                 .addInterceptor(interceptor)
+                .addInterceptor(retryInterceptor)
                 .readTimeout(config.connectionReadTimeout, TimeUnit.SECONDS)
                 .writeTimeout(config.connectionWriteTimeout, TimeUnit.SECONDS)
                 .connectTimeout(config.connectTimeout, TimeUnit.SECONDS)
