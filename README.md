@@ -7,10 +7,11 @@
 ```
     repositories {
         jcenter()
+        mavenCentral()
     }
 
     dependencies {
-        implementation 'com.indico:indico-client:1.0-SNAPSHOT'
+        implementation 'com.indico:indico-client-java:4.0.6'
     }
 ```
 
