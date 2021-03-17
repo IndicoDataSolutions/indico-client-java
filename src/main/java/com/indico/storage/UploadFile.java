@@ -53,7 +53,7 @@ public class UploadFile implements RestRequest<JSONArray> {
         MultipartBody.Builder multipartBody = new MultipartBody.Builder().setType(MultipartBody.FORM);
 
         for (File file : files) {
-            multipartBody.addFormDataPart(file.getName(), "file",
+            multipartBody.addFormDataPart(file.getName(), file.getName(),
                     RequestBody.create(MediaType.parse("application/octet-stream"), file));
         }
 
