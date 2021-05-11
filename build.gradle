@@ -41,7 +41,7 @@ signing {
 
 group = "com.indico"
 archivesBaseName = "indico-client-java"
-version = "4.0.8"
+version = "4.11.0"
 
 uploadArchives {
     repositories {
@@ -94,6 +94,7 @@ dependencies {
     testImplementation('org.junit.jupiter:junit-jupiter:5.5.2')
     testImplementation('org.mock-server:mockserver-netty:5.8.0')
     implementation('com.apollographql.apollo:apollo-runtime:1.2.2')
+    implementation('org.apache.logging.log4j:log4j-1.2-api:2.14.1')
     api('org.json:json:20190722')
     compileOnly("org.jetbrains:annotations:13.0")
     testCompileOnly("org.jetbrains:annotations:13.0")  

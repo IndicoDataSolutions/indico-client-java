@@ -1,12 +1,16 @@
 package com.indico;
 
 import okhttp3.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
 
+
 public class RetryInterceptor  implements Interceptor {
     private final IndicoConfig indicoConfig;
+    private final Logger logger = LogManager.getLogger(RetryInterceptor.class);
 
     public RetryInterceptor(IndicoConfig indicoConfig) {
         this.indicoConfig = indicoConfig;
@@ -27,14 +31,18 @@ public class RetryInterceptor  implements Interceptor {
 
             } catch(IOException ex){
                 success = false;
+                logger.trace("Failed to complete the request for" + request.url() + "retrying: " + ex.getMessage());
             }
             if(!success){
-                response.close();
-
+                logger.trace("attempt " + tryCount + " failed for " + request.url() );
+                if(response != null && (tryCount + 1) < indicoConfig.maxRetries)
+                {
+                    response.close();
+                    logger.debug("Failed due to status code: " + response.code());
+                }
             }
         }
-
-
+        logger.trace("Completed in " + tryCount + " attempts. Successfully? " + success);
         return response;
     }
 }

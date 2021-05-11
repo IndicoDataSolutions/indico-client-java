@@ -6,9 +6,14 @@ import com.apollographql.apollo.api.Response;
 import com.indico.Async;
 import com.indico.IndicoClient;
 import com.indico.Mutation;
+import com.indico.RetryInterceptor;
 import com.indico.WorkflowSubmissionGraphQLMutation;
 import com.indico.storage.UploadFile;
 import com.indico.type.FileInput;
+
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -16,11 +21,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+
+
 public class WorkflowSubmission implements Mutation<List<Integer>> {
 
     private final IndicoClient client;
     private List<String> files;
     private int id;
+    private final Logger logger = LogManager.getLogger(WorkflowSubmission.class);
 
     public WorkflowSubmission(IndicoClient client) {
         this.client = client;
@@ -53,7 +61,7 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
     @Override
     public List<Integer> execute() {
         JSONArray fileMetadata;
-        List<FileInput> files = new ArrayList<>();
+        List<FileInput> files = new ArrayList<FileInput>();
         try {
             fileMetadata = this.upload(this.files);
             for (Object f : fileMetadata) {
@@ -80,7 +88,9 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
             for (Error err : response.errors()) {
                 errors.append(err.toString() + "\n");
             }
+
             String msg = errors.toString();
+            logger.error("Errors encountered extracting documents: " + msg);
             throw new RuntimeException("Failed to extract documents due to following error: \n" + msg);
         }
         WorkflowSubmissionGraphQLMutation.WorkflowSubmission workflowSubmission = response.data().workflowSubmission();

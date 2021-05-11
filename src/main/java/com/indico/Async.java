@@ -13,10 +13,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.apollographql.apollo.exception.ApolloHttpException;
 import com.apollographql.apollo.exception.ApolloNetworkException;
 import com.apollographql.apollo.exception.ApolloParseException;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 
 public class Async {
     static AtomicInteger counter = new AtomicInteger();
+    private static final Logger logger = LogManager.getLogger(Async.class);
+
     /**
      * Synchronizes apollographql api calls with the help of dispatcher
      * Retries up to 3 times by default on Network or Http Exception.
@@ -66,7 +71,7 @@ public class Async {
                 //parse exception can happen when there is a protocol_error
                 //thrown by OKHttpClient
                 if(counter.get() < retries){
-                    System.out.println("Retrying..." + counter.toString());
+                    logger.debug("Retrying call due to " + e.getMessage());
                     completableFuture.cancel(true);
                     counter.incrementAndGet();
 
@@ -76,17 +81,19 @@ public class Async {
                 }
             }catch(ApolloHttpException e){
                 // could store this in an array but let's try this for now.
+                logger.trace("Retrying call" + apolloCall.getClass() + "due to " + e.code());
                 if(counter.get() < retries && e.code() == 504 || e.code() == 503 || e.code() == 502){
-                    System.out.println("Retrying..." + counter.toString());
+
                     completableFuture.cancel(true);
                     counter.incrementAndGet();
                 }
                 else{
-                    System.out.println("Failing..." + counter.toString());
+                    logger.trace("Failed call" + apolloCall.getClass() + "due to " + e.code());
                     throw new RuntimeException("Max number of retries met, giving up", e);
                 }
             }
             catch(Exception ex){
+                logger.debug("Retrying call" + apolloCall.getClass() + "due to " + ex.getMessage());
                 completableFuture.completeExceptionally(ex);
             }
          return completableFuture;

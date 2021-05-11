@@ -9,9 +9,13 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.Route;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 
 class TokenAuthenticator implements Authenticator {
+
+    private final Logger logger = LogManager.getLogger(TokenAuthenticator.class);
 
     final AuthorizationInterceptor interceptor;
     /**
@@ -34,6 +38,7 @@ class TokenAuthenticator implements Authenticator {
      */
     @Override
     public Request authenticate(Route route, Response response) throws IOException {
+        logger.trace("Refreshing authentication for " + route.toString());
         interceptor.refreshAuthState();
         return response.request().newBuilder().header("Authorization", interceptor.authHeader()).build();
     }
