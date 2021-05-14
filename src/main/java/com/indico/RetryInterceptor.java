@@ -20,10 +20,10 @@ public class RetryInterceptor  implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
 
-        Response response = null;
-        boolean success = false;
+        Response response = chain.proceed(request);
+        boolean success = response.isSuccessful();
         int tryCount = 0;
-        while ((response == null || !success) && tryCount < indicoConfig.maxRetries) {
+        while (!success && tryCount < indicoConfig.maxRetries) {
             tryCount++;
             try {
                 response = chain.proceed(request);
@@ -42,7 +42,7 @@ public class RetryInterceptor  implements Interceptor {
                 }
             }
         }
-        logger.trace("Completed in " + tryCount + " attempts. Successfully? " + success);
+        logger.trace("Completed in " + tryCount + " extra attempts. Successfully? " + success);
         return response;
     }
 }
