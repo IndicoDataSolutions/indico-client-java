@@ -67,10 +67,10 @@ public class SubmissionResult implements Mutation<Job> {
         GenerateSubmissionResult generateSubmissionResult = new GenerateSubmissionResult(this.client)
                 .submission(submission);
         Job job = generateSubmissionResult.execute();
-        return job;}
+        return job;
+        }
         catch (CompletionException ex){
                 throw new RuntimeException("Call to get submission result failed", ex);
-
             }
     }
 

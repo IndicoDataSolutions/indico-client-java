@@ -47,6 +47,8 @@ public class Workflow {
                 String url = obj.getString("url");
                 RetrieveBlob retrieveBlob = client.retrieveBlob();
                 Blob blob = retrieveBlob.url(url).execute();
+                //call close on blob to dispose when done with object.
+                blob.close();
                 System.out.println(blob.asString());
             }
         } catch (Exception e) {
