@@ -7,6 +7,9 @@ import com.indico.jobs.Job;
 import com.indico.query.GetSubmission;
 import com.indico.type.SubmissionStatus;
 
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+
 public class SubmissionResult implements Mutation<Job> {
     private final IndicoClient client;
     private int submissionId;
@@ -42,6 +45,7 @@ public class SubmissionResult implements Mutation<Job> {
      */
     @Override
     public Job execute() {
+        try{
         GetSubmission getSubmission = new GetSubmission(this.client).submissionId(this.submissionId);
         Submission submission = getSubmission.query();
         while(!statusCheck(submission.status)) {
@@ -63,7 +67,12 @@ public class SubmissionResult implements Mutation<Job> {
         GenerateSubmissionResult generateSubmissionResult = new GenerateSubmissionResult(this.client)
                 .submission(submission);
         Job job = generateSubmissionResult.execute();
-        return job;
+        return job;}
+        catch (CompletionException ex){
+                this.client.reset();
+                throw new RuntimeException("Call to get submission result failed", ex);
+
+            }
     }
 
     private boolean statusCheck(SubmissionStatus status) {

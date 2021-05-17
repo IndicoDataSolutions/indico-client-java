@@ -8,6 +8,9 @@ import com.indico.Mutation;
 import com.indico.UpdateSubmissionGraphQLMutation;
 import com.indico.entity.Submission;
 
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+
 public class UpdateSubmission implements Mutation<Submission> {
     private final IndicoClient client;
     private int submissionId;
@@ -43,12 +46,13 @@ public class UpdateSubmission implements Mutation<Submission> {
      */
     @Override
     public Submission execute() {
+        try{
         ApolloCall<UpdateSubmissionGraphQLMutation.Data> apolloCall = this.client.apolloClient.mutate(UpdateSubmissionGraphQLMutation.builder()
                 .submissionId(this.submissionId)
                 .retrieved(this.retrieved)
                 .build());
 
-        Response<UpdateSubmissionGraphQLMutation.Data> response = (Response<UpdateSubmissionGraphQLMutation.Data>) Async.executeSync(apolloCall, this.client.config).join();
+        Response<UpdateSubmissionGraphQLMutation.Data> response = Async.executeSync(apolloCall).get();
         UpdateSubmissionGraphQLMutation.UpdateSubmission submission = response.data().updateSubmission();
         return new Submission.Builder()
                 .id(submission.id())
@@ -60,5 +64,8 @@ public class UpdateSubmission implements Mutation<Submission> {
                 .resultFile(submission.resultFile())
                 .retrieved(submission.retrieved())
                 .build();
+        }catch (CompletionException | ExecutionException | InterruptedException ex){
+            throw new RuntimeException("Call to generate the submission result failed", ex);
+        }
     }
 }

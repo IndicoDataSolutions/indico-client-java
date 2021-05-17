@@ -7,7 +7,7 @@ import org.json.JSONObject;
 
 import java.io.*;
 
-public class Blob {
+public class Blob implements AutoCloseable {
 
     InputStream data = null;
     private Response response = null;
@@ -17,6 +17,7 @@ public class Blob {
     }
 
     public Blob(Response response) {
+        this.response = response;
         this.data = response.body().byteStream();
     }
 
@@ -33,9 +34,10 @@ public class Blob {
      * Returns Blob as String
      *
      * @return String
-     * @throws IOException
+     * @throws RuntimeException
      */
-    public String asString() throws IOException {
+    public String asString(){
+        try{
         Reader reader = new InputStreamReader(this.data);
         Writer writer = new StringWriter();
 
@@ -47,6 +49,13 @@ public class Blob {
             response.close();
         }
         return writer.toString();
+        } catch(IOException ex){
+            if(response != null){
+                response.close();
+            }
+            throw new RuntimeException(ex);
+        }
+
     }
 
     /**
@@ -69,5 +78,10 @@ public class Blob {
     public JSONArray asJSONArray() throws IOException {
         String jsonString = this.asString();
         return new JSON(jsonString).asJSONArray();
+    }
+
+    @Override
+    public void close() throws Exception {
+        this.response.close();
     }
 }

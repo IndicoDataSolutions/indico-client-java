@@ -11,6 +11,8 @@ import com.indico.type.SubmissionFilter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 public class ListSubmissions implements Query<List<Submission>> {
     private final IndicoClient client;
@@ -69,6 +71,7 @@ public class ListSubmissions implements Query<List<Submission>> {
      */
     @Override
     public List<Submission> query() {
+        try{
         ApolloCall<ListSubmissionsGraphQLQuery.Data> apolloCall = this.client.apolloClient.query(ListSubmissionsGraphQLQuery.builder()
                 .submissionIds(this.submissionIds)
                 .workflowIds(this.workflowIds)
@@ -76,7 +79,7 @@ public class ListSubmissions implements Query<List<Submission>> {
                 .limit(this.limit)
                 .build());
 
-        Response<ListSubmissionsGraphQLQuery.Data> response = (Response<ListSubmissionsGraphQLQuery.Data>) Async.executeSync(apolloCall, this.client.config).join();
+        Response<ListSubmissionsGraphQLQuery.Data> response = Async.executeSync(apolloCall).get();
 
         List<ListSubmissionsGraphQLQuery.Submission> submissionList = response.data().submissions().submissions();
         ArrayList<Submission> submissions = new ArrayList<>();
@@ -90,6 +93,9 @@ public class ListSubmissions implements Query<List<Submission>> {
                 .resultFile(submission.resultFile())
                 .build()));
         return submissions;
+        }catch (CompletionException | ExecutionException | InterruptedException ex){
+            throw new RuntimeException("Call to list the submissions failed", ex);
+        }
     }
 
     /**

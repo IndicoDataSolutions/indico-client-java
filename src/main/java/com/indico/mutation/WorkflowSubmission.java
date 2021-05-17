@@ -20,7 +20,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 
 public class WorkflowSubmission implements Mutation<List<Integer>> {
@@ -76,13 +77,13 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e.fillInStackTrace());
         }
-
+        try{
         ApolloCall<WorkflowSubmissionGraphQLMutation.Data> apolloCall = this.client.apolloClient.mutate(WorkflowSubmissionGraphQLMutation.builder()
                 .files(files)
                 .workflowId(this.id)
                 .build());
 
-        Response<WorkflowSubmissionGraphQLMutation.Data> response = (Response<WorkflowSubmissionGraphQLMutation.Data>) Async.executeSync(apolloCall, this.client.config).join();
+        Response<WorkflowSubmissionGraphQLMutation.Data> response = (Response<WorkflowSubmissionGraphQLMutation.Data>) Async.executeSync(apolloCall).get();
         if (response.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             for (Error err : response.errors()) {
@@ -90,11 +91,14 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
             }
 
             String msg = errors.toString();
-            logger.error("Errors encountered extracting documents: " + msg);
-            throw new RuntimeException("Failed to extract documents due to following error: \n" + msg);
+            logger.error("Errors encountered during submission: " + msg);
+            throw new RuntimeException("Failed to submit due to following error: \n" + msg);
         }
         WorkflowSubmissionGraphQLMutation.WorkflowSubmission workflowSubmission = response.data().workflowSubmission();
         return workflowSubmission.submissionIds();
+        }catch (CompletionException | ExecutionException | InterruptedException ex){
+            throw new RuntimeException("Call to submit submission failed", ex);
+        }
     }
 
     private JSONArray upload(List<String> filePaths) throws IOException {

@@ -11,6 +11,8 @@ import com.indico.entity.TrainingProgress;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 public class TrainingModelWithProgressQuery implements Query<Model> {
 
@@ -51,10 +53,11 @@ public class TrainingModelWithProgressQuery implements Query<Model> {
      */
     @Override
     public Model query() {
+        try{
         ApolloCall<ModelGroupProgressGraphQLQuery.Data> apolloCall = this.client.apolloClient.query(ModelGroupProgressGraphQLQuery.builder()
                 .id(this.id)
                 .build());
-        Response<ModelGroupProgressGraphQLQuery.Data> response = (Response<ModelGroupProgressGraphQLQuery.Data>) Async.executeSync(apolloCall, this.client.config).join();
+        Response<ModelGroupProgressGraphQLQuery.Data> response = (Response<ModelGroupProgressGraphQLQuery.Data>) Async.executeSync(apolloCall).get();
         List<ModelGroupProgressGraphQLQuery.ModelGroup> modelGroups = response.data().modelGroups().modelGroups();
         if (modelGroups.size() != 1) {
             throw new RuntimeException("Cannot find Model Group");
@@ -67,6 +70,9 @@ public class TrainingModelWithProgressQuery implements Query<Model> {
                 .status(model.status())
                 .trainingProgress(progress)
                 .build();
+        }catch (CompletionException | ExecutionException | InterruptedException ex){
+            throw new RuntimeException("Call to Train Model failed", ex);
+        }
     }
 
     @Override

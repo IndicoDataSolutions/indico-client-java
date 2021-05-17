@@ -24,8 +24,8 @@ import com.indico.request.GraphQLRequest;
 public class IndicoClient implements AutoCloseable {
 
     public final IndicoConfig config;
-    public final OkHttpClient okHttpClient;
-    public final ApolloClient apolloClient;
+    public OkHttpClient okHttpClient;
+    public ApolloClient apolloClient;
     private final ThreadPoolExecutor dispatcher;
 
     public IndicoClient(IndicoConfig config) {
@@ -191,12 +191,38 @@ public class IndicoClient implements AutoCloseable {
      * active for several seconds before closing due to multiple asynchronous
      * queries and prevents JVM from closing for 60 seconds.
      *
-     * @throws Exception
      */
     @Override
-    public void close() throws Exception {
+    public void close() {
         this.dispatcher.shutdown();
         this.okHttpClient.dispatcher().executorService().shutdown();
+    }
+
+    public void reset(){
+        String serverURL = config.protocol + "://" + config.host;
+
+        AuthorizationInterceptor interceptor = new AuthorizationInterceptor(serverURL, config.apiToken, config);
+        RetryInterceptor retryInterceptor = new RetryInterceptor(config);
+        try {
+            interceptor.refreshAuthState();
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+
+        this.okHttpClient = new OkHttpClient.Builder()
+                .authenticator(new TokenAuthenticator(interceptor))
+                .addInterceptor(interceptor)
+                .addInterceptor(retryInterceptor)
+                .readTimeout(config.connectionReadTimeout, TimeUnit.SECONDS)
+                .writeTimeout(config.connectionWriteTimeout, TimeUnit.SECONDS)
+                .connectTimeout(config.connectTimeout, TimeUnit.SECONDS)
+                .build();
+
+        this.apolloClient = ApolloClient.builder()
+                .serverUrl(serverURL + "/graph/api/graphql")
+                .okHttpClient(this.okHttpClient)
+                .dispatcher(this.dispatcher)
+                .build();
     }
 
     /**

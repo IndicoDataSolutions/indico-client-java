@@ -16,6 +16,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 public class WorkflowJob implements Mutation<List<Job>> {
 
@@ -69,20 +71,20 @@ public class WorkflowJob implements Mutation<List<Job>> {
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e.fillInStackTrace());
         }
-
+        try{
         ApolloCall<WorkflowJobGraphQLMutation.Data> apolloCall = this.client.apolloClient.mutate(WorkflowJobGraphQLMutation.builder()
                 .files(files)
                 .workflowId(this.id)
                 .build());
 
-        Response<WorkflowJobGraphQLMutation.Data> response = (Response<WorkflowJobGraphQLMutation.Data>) Async.executeSync(apolloCall, this.client.config).join();
+        Response<WorkflowJobGraphQLMutation.Data> response = Async.executeSync(apolloCall).get();
         if (response.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             for (Error err : response.errors()) {
                 errors.append(err.toString() + "\n");
             }
             String msg = errors.toString();
-            throw new RuntimeException("Failed to extract documents due to following error: \n" + msg);
+            throw new RuntimeException("Failed to submit workflow job due to following error: \n" + msg);
         }
         WorkflowJobGraphQLMutation.WorkflowSubmission workflowSubmission = response.data().workflowSubmission();
         List<String> jobIds = workflowSubmission.jobIds();
@@ -92,6 +94,9 @@ public class WorkflowJob implements Mutation<List<Job>> {
         List<Job> jobs = new ArrayList<>();
         jobIds.forEach(jobId -> jobs.add(new Job(this.client, jobId)));
         return jobs;
+        }catch (CompletionException | ExecutionException | InterruptedException ex){
+            throw new RuntimeException("Call to workflow job failed", ex);
+        }
     }
 
     private JSONArray upload(List<String> filePaths) throws IOException {
