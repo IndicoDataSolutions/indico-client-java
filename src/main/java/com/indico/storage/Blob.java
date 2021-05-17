@@ -10,6 +10,7 @@ import java.io.*;
 public class Blob {
 
     InputStream data = null;
+    private Response response = null;
 
     public Blob(InputStream data) {
         this.data = data;
@@ -41,6 +42,9 @@ public class Blob {
         char[] buffer = new char[10240];
         for (int length = 0; (length = reader.read(buffer)) > 0;) {
             writer.write(buffer, 0, length);
+        }
+        if(response != null){
+            response.close();
         }
         return writer.toString();
     }

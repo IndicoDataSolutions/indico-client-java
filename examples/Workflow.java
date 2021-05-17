@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONObject;
 
+/***
+ * Used for one-off jobs. Most use cases want to follow the pattern in Submission.java instead.
+ */
 public class Workflow {
 
     public static void main(String args[]) throws IOException {

@@ -40,7 +40,12 @@ public class Submission {
             Job job = client.submissionResult().submission(submissionId).execute();
             
             while (job.status() == JobStatus.PENDING) {
-                Thread.sleep(1000);
+                try {
+                    Thread.sleep(1000);
+                    Job job = client.submissionResult().submission(submissionId).execute();
+                }catch(CompletionException ex){
+                    this.indicoClient = new IndicoClient(config);
+                }
             }
 
             JSONObject obj = job.result();

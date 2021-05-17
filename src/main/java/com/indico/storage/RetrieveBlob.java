@@ -87,7 +87,7 @@ public class RetrieveBlob {
      * @throws IOException
      */
     public Blob execute() throws IOException {
-        return new Blob(this.getInputStream());
+        return new Blob(this.retrieveBlob());
     }
 
 }
