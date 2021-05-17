@@ -2,6 +2,9 @@ package com.indico.jobs;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.api.Response;
@@ -29,13 +32,17 @@ public class Job {
      * @return JobStatus
      */
     public JobStatus status() {
+        try{
         ApolloCall<JobStatusGraphQLQuery.Data> apolloCall = this.indicoClient.apolloClient.query(JobStatusGraphQLQuery.builder()
                 .id(this.id)
                 .build());
-        Response<JobStatusGraphQLQuery.Data> response = (Response<JobStatusGraphQLQuery.Data>) Async.executeSync(apolloCall, this.indicoClient.config).join();
+        Response<JobStatusGraphQLQuery.Data> response = Async.executeSync(apolloCall).get();
         JobStatusGraphQLQuery.Data data = response.data();
         JobStatus status = data.job().status();
         return status;
+        }catch (CompletionException | ExecutionException | InterruptedException ex){
+            throw new RuntimeException("Call for the job status failed", ex);
+        }
     }
 
     public String resultAsString() {
@@ -69,10 +76,11 @@ public class Job {
      * @return Result String
      */
     private String fetchResult() {
+        try{
         ApolloCall<JobResultGraphQLQuery.Data> apolloCall = this.indicoClient.apolloClient.query(JobResultGraphQLQuery.builder()
                 .id(this.id)
                 .build());
-        Response<JobResultGraphQLQuery.Data> response = (Response<JobResultGraphQLQuery.Data>) Async.executeSync(apolloCall, this.indicoClient.config).join();
+        Response<JobResultGraphQLQuery.Data> response = Async.executeSync(apolloCall).get();
         JobResultGraphQLQuery.Data data = response.data();
 
         JobResultGraphQLQuery.Job job = data.job();
@@ -88,6 +96,9 @@ public class Job {
 
         String out = result.toString();
         return out;
+        }catch (CompletionException | ExecutionException | InterruptedException ex){
+            throw new RuntimeException("Call for the job result failed", ex);
+        }
     }
 
     /**

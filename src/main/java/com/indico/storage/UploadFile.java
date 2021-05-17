@@ -66,6 +66,7 @@ public class UploadFile implements RestRequest<JSONArray> {
         Response result = client.okHttpClient.newCall(request).execute();
         String body = result.body().string();
         JSONArray fileMeta = new JSON(body).asJSONArray();
+        result.close();
         return (JSONArray) fileMeta;
     }
 }

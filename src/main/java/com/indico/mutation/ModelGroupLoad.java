@@ -10,6 +10,9 @@ import com.indico.Mutation;
 import com.indico.LoadModelGraphQLMutation;
 import com.indico.entity.ModelGroup;
 
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+
 public class ModelGroupLoad implements Mutation<String> {
 
     private int modelId;
@@ -50,11 +53,16 @@ public class ModelGroupLoad implements Mutation<String> {
      */
     @Override
     public String execute() {
-        ApolloCall<LoadModelGraphQLMutation.Data> apolloCall = this.indicoClient.apolloClient.mutate(LoadModelGraphQLMutation.builder()
-                .model_id(modelId)
-                .build());
-        Response<LoadModelGraphQLMutation.Data> response = (Response<LoadModelGraphQLMutation.Data>) Async.executeSync(apolloCall, this.indicoClient.config).join();
-        String status = response.data().modelLoad().status();
-        return status;
+        try {
+            ApolloCall<LoadModelGraphQLMutation.Data> apolloCall = this.indicoClient.apolloClient.mutate(LoadModelGraphQLMutation.builder()
+                    .model_id(modelId)
+                    .build());
+            Response<LoadModelGraphQLMutation.Data> response = Async.executeSync(apolloCall).get();
+            String status = response.data().modelLoad().status();
+            return status;
+
+        } catch (CompletionException | ExecutionException | InterruptedException ex) {
+            throw new RuntimeException("Call to load model group failed", ex);
+        }
     }
 }

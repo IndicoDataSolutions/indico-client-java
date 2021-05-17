@@ -8,6 +8,9 @@ import com.indico.IndicoClient;
 import com.indico.Query;
 import com.indico.entity.Submission;
 
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+
 public class GetSubmission implements Query<Submission> {
     private final IndicoClient client;
     private int submissionId;
@@ -34,11 +37,12 @@ public class GetSubmission implements Query<Submission> {
      */
     @Override
     public Submission query() {
+        try{
         ApolloCall<GetSubmissionGraphQLQuery.Data> apolloCall = this.client.apolloClient.query(GetSubmissionGraphQLQuery.builder()
                 .submissionId(this.submissionId)
                 .build());
 
-        Response<GetSubmissionGraphQLQuery.Data> response = (Response<GetSubmissionGraphQLQuery.Data>) Async.executeSync(apolloCall, maxRetries).join();
+        Response<GetSubmissionGraphQLQuery.Data> response = Async.executeSync(apolloCall).get();
         GetSubmissionGraphQLQuery.Submission submission = response.data().submission();
         return new Submission.Builder()
                 .id(submission.id())
@@ -50,6 +54,9 @@ public class GetSubmission implements Query<Submission> {
                 .resultFile(submission.resultFile())
                 .retrieved(submission.retrieved())
                 .build();
+        }catch (CompletionException | ExecutionException | InterruptedException ex){
+            throw new RuntimeException("Call to get the submission failed", ex);
+        }
     }
 
     /**

@@ -1,7 +1,6 @@
 package com.indico;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -9,7 +8,6 @@ import com.apollographql.apollo.ApolloClient;
 import com.indico.mutation.*;
 import com.indico.query.*;
 import com.indico.storage.UploadFile;
-import com.sun.net.httpserver.Authenticator;
 import okhttp3.OkHttpClient;
 
 import com.indico.jobs.JobQuery;
@@ -25,7 +23,7 @@ public class IndicoClient implements AutoCloseable {
 
     public final IndicoConfig config;
     public final OkHttpClient okHttpClient;
-    public final ApolloClient apolloClient;
+    public  final ApolloClient apolloClient;
     private final ThreadPoolExecutor dispatcher;
 
     public IndicoClient(IndicoConfig config) {
@@ -187,14 +185,13 @@ public class IndicoClient implements AutoCloseable {
     }
 
     /**
-     * Closes the connnection to graphql server since the ThreadPool remains
+     * Closes the connection to graphql server since the ThreadPool remains
      * active for several seconds before closing due to multiple asynchronous
      * queries and prevents JVM from closing for 60 seconds.
      *
-     * @throws Exception
      */
     @Override
-    public void close() throws Exception {
+    public void close() {
         this.dispatcher.shutdown();
         this.okHttpClient.dispatcher().executorService().shutdown();
     }

@@ -10,6 +10,8 @@ import com.indico.entity.Workflow;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 
 public class ListWorkflows implements Query<List<Workflow>> {
 
@@ -47,11 +49,12 @@ public class ListWorkflows implements Query<List<Workflow>> {
      */
     @Override
     public List<Workflow> query() {
+        try{
         ApolloCall<ListWorkflowsGraphQLQuery.Data> apolloCall = this.client.apolloClient.query(ListWorkflowsGraphQLQuery.builder()
                 .datasetIds(this.datasetIds)
                 .workflowIds(this.workflowIds)
                 .build());
-        Response<ListWorkflowsGraphQLQuery.Data> response = (Response<ListWorkflowsGraphQLQuery.Data>) Async.executeSync(apolloCall, this.client.config).join();
+        Response<ListWorkflowsGraphQLQuery.Data> response = Async.executeSync(apolloCall).get();
         List<ListWorkflowsGraphQLQuery.Workflow> wf = response.data().workflows().workflows();
         List<Workflow> workflows = new ArrayList<>();
         wf.forEach(workflow -> workflows.add(new Workflow.Builder()
@@ -60,6 +63,9 @@ public class ListWorkflows implements Query<List<Workflow>> {
                 .reviewEnabled(workflow.reviewEnabled())
                 .build()));
         return workflows;
+        }catch (CompletionException | ExecutionException | InterruptedException ex){
+            throw new RuntimeException("Call to list workflows failed", ex);
+        }
     }
 
     @Override

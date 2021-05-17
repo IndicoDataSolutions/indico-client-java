@@ -14,10 +14,11 @@ import okhttp3.Response;
  * Retrieve a blob After setting the parameters to retrieve the blob use
  * getInputStream to retrieve the content of the blob
  */
-public class RetrieveBlob {
+public class RetrieveBlob implements AutoCloseable {
 
     private String url;
     private IndicoClient client;
+    private Response response;
 
     public RetrieveBlob(IndicoClient client) {
         this.client = client;
@@ -87,7 +88,13 @@ public class RetrieveBlob {
      * @throws IOException
      */
     public Blob execute() throws IOException {
-        return new Blob(this.getInputStream());
+        Response response = this.retrieveBlob();
+        this.response = response;
+        return new Blob(response);
+    }
+
+    public void close(){
+        this.response.close();
     }
 
 }

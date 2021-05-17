@@ -68,7 +68,7 @@ public class GraphQLRequest implements RestRequest<JSONObject> {
             throw new ApolloException(errors.toString());
         }
         JSONObject data = response.getJSONObject("data");
-
+        result.close();
         return data;
     }
 }

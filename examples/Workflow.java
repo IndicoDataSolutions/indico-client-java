@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.json.JSONObject;
 
+/***
+ * Used for one-off jobs. Most use cases want to follow the pattern in Submission.java instead.
+ */
 public class Workflow {
 
     public static void main(String args[]) throws IOException {
@@ -44,6 +47,8 @@ public class Workflow {
                 String url = obj.getString("url");
                 RetrieveBlob retrieveBlob = client.retrieveBlob();
                 Blob blob = retrieveBlob.url(url).execute();
+                //call close on blob to dispose when done with object.
+                blob.close();
                 System.out.println(blob.asString());
             }
         } catch (Exception e) {

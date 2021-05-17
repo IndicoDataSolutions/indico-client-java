@@ -13,6 +13,9 @@ import com.indico.type.FileInput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -73,13 +76,13 @@ public class DocumentExtraction implements Mutation<List<Job>> {
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e.fillInStackTrace());
         }
-
+        try {
         ApolloCall<DocumentExtractionGraphQLMutation.Data> apolloCall = indicoClient.apolloClient.mutate(DocumentExtractionGraphQLMutation.builder()
                 .files(files)
                 .jsonConfig(this.jsonConfig)
                 .build());
 
-        Response<DocumentExtractionGraphQLMutation.Data> response = (Response<DocumentExtractionGraphQLMutation.Data>) Async.executeSync(apolloCall, indicoClient.config.maxRetries).join();
+        Response<DocumentExtractionGraphQLMutation.Data> response = (Response<DocumentExtractionGraphQLMutation.Data>) Async.executeSync(apolloCall).get();
         if (response.hasErrors()) {
             StringBuilder errors = new StringBuilder();
             for (Error err : response.errors()) {
@@ -96,6 +99,9 @@ public class DocumentExtraction implements Mutation<List<Job>> {
         }
 
         return jobs;
+        }catch (CompletionException | ExecutionException | InterruptedException ex){
+            throw new RuntimeException("Call to DocumentExtraction failed", ex);
+        }
     }
 
     private JSONArray upload(List<String> filePaths) throws IOException {

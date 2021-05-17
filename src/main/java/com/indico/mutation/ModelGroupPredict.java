@@ -1,6 +1,9 @@
 package com.indico.mutation;
 
 import java.util.List;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.api.Response;
@@ -75,12 +78,17 @@ public class ModelGroupPredict implements Mutation<Job> {
      */
     @Override
     public Job execute() {
+        try {
         ApolloCall<PredictModelGraphQLMutation.Data> apolloCall = this.indicoClient.apolloClient.mutate(PredictModelGraphQLMutation.builder()
                 .modelId(modelId)
                 .data(data)
                 .build());
-        Response<PredictModelGraphQLMutation.Data> response = (Response<PredictModelGraphQLMutation.Data>) Async.executeSync(apolloCall, this.indicoClient.config).join();
+        Response<PredictModelGraphQLMutation.Data> response = Async.executeSync(apolloCall).get();
         String jobId = response.data().modelPredict().jobId();
-        return new Job(this.indicoClient,jobId);
+        return new Job(this.indicoClient,jobId);  }catch (CompletionException | ExecutionException | InterruptedException ex){
+            throw new RuntimeException("Call for the job result failed", ex);
+        }
+
+
     }
 }

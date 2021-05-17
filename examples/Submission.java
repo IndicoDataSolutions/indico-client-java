@@ -40,13 +40,20 @@ public class Submission {
             Job job = client.submissionResult().submission(submissionId).execute();
             
             while (job.status() == JobStatus.PENDING) {
-                Thread.sleep(1000);
+                try {
+                    Thread.sleep(1000);
+                    Job job = client.submissionResult().submission(submissionId).execute();
+                }catch(CompletionException ex){
+                    this.indicoClient = new IndicoClient(config);
+                }
             }
 
             JSONObject obj = job.result();
             String url = obj.getString("url");
             RetrieveBlob retrieveBlob = client.retrieveBlob();
             Blob blob = retrieveBlob.url(url).execute();
+            //call close on blob to dispose when done with object.
+            blob.close();
             System.out.println(blob.asString());
             client.updateSubmission().submissionId(submissionId).retrieved(true).execute();
             

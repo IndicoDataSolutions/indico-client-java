@@ -49,6 +49,7 @@ public class AuthorizationInterceptor implements Interceptor{
             String responseBody = refreshResponse.body().string();
             JSONObject json = new JSONObject(responseBody);
             authToken = (String) json.get("auth_token");
+            refreshResponse.close();
         } else {
             throw new RuntimeException("Failed to refresh authentication state");
         }
