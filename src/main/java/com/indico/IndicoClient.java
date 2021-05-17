@@ -1,7 +1,6 @@
 package com.indico;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -9,7 +8,6 @@ import com.apollographql.apollo.ApolloClient;
 import com.indico.mutation.*;
 import com.indico.query.*;
 import com.indico.storage.UploadFile;
-import com.sun.net.httpserver.Authenticator;
 import okhttp3.OkHttpClient;
 
 import com.indico.jobs.JobQuery;
@@ -24,8 +22,8 @@ import com.indico.request.GraphQLRequest;
 public class IndicoClient implements AutoCloseable {
 
     public final IndicoConfig config;
-    public OkHttpClient okHttpClient;
-    public ApolloClient apolloClient;
+    public final OkHttpClient okHttpClient;
+    public  final ApolloClient apolloClient;
     private final ThreadPoolExecutor dispatcher;
 
     public IndicoClient(IndicoConfig config) {
@@ -187,7 +185,7 @@ public class IndicoClient implements AutoCloseable {
     }
 
     /**
-     * Closes the connnection to graphql server since the ThreadPool remains
+     * Closes the connection to graphql server since the ThreadPool remains
      * active for several seconds before closing due to multiple asynchronous
      * queries and prevents JVM from closing for 60 seconds.
      *
@@ -196,33 +194,6 @@ public class IndicoClient implements AutoCloseable {
     public void close() {
         this.dispatcher.shutdown();
         this.okHttpClient.dispatcher().executorService().shutdown();
-    }
-
-    public void reset(){
-        String serverURL = config.protocol + "://" + config.host;
-
-        AuthorizationInterceptor interceptor = new AuthorizationInterceptor(serverURL, config.apiToken, config);
-        RetryInterceptor retryInterceptor = new RetryInterceptor(config);
-        try {
-            interceptor.refreshAuthState();
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
-
-        this.okHttpClient = new OkHttpClient.Builder()
-                .authenticator(new TokenAuthenticator(interceptor))
-                .addInterceptor(interceptor)
-                .addInterceptor(retryInterceptor)
-                .readTimeout(config.connectionReadTimeout, TimeUnit.SECONDS)
-                .writeTimeout(config.connectionWriteTimeout, TimeUnit.SECONDS)
-                .connectTimeout(config.connectTimeout, TimeUnit.SECONDS)
-                .build();
-
-        this.apolloClient = ApolloClient.builder()
-                .serverUrl(serverURL + "/graph/api/graphql")
-                .okHttpClient(this.okHttpClient)
-                .dispatcher(this.dispatcher)
-                .build();
     }
 
     /**

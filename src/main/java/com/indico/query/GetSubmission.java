@@ -55,7 +55,6 @@ public class GetSubmission implements Query<Submission> {
                 .retrieved(submission.retrieved())
                 .build();
         }catch (CompletionException | ExecutionException | InterruptedException ex){
-            this.client.reset();
             throw new RuntimeException("Call to get the submission failed", ex);
         }
     }

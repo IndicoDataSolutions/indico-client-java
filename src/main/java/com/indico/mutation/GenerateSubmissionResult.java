@@ -43,7 +43,6 @@ public class GenerateSubmissionResult implements Mutation<Job> {
         String jobId = submissionResults.jobId();
         return new Job(this.client, jobId);  }
         catch (CompletionException | ExecutionException | InterruptedException ex){
-            this.client.reset();
             throw new RuntimeException("Call to generate the submission result failed", ex);
         }
     }
