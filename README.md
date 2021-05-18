@@ -161,7 +161,7 @@ while (job.status() == JobStatus.PENDING) {
 
 #### Send a GraphQL Query
 
-As noted above, the Indico Platform presents a GrapQL interface. In addition
+As noted above, the Indico Platform presents a GraphQL interface. In addition
 to using this Client Library, you can also send GraphQL queries to the Platform.
 Here's a snippet to list all of the Datasets in your Indico account.
 
