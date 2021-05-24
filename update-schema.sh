@@ -3,6 +3,7 @@
 REFRESH_TOKEN=$(<~/indico_api_token.txt)
 PROJ=./
 
+
 TOKEN=$(curl --location --request POST 'https://dev.indico.io/auth/users/refresh_token' \
 --header "Authorization: Bearer $REFRESH_TOKEN" \
  | jq .auth_token \
