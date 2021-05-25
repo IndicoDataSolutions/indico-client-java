@@ -58,7 +58,7 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
 
     /**
      * A UUID representing a unique set of files and workflow activity.
-     * This optional parameter helps the platform detect duplicate submissions.
+     * This optional parameter helps the platform detect and prevent duplicate submissions.
      * @param id
      * @return
      */
