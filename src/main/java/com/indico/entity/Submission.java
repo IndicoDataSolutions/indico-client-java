@@ -2,6 +2,8 @@ package com.indico.entity;
 
 import com.indico.type.SubmissionStatus;
 
+import java.util.UUID;
+
 public class Submission {
 
     public final int id;

@@ -6,7 +6,6 @@ import com.apollographql.apollo.api.Response;
 import com.indico.Async;
 import com.indico.IndicoClient;
 import com.indico.Mutation;
-import com.indico.RetryInterceptor;
 import com.indico.WorkflowSubmissionGraphQLMutation;
 import com.indico.storage.UploadFile;
 import com.indico.type.FileInput;
@@ -20,6 +19,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
@@ -29,6 +29,7 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
     private final IndicoClient client;
     private List<String> files;
     private int id;
+    private UUID duplicationId;
     private final Logger logger = LogManager.getLogger(WorkflowSubmission.class);
 
     public WorkflowSubmission(IndicoClient client) {
@@ -56,6 +57,17 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
     }
 
     /**
+     * A UUID representing a unique set of files and workflow activity.
+     * This optional parameter helps the platform detect and prevent duplicate submissions.
+     * @param id
+     * @return
+     */
+    public WorkflowSubmission duplicationId(UUID id){
+        this.duplicationId = id;
+        return this;
+    }
+
+    /**
      * Executes request and returns Submissions
      * @return Integer List
      */
@@ -77,10 +89,14 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e.fillInStackTrace());
         }
+        if(this.duplicationId == null){
+            this.duplicationId = UUID.randomUUID();
+        }
         try{
         ApolloCall<WorkflowSubmissionGraphQLMutation.Data> apolloCall = this.client.apolloClient.mutate(WorkflowSubmissionGraphQLMutation.builder()
                 .files(files)
                 .workflowId(this.id)
+                .duplicationId(this.duplicationId.toString())
                 .build());
 
         Response<WorkflowSubmissionGraphQLMutation.Data> response = (Response<WorkflowSubmissionGraphQLMutation.Data>) Async.executeSync(apolloCall).get();
@@ -95,6 +111,9 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
             throw new RuntimeException("Failed to submit due to following error: \n" + msg);
         }
         WorkflowSubmissionGraphQLMutation.WorkflowSubmission workflowSubmission = response.data().workflowSubmission();
+        if(workflowSubmission.isDuplicateRequest()){
+            logger.debug("Duplicate submission sent for submission ids " + workflowSubmission.submissionIds().toString());
+        }
         return workflowSubmission.submissionIds();
         }catch (CompletionException | ExecutionException | InterruptedException ex){
             throw new RuntimeException("Call to submit submission failed", ex);
