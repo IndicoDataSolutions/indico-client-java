@@ -19,19 +19,20 @@ public class RetryInterceptor  implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();
-
-        Response response = chain.proceed(request);
-        boolean success = response.isSuccessful();
+        Response response = null;
+        boolean success = false;
         int tryCount = 0;
         while (!success && tryCount < indicoConfig.maxRetries) {
             tryCount++;
             try {
                 response = chain.proceed(request);
                 success = response.isSuccessful();
-
-            } catch(IOException ex){
+            } catch(IOException | RuntimeException ex){
                 success = false;
-                logger.trace("Failed to complete the request for" + request.url() + "retrying: " + ex.getMessage());
+                if(response != null){
+                    response.close();
+                }
+                logger.trace("Failed to complete the request for " + request.url() + "retrying: " + ex.getMessage());
             }
             if(!success){
                 logger.trace("attempt " + tryCount + " failed for " + request.url() );
@@ -39,10 +40,14 @@ public class RetryInterceptor  implements Interceptor {
                 {
                     response.close();
                     logger.debug("Failed due to status code: " + response.code());
+
                 }
             }
         }
-        logger.trace("Completed in " + tryCount + " extra attempts. Successfully? " + success);
+        if(response == null){
+            throw new RuntimeException("Unable to complete the request, enable trace logging for more information");
+        }
         return response;
     }
+
 }
