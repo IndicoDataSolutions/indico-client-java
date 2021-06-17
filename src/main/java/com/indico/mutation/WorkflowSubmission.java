@@ -98,7 +98,7 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
                     meta.put("upload_type", uploadMeta.getString("upload_type"));
                     FileInput input = FileInput.builder().filename(((JSONObject) f).getString("name")).filemeta(meta).build();
                     files.add(input);
-            }
+                }
             }
             if(this.streams != null){
                 fileMetadata = this.uploadBytes(this.streams);
