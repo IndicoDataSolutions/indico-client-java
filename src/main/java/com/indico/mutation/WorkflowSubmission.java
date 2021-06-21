@@ -8,6 +8,7 @@ import com.indico.IndicoClient;
 import com.indico.Mutation;
 import com.indico.WorkflowSubmissionGraphQLMutation;
 import com.indico.storage.UploadFile;
+import com.indico.storage.UploadStream;
 import com.indico.type.FileInput;
 
 
@@ -17,9 +18,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 
@@ -30,6 +29,8 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
     private List<String> files;
     private int id;
     private UUID duplicationId;
+    private byte[] stream;
+    private Map<String, byte[]> streams;
     private final Logger logger = LogManager.getLogger(WorkflowSubmission.class);
 
     public WorkflowSubmission(IndicoClient client) {
@@ -43,6 +44,16 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
      */
     public WorkflowSubmission files(List<String> files) {
         this.files = files;
+        return this;
+    }
+
+    /**
+     *
+     * @param streams Dictionary of String identifiers and byte streams to upload.
+     * @return
+     */
+    public WorkflowSubmission byteStreams(Map<String, byte[]> streams){
+        this.streams = streams;
         return this;
     }
 
@@ -76,15 +87,30 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
         JSONArray fileMetadata;
         List<FileInput> files = new ArrayList<FileInput>();
         try {
-            fileMetadata = this.upload(this.files);
-            for (Object f : fileMetadata) {
-                JSONObject uploadMeta = (JSONObject) f;
-                JSONObject meta = new JSONObject();
-                meta.put("name", uploadMeta.getString("name"));
-                meta.put("path", uploadMeta.getString("path"));
-                meta.put("upload_type", uploadMeta.getString("upload_type"));
-                FileInput input = FileInput.builder().filename(((JSONObject) f).getString("name")).filemeta(meta).build();
-                files.add(input);
+            if(this.files != null)
+            {
+                fileMetadata = this.upload(this.files);
+                for (Object f : fileMetadata) {
+                    JSONObject uploadMeta = (JSONObject) f;
+                    JSONObject meta = new JSONObject();
+                    meta.put("name", uploadMeta.getString("name"));
+                    meta.put("path", uploadMeta.getString("path"));
+                    meta.put("upload_type", uploadMeta.getString("upload_type"));
+                    FileInput input = FileInput.builder().filename(((JSONObject) f).getString("name")).filemeta(meta).build();
+                    files.add(input);
+                }
+            }
+            if(this.streams != null){
+                fileMetadata = this.uploadBytes(this.streams);
+                for (Object f : fileMetadata) {
+                    JSONObject uploadMeta = (JSONObject) f;
+                    JSONObject meta = new JSONObject();
+                    meta.put("name", uploadMeta.getString("name"));
+                    meta.put("path", uploadMeta.getString("path"));
+                    meta.put("upload_type", uploadMeta.getString("upload_type"));
+                    FileInput input = FileInput.builder().filename(((JSONObject) f).getString("name")).filemeta(meta).build();
+                    files.add(input);
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e.fillInStackTrace());
@@ -123,5 +149,10 @@ public class WorkflowSubmission implements Mutation<List<Integer>> {
     private JSONArray upload(List<String> filePaths) throws IOException {
         UploadFile uploadRequest = new UploadFile(this.client);
         return uploadRequest.filePaths(filePaths).call();
+    }
+
+    private JSONArray uploadBytes(Map<String, byte[]> stream) throws IOException {
+        UploadStream uploadRequest = new UploadStream(this.client);
+        return uploadRequest.byteStream(stream).call();
     }
 }
