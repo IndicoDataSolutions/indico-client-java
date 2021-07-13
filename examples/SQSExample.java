@@ -52,19 +52,32 @@ public class SQSExample {
                 .build();
 
         //request the messages
-        ReceiveMessageResponse messages = sqsClient.receiveMessage(request);
+        var messages = sqsClient.receiveMessage(request);
         while(true) {
             // iterate the messages from SQS
             for (Message m : messages.messages()) {
                 //fetch receipt handle and body
                 String rh = m.receiptHandle();
-                JSONObject body = new JSONObject(m.body());
-                String status = body.getString("status");
-                String url = body.getString("result_url");
-                Integer id = body.getInt("submission_id");
+                //handle the fact that certain SQS queues
+                //may escpae JSON even with raw value setting
+                if(m.body().startsWith("\"")) {
+                    StringBuilder sb = new StringBuilder(m.body());
+                    sb.deleteCharAt(0);
+                    while (sb.indexOf("\\") > -1) {
+                        int indx = sb.indexOf("\\");
+                        sb.deleteCharAt(indx);
+                    }
+                    sb.deleteCharAt(sb.length() - 1);
+                    bod = sb.toString();
+                }
+
+                JSONObject body = new JSONObject(bod);
+                var status = body.getString("status");
+                var url = body.getString("result_url");
+                var id = body.getInt("submission_id");
 
                 System.out.println(body);
-                if(status.equalsIgnoreCase("COMPLETE")){
+                if(status.equalsIgnoreCase("COMPLETED")){
                     System.out.println("Completed: " + id);
                     //process a completed message
                     process_result(indicoClient, id, url);
@@ -73,7 +86,7 @@ public class SQSExample {
                     System.out.print("Submission failed: " + id);
                 }
                 //remove message when processed..
-                DeleteMessageRequest delmsg = DeleteMessageRequest.builder()
+                var delmsg = DeleteMessageRequest.builder()
                         .queueUrl(queueUrl)
                         .receiptHandle(rh)
                         .build();
@@ -88,15 +101,14 @@ public class SQSExample {
 
     public static void process_result(IndicoClient indicoClient, int id, String url) throws IOException {
         System.out.println("get blob....");
-        RetrieveBlob ret_storage_obj = indicoClient.retrieveBlob();
+        var ret_storage_obj = indicoClient.retrieveBlob();
         ret_storage_obj.url(url);
         ret_storage_obj.execute();
         System.out.println("update sub....");
-        UpdateSubmission update_sub = indicoClient.updateSubmission();
+        var update_sub = indicoClient.updateSubmission();
         update_sub.submissionId(id);
         update_sub.retrieved(true);
         update_sub.execute();
-        
     }
 
     public static void submit_workflow(IndicoClient indicoClient){
@@ -105,7 +117,7 @@ public class SQSExample {
         String pdf = PDF_LOCATION;
         List<String> files = new ArrayList<String>();
         files.add(pdf);
-        WorkflowSubmission submission = indicoClient.workflowSubmission();
+        var submission = indicoClient.workflowSubmission();
         submission.files(files);
         submission.workflowId(workflow_id);
         submission.execute();
