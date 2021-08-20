@@ -1,27 +1,26 @@
 package com.indico.query;
 
-import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.api.Response;
-import com.indico.Async;
-import com.indico.IndicoClient;
-import com.indico.ListSubmissionsGraphQLQuery;
+
+import com.expediagroup.graphql.client.types.GraphQLClientResponse;
+import com.indico.IndicoKtorClient;
+import com.indico.graphql.listsubmissionsgraphql.Submission;
+import com.indico.graphql.ListSubmissionsGraphQL;
 import com.indico.Query;
-import com.indico.entity.Submission;
-import com.indico.type.SubmissionFilter;
+import com.indico.graphql.inputs.SubmissionFilter;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletionException;
-import java.util.concurrent.ExecutionException;
 
-public class ListSubmissions implements Query<List<Submission>> {
-    private final IndicoClient client;
+
+public class ListSubmissions implements Query<List<com.indico.entity.Submission>> {
+    private final IndicoKtorClient client;
     private List<Integer> submissionIds;
     private List<Integer> workflowIds;
     private SubmissionFilter filters;
     private int limit = 1000;
 
-    public ListSubmissions(IndicoClient client) {
+    public ListSubmissions(IndicoKtorClient client) {
         this.client = client;
     }
 
@@ -70,30 +69,27 @@ public class ListSubmissions implements Query<List<Submission>> {
      * @return Submission List
      */
     @Override
-    public List<Submission> query() {
+    public List<com.indico.entity.Submission> query() {
         try{
-        ApolloCall<ListSubmissionsGraphQLQuery.Data> apolloCall = this.client.apolloClient.query(ListSubmissionsGraphQLQuery.builder()
-                .submissionIds(this.submissionIds)
-                .workflowIds(this.workflowIds)
-                .filters(this.filters)
-                .limit(this.limit)
-                .build());
+            ListSubmissionsGraphQL.Variables variables = new ListSubmissionsGraphQL.Variables(this.submissionIds, this.workflowIds, this.filters, this.limit);
 
-        Response<ListSubmissionsGraphQLQuery.Data> response = Async.executeSync(apolloCall).get();
+            ListSubmissionsGraphQL listSubmissionsGraphQL = new ListSubmissionsGraphQL(variables);
+            GraphQLClientResponse<ListSubmissionsGraphQL.Result> result = this.client.execute(listSubmissionsGraphQL);
 
-        List<ListSubmissionsGraphQLQuery.Submission> submissionList = response.data().submissions().submissions();
-        ArrayList<Submission> submissions = new ArrayList<>();
-        submissionList.forEach(submission -> submissions.add(new Submission.Builder()
-                .id(submission.id())
-                .datasetId(submission.datasetId())
-                .workflowId(submission.workflowId())
-                .status(submission.status())
-                .inputFile(submission.inputFile())
-                .inputFilename(submission.inputFilename())
-                .resultFile(submission.resultFile())
+
+        List<Submission> submissionList = result.getData().getSubmissions().getSubmissions();
+        ArrayList<com.indico.entity.Submission> submissions = new ArrayList<>();
+        submissionList.forEach(submission -> submissions.add(new com.indico.entity.Submission.Builder()
+                .id(submission.getId())
+                .datasetId(submission.getDatasetId())
+                .workflowId(submission.getWorkflowId())
+                .status(submission.getStatus())
+                .inputFile(submission.getInputFile())
+                .inputFilename(submission.getInputFilename())
+                .resultFile(submission.getResultFile())
                 .build()));
         return submissions;
-        }catch (CompletionException | ExecutionException | InterruptedException ex){
+        }catch (CompletionException ex){
             throw new RuntimeException("Call to list the submissions failed", ex);
         }
     }
@@ -104,5 +100,5 @@ public class ListSubmissions implements Query<List<Submission>> {
      * @return Submission List
      */
     @Override
-    public List<Submission> refresh(List<Submission> obj) { return obj; }
+    public List<com.indico.entity.Submission> refresh(List<com.indico.entity.Submission> obj) { return obj; }
 }

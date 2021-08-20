@@ -1,5 +1,6 @@
 #fetch and update the schema
-#snap install jq && snap install node
+#snap install jq
+#must have gradle 7 or above to run
 REFRESH_TOKEN=$(<~/indico_api_token.txt)
 PROJ=./
 

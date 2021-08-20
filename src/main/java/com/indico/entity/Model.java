@@ -1,6 +1,6 @@
 package com.indico.entity;
 
-import com.indico.type.ModelStatus;
+import com.indico.graphql.enums.ModelStatus;
 
 public class Model {
 
