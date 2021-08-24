@@ -65,6 +65,10 @@ class IndicoKtorClient(val config: IndicoConfig) : Closeable {
         return runBlocking { graphClient.execute(request) }
     }
 
+    suspend fun <T: Any> executeAsync(request:GraphQLClientRequest<T>,):GraphQLClientResponse<T>{
+        return graphClient.execute(request)
+    }
+
     fun listSubmissions(): ListSubmissions? {
         return ListSubmissions(this)
     }
