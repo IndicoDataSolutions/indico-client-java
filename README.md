@@ -21,7 +21,7 @@
 <dependency>
   <groupId>com.indico</groupId>
   <artifactId>indico-client-java</artifactId>
-  <version>4.0.2</version>
+  <version>4.0.6</version>
 </dependency>
 ```
 
@@ -44,7 +44,7 @@ IndicoConfig config = new IndicoConfig.Builder()
                 .build();
 ```
 You configure the IndicoConfig class via an embedded Builder that has methods to set the various config parameters such as 
-host, tokenPath, etc.
+host, tokenPath, connection timeout, etc.
 
 ### API Client
 

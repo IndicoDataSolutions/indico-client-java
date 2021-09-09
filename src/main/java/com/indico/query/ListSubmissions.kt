@@ -1,16 +1,5 @@
 package com.indico.query
 
-import com.indico.IndicoKtorClient.execute
-import com.expediagroup.graphql.client.types.GraphQLClientResponse.data
-import com.indico.graphql.ListSubmissionsGraphQL.Result.submissions
-import com.indico.graphql.listsubmissionsgraphql.SubmissionPage.submissions
-import com.indico.graphql.listsubmissionsgraphql.Submission.id
-import com.indico.graphql.listsubmissionsgraphql.Submission.datasetId
-import com.indico.graphql.listsubmissionsgraphql.Submission.workflowId
-import com.indico.graphql.listsubmissionsgraphql.Submission.status
-import com.indico.graphql.listsubmissionsgraphql.Submission.inputFile
-import com.indico.graphql.listsubmissionsgraphql.Submission.inputFilename
-import com.indico.graphql.listsubmissionsgraphql.Submission.resultFile
 import com.indico.IndicoKtorClient
 import com.indico.graphql.inputs.SubmissionFilter
 import com.indico.query.ListSubmissions
@@ -104,7 +93,7 @@ class ListSubmissions(private val client: IndicoKtorClient) : Query<List<Submiss
      * @param obj
      * @return Submission List
      */
-    override fun refresh(obj: List<Submission>): List<Submission> {
+    override fun refresh(obj: List<Submission?>?): List<Submission?>? {
         return obj
     }
 }

@@ -1,6 +1,7 @@
 package com.indico.storage;
 
 import com.indico.IndicoClient;
+import com.indico.IndicoKtorClient;
 import com.indico.JSON;
 import com.indico.RestRequest;
 import okhttp3.*;
@@ -13,10 +14,10 @@ import java.util.List;
 
 public class UploadFile implements RestRequest<JSONArray> {
 
-    private IndicoClient client;
+    private IndicoKtorClient client;
     private List<File> files = new ArrayList<>();
 
-    public UploadFile(IndicoClient client) {
+    public UploadFile(IndicoKtorClient client) {
         this.client = client;
     }
 

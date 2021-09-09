@@ -13,7 +13,7 @@ import java.io.IOException
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
-class IndicoKtorClient(val config: IndicoConfig) : Closeable {
+class IndicoKtorClient(config: IndicoConfig) : Closeable {
 
     var graphClient: GraphQLKtorClient
 

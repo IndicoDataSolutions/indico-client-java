@@ -1,11 +1,11 @@
 package com.indico.exceptions;
 
-public class IndicoQueryException extends IndicoBaseException{
-    public IndicoQueryException(String msg) {
+public class IndicoMutationException extends IndicoBaseException{
+    public IndicoMutationException(String msg) {
         super(msg);
     }
 
-    public IndicoQueryException(String msg, Throwable cause) {
+    public IndicoMutationException(String msg, Throwable cause) {
         super(msg, cause);
     }
 }
