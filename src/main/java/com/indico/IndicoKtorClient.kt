@@ -3,7 +3,9 @@ package com.indico
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
-import com.indico.query.ListSubmissions
+import com.indico.entity.Submission
+import com.indico.mutations.*
+import com.indico.query.*
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.utils.io.core.*
@@ -13,9 +15,10 @@ import java.io.IOException
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
-class IndicoKtorClient(config: IndicoConfig) : Closeable {
+class IndicoKtorClient(val config: IndicoConfig) : Closeable, IndicoClient {
 
     var graphClient: GraphQLKtorClient
+    var httpClient: OkHttpClient
 
     init {
         val serverURL = config.protocol + "://" + config.host;
@@ -49,6 +52,7 @@ class IndicoKtorClient(config: IndicoConfig) : Closeable {
             }
 
         }
+        this.httpClient = preconfigOkHttpClient
         this.graphClient = GraphQLKtorClient(
             url = URL(apiUrl),
             httpClient = okHttpClient
@@ -58,18 +62,60 @@ class IndicoKtorClient(config: IndicoConfig) : Closeable {
     override fun close() {
         return
     }
-    fun <T : Any> execute(
+
+
+    override fun <T : Any> execute(
         request: GraphQLClientRequest<T>,
     ): GraphQLClientResponse<T> {
 
         return runBlocking { graphClient.execute(request) }
     }
 
-    suspend fun <T: Any> executeAsync(request:GraphQLClientRequest<T>,):GraphQLClientResponse<T>{
+    override suspend fun <T: Any> executeAsync(request:GraphQLClientRequest<T>):GraphQLClientResponse<T>{
         return graphClient.execute(request)
     }
 
-    fun listSubmissions(): ListSubmissions? {
+    override fun listSubmissions(): ListSubmissions? {
         return ListSubmissions(this)
+    }
+
+    override fun workflowSubmission(): WorkflowSubmission?{
+        return WorkflowSubmission(this)
+    }
+
+    override fun documentExtraction(): DocumentExtraction{
+        return DocumentExtraction(this)
+    }
+
+    override fun generateSubmissionResult(): GenerateSubmissionResult? {
+        return GenerateSubmissionResult(this)
+    }
+
+    override fun modelGroupLoad(): ModelGroupLoad? {
+        return ModelGroupLoad(this)
+    }
+
+    override fun modelGroupPredict(): ModelGroupPredict? {
+        return ModelGroupPredict(this)
+    }
+
+    override fun submissionResult(): SubmissionResult? {
+        return SubmissionResult(this)
+    }
+
+    override fun updateSubmission(): UpdateSubmission? {
+        return UpdateSubmission(this)
+    }
+
+    override fun getSubmission(): GetSubmission? {
+        return GetSubmission(this)
+    }
+
+    override fun modelGroupQuery(): ModelGroupQuery? {
+        return ModelGroupQuery(this)
+    }
+
+    override fun trainingModelWithProgress(): TrainingModelWithProgressQuery? {
+        return TrainingModelWithProgressQuery(this)
     }
 }

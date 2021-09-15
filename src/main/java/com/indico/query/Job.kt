@@ -1,5 +1,6 @@
 package com.indico.query
 
+import com.indico.IndicoClient
 import com.indico.IndicoKtorClient
 import com.indico.JSON
 import com.indico.exceptions.IndicoQueryException
@@ -17,7 +18,7 @@ import java.util.ArrayList
 /**
  *  Job information
  */
-class Job(private val indicoClient: IndicoKtorClient, private val errors: List<String>?, val id: String) {
+class Job(private val indicoClient: IndicoClient, private val errors: List<String>?, val id: String) {
 
     /**
      * Retrieve job status

@@ -57,7 +57,7 @@ public class main {
         List<Job> jobs = docEx.execute();
 
         ModelGroupQuery mgq = client.modelGroupQuery();
-        mgq.id()
+        mgq.id(1345);
         System.exit(0);
 
     }

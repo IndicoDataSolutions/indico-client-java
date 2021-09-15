@@ -1,15 +1,19 @@
 package com.indico.storage
 
-import com.indico.IndicoClient
+import com.indico.IndicoKtorClient
 import com.indico.JSON
+import com.indico.RestRequest
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.Response
 import org.json.JSONArray
 import java.io.File
+import java.io.IOException
 import java.util.ArrayList
 
-class UploadFile(client: IndicoKtorClient) : RestRequest<JSONArray?> {
-    private val client: IndicoKtorClient
+class UploadFile(private val client: IndicoKtorClient) : RestRequest<JSONArray?> {
     private val files: MutableList<File> = ArrayList()
 
     /**
@@ -18,8 +22,8 @@ class UploadFile(client: IndicoKtorClient) : RestRequest<JSONArray?> {
      * @param filePaths File paths
      * @return UploadFile
      */
-    fun filePaths(filePaths: List<String>): UploadFile {
-        for (path in filePaths) {
+    fun filePaths(filePaths: List<String>?): UploadFile {
+        for (path in filePaths!!) {
             val file = File(path)
             if (file.exists()) {
                 files.add(file)
@@ -38,27 +42,24 @@ class UploadFile(client: IndicoKtorClient) : RestRequest<JSONArray?> {
      */
     @Throws(IOException::class)
     override fun call(): JSONArray {
-        val uploadUrl: String = client.config.getAppBaseUrl() + "/storage/files/store"
-        val multipartBody: Builder = Builder().setType(MultipartBody.FORM)
+        val uploadUrl: String = this.client.config.appBaseUrl + "/storage/files/store"
+        val multipartBody = MultipartBody.Builder().setType(MultipartBody.FORM)
         for (file in files) {
             multipartBody.addFormDataPart(
-                file.name, file.name,
-                RequestBody.create(parse.parse("application/octet-stream"), file)
+                file.name, file.name, file.asRequestBody("application/octet-stream".toMediaTypeOrNull())
+
             )
         }
         val requestBody: MultipartBody = multipartBody.build()
-        val request: Request = Builder()
+        val request = Request.Builder()
             .url(uploadUrl)
             .post(requestBody)
             .build()
-        val result: Response = client.httpClient.newCall(request).execute()
+        val result: Response = this.client.httpClient.newCall(request).execute()
         val body = result.body!!.string()
         val fileMeta = JSON(body).asJSONArray()
         result.close()
         return fileMeta as JSONArray
     }
 
-    init {
-        this.client = client
-    }
 }
