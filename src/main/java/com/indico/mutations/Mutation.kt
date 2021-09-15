@@ -1,4 +1,4 @@
-package com.indico
+package com.indico.mutations
 
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.indico.exceptions.IndicoMutationException
