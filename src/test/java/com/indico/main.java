@@ -2,8 +2,16 @@ package com.indico;
 
 import com.indico.entity.Submission;
 
+import com.indico.mutations.DocumentExtraction;
+import com.indico.mutations.WorkflowSubmission;
+import com.indico.query.Job;
 import com.indico.query.ListSubmissions;
+import com.indico.query.ModelGroupQuery;
+
+import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 
 public class main {
@@ -28,12 +36,30 @@ public class main {
         ListSubmissions query = client.listSubmissions();
 
         List<Submission> result = query.query();
+        
+        WorkflowSubmission submitFile = client.workflowSubmission();
+        List<String> files = new ArrayList<String>();
+        files.add("/home/mcahill/indico/indico-client-java2/src/test/data/pdf0.pdf");
+        List<Integer> ids = submitFile.files(files)
+                .workflowId(16575)
+                .execute();
 
-        for (Submission sub : result) {
-
-            System.out.println(sub.id);
-
+        submitFile = client.workflowSubmission();
+        ids = submitFile.files(files)
+                .workflowId(16575)
+                .execute();
+        for(Integer id : ids){
+            System.out.println(id);
         }
+
+        DocumentExtraction docEx = client.documentExtraction();
+        docEx.files(files);
+        List<Job> jobs = docEx.execute();
+
+        ModelGroupQuery mgq = client.modelGroupQuery();
+        mgq.id()
+        System.exit(0);
+
     }
 }
 /*
