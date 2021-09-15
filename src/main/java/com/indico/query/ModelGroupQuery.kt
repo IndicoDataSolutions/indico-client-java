@@ -12,7 +12,7 @@ class ModelGroupQuery(private val indicoClient: IndicoClient) : Query<ModelGroup
     private var name: String? = null
 
     /**
-     * Use to query ModelGroup by id
+     * Used to query ModelGroup by id
      *
      * @param id
      * @return ModelGroupQuery
@@ -23,7 +23,7 @@ class ModelGroupQuery(private val indicoClient: IndicoClient) : Query<ModelGroup
     }
 
     /**
-     * Use to query ModelGroup by name
+     * Used to query ModelGroup by name
      *
      * @param name
      * @return ModelGroupQuery

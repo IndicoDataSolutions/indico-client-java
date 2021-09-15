@@ -11,9 +11,9 @@ import org.json.JSONObject
 import java.lang.StringBuilder
 import java.util.ArrayList
 
-abstract class Mutation<T,R> {
+sealed class Mutation<T,R> {
     /**
-     * Execute the graphql query and retunrs the results as a specific type
+     * Executes the graphql query and returns the results as a specific type
      *
      * @return result of query of type T
      */
