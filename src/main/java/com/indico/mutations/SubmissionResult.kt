@@ -2,12 +2,10 @@ package com.indico.mutations
 
 
 import com.indico.IndicoClient
-import com.indico.Mutation
 import com.indico.entity.Submission
 import com.indico.exceptions.IndicoMutationException
 import com.indico.graphql.CreateSubmissionResultsGraphQL
 import com.indico.graphql.enums.SubmissionStatus
-import com.indico.mutations.GenerateSubmissionResult
 import com.indico.query.GetSubmission
 import com.indico.query.Job
 
@@ -48,13 +46,13 @@ class SubmissionResult(private val client: IndicoClient) : Mutation<Job?, Create
                 try {
                     Thread.sleep(1000)
                 } catch (exc: InterruptedException) {
-                    throw IndicoMutationException(exc.message, exc)
+                    throw IndicoMutationException("Interrupted while waiting for submission", exc)
                 }
             }
             if (!statusCheck(submission.status)) {
-                throw RuntimeException("Request timed out")
+                throw IndicoMutationException("Request timed out")
             } else if (submission.status == SubmissionStatus.__UNKNOWN_VALUE) {
-                throw IndicoMutationException("Submission " + submissionId + " does not meet status requirements")
+                throw IndicoMutationException("Submission $submissionId does not meet status requirements (unknown status)")
             }
             val generateSubmissionResult: GenerateSubmissionResult = GenerateSubmissionResult(client)
                 .submission(submission)

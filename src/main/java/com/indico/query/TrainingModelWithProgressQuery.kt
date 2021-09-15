@@ -1,14 +1,13 @@
 package com.indico.query
 
 import com.indico.IndicoClient
-import com.indico.Query
 import com.indico.entity.Model
 import com.indico.entity.TrainingProgress
 import com.indico.exceptions.IndicoQueryException
 import com.indico.graphql.ModelGroupProgressGraphQLQuery
-import java.util.*
 
-class TrainingModelWithProgressQuery(private val client: IndicoClient) : Query<Model?> {
+class TrainingModelWithProgressQuery(private val client: IndicoClient) :
+    Query<Model?> {
     private var id = 0
     private var name: String? = null
 
@@ -46,17 +45,20 @@ class TrainingModelWithProgressQuery(private val client: IndicoClient) : Query<M
                 id = id
             ))
             val response = client.execute(call)
-            val modelGroups = response.data!!.modelGroups!!.modelGroups!!
+            val modelGroups = response.data?.modelGroups?.modelGroups?:
+            throw IndicoQueryException("Error fetching model group for model $id")
             if (modelGroups.isEmpty()) {
                 throw IndicoQueryException("Cannot find Model Group $id")
             }
-            val models = modelGroups[0]!!.models!!
+            val models = modelGroups[0]?.models?: throw IndicoQueryException("Error fetching models for model group $id")
             val model = models.maxByOrNull { m -> m!!.id!! }
 
-            val progress = TrainingProgress(model!!.trainingProgress!!.percentComplete!!.toDouble())
+            val percentComplete = model?.trainingProgress?.percentComplete?:
+            throw IndicoQueryException("Model progress percent is missing for $id")
+            val progress = TrainingProgress(percentComplete.toDouble())
             Model.Builder()
-                .id(model!!.id!!)
-                .status(model!!.status!!)
+                .id(model.id!!)
+                .status(model.status!!)
                 .trainingProgress(progress)
                 .build()
         }catch (ex: RuntimeException) {

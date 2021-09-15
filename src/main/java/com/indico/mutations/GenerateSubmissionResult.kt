@@ -1,7 +1,6 @@
 package com.indico.mutations
 
 import com.indico.IndicoClient
-import com.indico.Mutation
 import com.indico.entity.Submission
 import com.indico.exceptions.IndicoMutationException
 import com.indico.graphql.CreateSubmissionResultsGraphQL
@@ -27,9 +26,9 @@ class GenerateSubmissionResult(private val client: IndicoClient) : Mutation<Job?
             ))
 
             val response = this.client.execute(call)
-
             handleErrors(response)
-        val submissionResults = response.data!!.submissionResults!!
+            val submissionResults = response.data?.submissionResults?:
+                throw IndicoMutationException("Failed to generate submission results")
             val jobId: String = submissionResults.jobId!!
             Job(client, id = jobId, errors = emptyList())
          } catch (ex: RuntimeException) {

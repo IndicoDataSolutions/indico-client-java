@@ -1,5 +1,6 @@
 package com.indico.storage
 
+import com.indico.IndicoClient
 import com.indico.IndicoKtorClient
 import com.indico.JSON
 import com.indico.RestRequest
@@ -11,7 +12,7 @@ import java.util.UUID
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 
-class UploadStream(private val client: IndicoKtorClient) : RestRequest<JSONArray?> {
+class UploadStream(private val client: IndicoClient) : RestRequest<JSONArray?> {
     private var bytes: Map<String, ByteArray>? = null
     private var fileName: String? = null
 
@@ -36,6 +37,7 @@ class UploadStream(private val client: IndicoKtorClient) : RestRequest<JSONArray
      */
     @Throws(IOException::class)
     override fun call(): JSONArray {
+        client as IndicoKtorClient
         val uploadUrl = client.config.appBaseUrl + "/storage/files/store"
         val multipartBody = MultipartBody.Builder().setType(MultipartBody.FORM)
         if (fileName == null || fileName!!.isEmpty()) {

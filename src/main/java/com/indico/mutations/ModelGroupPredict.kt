@@ -1,7 +1,6 @@
 package com.indico.mutations
 
 import com.indico.IndicoKtorClient
-import com.indico.Mutation
 import com.indico.entity.ModelGroup
 import com.indico.exceptions.IndicoMutationException
 import com.indico.graphql.PredictModelGraphQL
@@ -59,7 +58,8 @@ class ModelGroupPredict(private val indicoClient: IndicoKtorClient) : Mutation<J
             )
 
             val response = indicoClient.execute(call)
-            val jobId: String = response.data!!.modelPredict!!.jobId!!
+            val jobId: String = response.data?.modelPredict?.jobId?:
+                throw IndicoMutationException("Error retrieving job id for model group predict")
             Job(indicoClient, id = jobId, errors = emptyList())
         } catch (ex: RuntimeException) {
             throw IndicoMutationException("Call for Model Group Predict failed", ex)

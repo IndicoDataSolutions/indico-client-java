@@ -2,7 +2,6 @@ package com.indico.query
 
 
 import com.indico.IndicoClient
-import com.indico.Query
 import com.indico.entity.Submission
 import com.indico.exceptions.IndicoQueryException
 import com.indico.graphql.GetSubmissionGraphQL

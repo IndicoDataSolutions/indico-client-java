@@ -1,7 +1,6 @@
 package com.indico.query
 
 import com.indico.IndicoClient
-import com.indico.Query
 import com.indico.entity.Model
 import com.indico.entity.ModelGroup
 import com.indico.exceptions.IndicoQueryException
@@ -50,7 +49,7 @@ class ModelGroupQuery(private val indicoClient: IndicoClient) : Query<ModelGroup
             val mg = response.data!!.modelGroups!!.modelGroups!![0]!!
             val model = Model.Builder()
                 .id(mg.selectedModel!!.id!!)
-                .status(mg.selectedModel!!.status!!)
+                .status(mg.selectedModel.status!!)
                 .build()
             ModelGroup.Builder()
                 .id(mg.id!!)

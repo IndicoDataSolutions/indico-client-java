@@ -1,6 +1,7 @@
 package com.indico.mutations
 
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
+import com.indico.IndicoClient
 import com.indico.exceptions.IndicoMutationException
 import com.indico.graphql.inputs.FileInput
 import com.indico.storage.UploadFile
@@ -31,7 +32,7 @@ abstract class Mutation<T,R> {
         }
     }
 
-    protected fun processFiles(fileList: List<String>, client: IndicoKtorClient): List<FileInput>{
+    protected fun processFiles(fileList: List<String>, client: IndicoClient): List<FileInput>{
         val files: MutableList<FileInput> = ArrayList<FileInput>()
         return try {
             val fileMetadata = uploadFiles(fileList, client)
@@ -50,7 +51,7 @@ abstract class Mutation<T,R> {
         }
     }
 
-    protected fun processStreams(fileList: Map<String, ByteArray>?, client: IndicoKtorClient): List<FileInput>{
+    protected fun processStreams(fileList: Map<String, ByteArray>?, client: IndicoClient): List<FileInput>{
         val files: MutableList<FileInput> = ArrayList<FileInput>()
         return try {
             val fileMetadata = uploadBytes(fileList, client)
@@ -68,12 +69,12 @@ abstract class Mutation<T,R> {
             throw  IndicoMutationException("Failed to upload files for extraction", ex)
         }
     }
-    private fun uploadFiles(filePaths: List<String>?, client: IndicoKtorClient): JSONArray {
+    private fun uploadFiles(filePaths: List<String>?, client: IndicoClient): JSONArray {
         val uploadRequest = UploadFile(client)
         return uploadRequest.filePaths(filePaths).call()
     }
 
-    private fun uploadBytes(stream: Map<String, ByteArray>?, client: IndicoKtorClient): JSONArray {
+    private fun uploadBytes(stream: Map<String, ByteArray>?, client: IndicoClient): JSONArray {
         val uploadRequest = UploadStream(client)
         return uploadRequest.byteStream(stream).call()
     }

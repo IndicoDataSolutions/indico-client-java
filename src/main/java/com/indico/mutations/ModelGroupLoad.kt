@@ -2,7 +2,6 @@ package com.indico.mutations
 
 
 import com.indico.IndicoKtorClient
-import com.indico.Mutation
 import com.indico.entity.ModelGroup
 import com.indico.exceptions.IndicoMutationException
 import com.indico.graphql.LoadModelGraphQL
@@ -43,7 +42,8 @@ class ModelGroupLoad(private val indicoClient: IndicoKtorClient) : Mutation<Stri
                 model_id = this.modelId
             ))
             val response  = indicoClient.execute(call)
-            response.data!!.modelLoad!!.status!!
+            response.data?.modelLoad?.status?:
+                throw IndicoMutationException("Could not fetch status for $modelId")
         } catch (ex: RuntimeException) {
             throw IndicoMutationException("Call to load model group failed", ex)
         }

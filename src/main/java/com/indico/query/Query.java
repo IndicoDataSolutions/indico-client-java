@@ -1,4 +1,4 @@
-package com.indico; 
+package com.indico.query;
 
 public interface Query<T> {
 

@@ -1,12 +1,9 @@
 package com.indico.storage;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.zip.GZIPInputStream;
 
 import com.indico.IndicoKtorClient;
-import com.indico.Mutation;
 import okhttp3.Request;
 import okhttp3.Response;
 

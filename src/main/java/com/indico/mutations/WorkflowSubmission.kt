@@ -1,7 +1,6 @@
 package com.indico.mutations
 
 import com.indico.IndicoKtorClient
-import com.indico.Mutation
 import com.indico.exceptions.IndicoMutationException
 import com.indico.graphql.WorkflowSubmissionGraphQL
 import com.indico.graphql.inputs.FileInput

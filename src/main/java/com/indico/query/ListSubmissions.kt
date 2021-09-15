@@ -2,17 +2,14 @@ package com.indico.query
 
 import com.indico.IndicoKtorClient
 import com.indico.graphql.inputs.SubmissionFilter
-import com.indico.query.ListSubmissions
 import com.indico.graphql.ListSubmissionsGraphQL
-import com.expediagroup.graphql.client.types.GraphQLClientResponse
-import com.indico.Query
 import com.indico.entity.Submission
-import java.util.concurrent.CompletionException
 import com.indico.exceptions.IndicoQueryException
 import java.util.ArrayList
 import java.util.function.Consumer
 
-class ListSubmissions(private val client: IndicoKtorClient) : Query<List<Submission?>?> {
+class ListSubmissions(private val client: IndicoKtorClient) :
+    Query<List<Submission?>?> {
     private var submissionIds: List<Int?>? = null
     private var workflowIds: List<Int?>? = null
     private var filters: SubmissionFilter? = null
@@ -67,9 +64,9 @@ class ListSubmissions(private val client: IndicoKtorClient) : Query<List<Submiss
             val variables = ListSubmissionsGraphQL.Variables(submissionIds, workflowIds, filters, limit)
             val listSubmissionsGraphQL = ListSubmissionsGraphQL(variables)
             val result = client.execute(listSubmissionsGraphQL)
-            val submissionList = result.data!!.submissions!!.submissions
+            val submissionList = result.data?.submissions?.submissions?: ArrayList()
             val submissions = ArrayList<Submission>()
-            submissionList!!.forEach(Consumer { submission: com.indico.graphql.listsubmissionsgraphql.Submission? ->
+            submissionList.forEach(Consumer { submission: com.indico.graphql.listsubmissionsgraphql.Submission? ->
                 submissions.add(
                     Submission.Builder()
                         .id(submission!!.id!!)
@@ -83,7 +80,7 @@ class ListSubmissions(private val client: IndicoKtorClient) : Query<List<Submiss
                 )
             })
             submissions
-        } catch (ex: CompletionException) {
+        } catch (ex: RuntimeException) {
             throw IndicoQueryException("Call to list the submissions failed", ex)
         }
     }

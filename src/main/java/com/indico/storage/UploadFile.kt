@@ -1,5 +1,6 @@
 package com.indico.storage
 
+import com.indico.IndicoClient
 import com.indico.IndicoKtorClient
 import com.indico.JSON
 import com.indico.RestRequest
@@ -13,7 +14,7 @@ import java.io.File
 import java.io.IOException
 import java.util.ArrayList
 
-class UploadFile(private val client: IndicoKtorClient) : RestRequest<JSONArray?> {
+class UploadFile(private val client: IndicoClient) : RestRequest<JSONArray?> {
     private val files: MutableList<File> = ArrayList()
 
     /**
@@ -42,6 +43,7 @@ class UploadFile(private val client: IndicoKtorClient) : RestRequest<JSONArray?>
      */
     @Throws(IOException::class)
     override fun call(): JSONArray {
+        client as IndicoKtorClient
         val uploadUrl: String = this.client.config.appBaseUrl + "/storage/files/store"
         val multipartBody = MultipartBody.Builder().setType(MultipartBody.FORM)
         for (file in files) {

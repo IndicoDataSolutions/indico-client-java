@@ -1,7 +1,6 @@
 package com.indico.mutations
 
 import com.indico.IndicoClient
-import com.indico.Mutation
 import com.indico.entity.Submission
 import com.indico.exceptions.IndicoMutationException
 import com.indico.graphql.UpdateSubmissionGraphQL
