@@ -1,5 +1,6 @@
 package com.indico.mutations
 
+import com.indico.IndicoClient
 import com.indico.IndicoKtorClient
 import com.indico.exceptions.IndicoMutationException
 import com.indico.graphql.WorkflowSubmissionGraphQL
@@ -9,7 +10,7 @@ import org.json.JSONArray
 import java.io.IOException
 import java.util.*
 
-class WorkflowSubmission(private val client: IndicoKtorClient) : Mutation<List<Int?>?, WorkflowSubmissionGraphQL.Result>() {
+class WorkflowSubmission(private val client: IndicoClient) : Mutation<List<Int?>?, WorkflowSubmissionGraphQL.Result>() {
     private var files: List<String>? = null
     private var id = 0
     private var duplicationId: UUID? = null
@@ -78,7 +79,9 @@ class WorkflowSubmission(private val client: IndicoKtorClient) : Mutation<List<I
             duplicationId = UUID.randomUUID()
         }
         return try {
-            val call = WorkflowSubmissionGraphQL(WorkflowSubmissionGraphQL.Variables(files = files, workflowId = id, duplicationId = duplicationId.toString()))
+            val call = WorkflowSubmissionGraphQL(
+                WorkflowSubmissionGraphQL.Variables(
+                    files = files, workflowId = id, duplicationId = duplicationId.toString()))
             val response = client.execute(call)
             handleErrors(response)
             val workflowSubmission = response.data!!.workflowSubmission!!
