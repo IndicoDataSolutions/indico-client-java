@@ -4,6 +4,7 @@ import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.indico.mutations.*
 import com.indico.query.*
+import com.indico.storage.RetrieveBlob
 
 interface IndicoClient {
 
@@ -21,5 +22,6 @@ interface IndicoClient {
     fun getSubmission(): GetSubmission?
     fun modelGroupQuery(): ModelGroupQuery?
     fun trainingModelWithProgress(): TrainingModelWithProgressQuery?
+    fun retrieveBlob(): RetrieveBlob?
 
 }

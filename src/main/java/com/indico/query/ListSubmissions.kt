@@ -5,11 +5,12 @@ import com.indico.graphql.inputs.SubmissionFilter
 import com.indico.graphql.ListSubmissionsGraphQL
 import com.indico.entity.Submission
 import com.indico.exceptions.IndicoQueryException
+import com.indico.graphql.createsubmissionresultsgraphql.SubmissionResults
 import java.util.ArrayList
 import java.util.function.Consumer
 
 class ListSubmissions(private val client: IndicoKtorClient) :
-    Query<List<Submission?>?> {
+    Query<List<Submission?>?, ListSubmissionsGraphQL.Result>() {
     private var submissionIds: List<Int?>? = null
     private var workflowIds: List<Int?>? = null
     private var filters: SubmissionFilter? = null
@@ -64,6 +65,7 @@ class ListSubmissions(private val client: IndicoKtorClient) :
             val variables = ListSubmissionsGraphQL.Variables(submissionIds, workflowIds, filters, limit)
             val listSubmissionsGraphQL = ListSubmissionsGraphQL(variables)
             val result = client.execute(listSubmissionsGraphQL)
+            handleErrors(result)
             val submissionList = result.data?.submissions?.submissions?: ArrayList()
             val submissions = ArrayList<Submission>()
             submissionList.forEach(Consumer { submission: com.indico.graphql.listsubmissionsgraphql.Submission? ->

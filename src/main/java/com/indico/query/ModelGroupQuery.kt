@@ -7,7 +7,7 @@ import com.indico.exceptions.IndicoQueryException
 import com.indico.graphql.ModelGroupGraphQL
 import java.util.ArrayList
 
-class ModelGroupQuery(private val indicoClient: IndicoClient) : Query<ModelGroup?> {
+class ModelGroupQuery(private val indicoClient: IndicoClient) : Query<ModelGroup?, ModelGroupGraphQL.Result>() {
     private var id = 0
     private var name: String? = null
 
@@ -38,7 +38,7 @@ class ModelGroupQuery(private val indicoClient: IndicoClient) : Query<ModelGroup
      *
      * @return ModelGroup
      */
-    override fun query(): ModelGroup {
+    override fun query(): ModelGroup? {
         return try {
             val modelGroupIds = ArrayList<Int>()
             modelGroupIds.add(id)
@@ -46,7 +46,8 @@ class ModelGroupQuery(private val indicoClient: IndicoClient) : Query<ModelGroup
                 modelGroupIds = modelGroupIds
             ))
             val response = indicoClient.execute(call)
-            val mg = response.data!!.modelGroups!!.modelGroups!![0]!!
+            handleErrors(response)
+            val mg = response.data?.modelGroups?.modelGroups?.get(0) ?: return null
             val model = Model.Builder()
                 .id(mg.selectedModel!!.id!!)
                 .status(mg.selectedModel.status!!)

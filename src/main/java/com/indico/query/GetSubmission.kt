@@ -5,8 +5,9 @@ import com.indico.IndicoClient
 import com.indico.entity.Submission
 import com.indico.exceptions.IndicoQueryException
 import com.indico.graphql.GetSubmissionGraphQL
+import com.indico.graphql.createsubmissionresultsgraphql.SubmissionResults
 
-class GetSubmission(private val client: IndicoClient) : Query<Submission?> {
+class GetSubmission(private val client: IndicoClient) : Query<Submission?, GetSubmissionGraphQL.Result>() {
 
     private var submissionId = 0
 
@@ -25,22 +26,23 @@ class GetSubmission(private val client: IndicoClient) : Query<Submission?> {
      * Execute the query
      * @return Submission
      */
-    override fun query(): Submission {
+    override fun query(): Submission? {
         return try {
             val call = GetSubmissionGraphQL(GetSubmissionGraphQL.Variables(
                 submissionId = this.submissionId
             ))
 
             val response = this.client.execute(call)
-            val submission = response.data!!.submission!!
+            handleErrors(response)
+            val submission = response.data?.submission?: return null
             Submission.Builder()
                 .id(submission.id!!)
                 .datasetId(submission.datasetId!!)
                 .workflowId(submission.workflowId!!)
-                .status(submission.status!!)
-                .inputFile(submission.inputFile!!)
-                .inputFilename(submission.inputFilename!!)
-                .resultFile(submission.resultFile!!)
+                .status(submission.status)
+                .inputFile(submission.inputFile)
+                .inputFilename(submission.inputFilename)
+                .resultFile(submission.resultFile)
                 .retrieved(submission.retrieved!!)
                 .build()
         } catch (ex: RuntimeException) {

@@ -5,7 +5,7 @@ import com.indico.entity.Workflow
 import com.indico.graphql.ListWorkflowsGraphQL
 import java.util.ArrayList
 
-class ListWorkflows(private val client: IndicoClient) : Query<List<Workflow>?> {
+class ListWorkflows(private val client: IndicoClient) : Query<List<Workflow>?, ListWorkflowsGraphQL.Result>() {
     private var datasetIds: List<Int>? = null
     private var workflowIds: List<Int>? = null
 
@@ -41,14 +41,15 @@ class ListWorkflows(private val client: IndicoClient) : Query<List<Workflow>?> {
 
             ))
             val response = client.execute(call)
+            handleErrors(response)
             val wf = response.data?.workflows?.workflows?: ArrayList()
             val workflows: MutableList<Workflow> = ArrayList()
-            wf.forEach { workflow ->
+            wf?.forEach { workflow ->
                 workflows.add(
                     Workflow.Builder()
                         .id(workflow!!.id!!)
                         .name(workflow.name!!)
-                        .reviewEnabled(workflow!!.reviewEnabled!!)
+                        .reviewEnabled(workflow.reviewEnabled!!)
                         .build()
                 )
             }

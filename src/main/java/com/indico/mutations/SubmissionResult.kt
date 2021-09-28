@@ -4,6 +4,7 @@ package com.indico.mutations
 import com.indico.IndicoClient
 import com.indico.entity.Submission
 import com.indico.exceptions.IndicoMutationException
+import com.indico.exceptions.IndicoQueryException
 import com.indico.graphql.CreateSubmissionResultsGraphQL
 import com.indico.graphql.enums.SubmissionStatus
 import com.indico.query.GetSubmission
@@ -40,8 +41,9 @@ class SubmissionResult(private val client: IndicoClient) : Mutation<Job?, Create
     override fun execute(): Job? {
         return try {
             val getSubmission = GetSubmission(client).submissionId(submissionId)
-            var submission: Submission = getSubmission.query()
-            while (!statusCheck(submission.status)) {
+            var submission: Submission? = getSubmission.query()?:
+            throw IndicoQueryException("Could not find submission with this id.")
+            while (!statusCheck(submission!!.status)) {
                 submission = getSubmission.query()
                 try {
                     Thread.sleep(1000)

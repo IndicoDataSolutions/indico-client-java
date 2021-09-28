@@ -6,6 +6,7 @@ import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.indico.entity.Submission
 import com.indico.mutations.*
 import com.indico.query.*
+import com.indico.storage.RetrieveBlob
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.utils.io.core.*
@@ -117,5 +118,9 @@ class IndicoKtorClient(val config: IndicoConfig) : Closeable, IndicoClient {
 
     override fun trainingModelWithProgress(): TrainingModelWithProgressQuery? {
         return TrainingModelWithProgressQuery(this)
+    }
+
+    override fun retrieveBlob(): RetrieveBlob? {
+        return RetrieveBlob(this)
     }
 }

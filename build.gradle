@@ -2,27 +2,25 @@ import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
 import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 
 plugins {
+    id "java"
     id 'org.jetbrains.kotlin.jvm' version '1.5.10'
-    id 'java'
-    id 'maven-publish'
-    id 'signing'
+    id "signing"
+    id "maven-publish"
+    id "io.github.gradle-nexus.publish-plugin" version "1.0.0"
     id 'com.expediagroup.graphql' version '5.0.0-alpha.3'
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.5.10'
+
 }
 
 group 'com.indico'
 
 repositories {
     mavenCentral()
-    mavenCentral()
 }
+
 archivesBaseName = "indico-client-java"
 version = "4.12.0"
 
-
-apply plugin: 'java'
-apply plugin: 'maven-publish'
-apply plugin: 'signing'
 
 task sourceJar(type: Jar) {
     classifier "sources"
@@ -34,48 +32,15 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from javadoc.destinationDir
 }
 
-artifacts {
-    archives jar
-    archives sourceJar
-    archives javadocJar
-}
-
-
-
-
-
+// configure all java components to be published
 publishing {
     publications {
-        mavenJava(MavenPublication) {
-
-            groupId group
-            artifactId archivesBaseName
-            version version
-
-            from components.java
-
-            artifact(sourceJar) {
-                classifier = 'sources'
-            }
-            artifact(javadocJar) {
-                classifier = 'javadoc'
-            }
-        }
-    }
-    repositories {
-        maven {
-            url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
-            credentials {
-                username ossrhUsername
-                password ossrhPassword
-            }
+        maven(MavenPublication) {
+            from(components.java)
         }
     }
 }
 
-signing {
-    sign publishing.publications.mavenJava
-}
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
@@ -104,25 +69,107 @@ graphqlIntrospectSchema {
 
 
 graphqlGenerateClient {
-        // Boolean flag indicating whether or not selection of deprecated fields is allowed.
-        allowDeprecatedFields = true
-        packageName = "com.indico.graphql"
-        // Custom directory containing query files, defaults to src/main/resources
-        queryFileDirectory = "${project.projectDir}/src/main/graphql/queries"
-        // GraphQL schema file. Can be used instead of `endpoint` or `sdlEndpoint`.
-        schemaFile = file("${project.projectDir}/src/main/graphql/schema.graphql")
-        serializer = GraphQLSerializer.KOTLINX
+    // Boolean flag indicating whether or not selection of deprecated fields is allowed.
+    allowDeprecatedFields = true
+    packageName = "com.indico.graphql"
+    // Custom directory containing query files, defaults to src/main/resources
+    queryFileDirectory = "${project.projectDir}/src/main/graphql/queries"
+    // GraphQL schema file. Can be used instead of `endpoint` or `sdlEndpoint`.
+    schemaFile = file("${project.projectDir}/src/main/graphql/schema.graphql")
+    serializer = GraphQLSerializer.KOTLINX
 }
 
-task customFatJar(type: Jar) {
-    manifest {
-        attributes 'Main-Class': 'com.indico.IndicoKtorClient'
+
+// ossrh requires javadoc and sources https://central.sonatype.org/pages/requirements.html
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+// ossrh requries signing https://central.sonatype.org/pages/requirements.html
+// https://docs.gradle.org/current/userguide/signing_plugin.html
+// this only configures signing if the key is found
+// For signing you need to make signingKey and signingPassword available properties See https://docs.gradle.org/current/userguide/build_environment.html#sec:project_properties
+// The following makes the key available via the Gradle Property signingKey
+// export ORG_GRADLE_PROJECT_signingKey=`cat test-private.pgp`
+// export ORG_GRADLE_PROJECT_signingPassword="password"
+// After making the Gradle properties above available, you can try signing using
+// ./gradlew signMavenPublication
+//
+// NOTE: If you are using the legacy publishing you need to sign using the info at https://docs.gradle.org/current/userguide/signing_plugin.html#sec:signing_pom_files
+def hasSigningKey = project.hasProperty("signingKeyId") || project.hasProperty("signingKey")
+
+if(hasSigningKey) {
+    sign(project)
+}
+void sign(Project project) {
+    project.signing {
+        required { project.gradle.taskGraph.hasTask("publish") }
+        def signingKeyId = project.findProperty("signingKeyId")
+        def signingKey = project.findProperty("signingKey")
+        def signingPassword = project.findProperty("signingPassword")
+        if (signingKeyId) {
+            useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+        } else if (signingKey) {
+            useInMemoryPgpKeys(signingKey, signingPassword)
+        }
+        sign publishing.publications.maven
+    }
+}
+
+// customize the pom so it complies to Maven central requirements https://central.sonatype.org/pages/requirements.html
+// https://docs.gradle.org/current/userguide/maven_plugin.html#sec:maven_pom_generation
+project.plugins.withType(MavenPublishPlugin).all {
+    PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
+    publishing.publications.withType(MavenPublication).all { mavenPublication ->
+        mavenPublication.pom {
+            name = "${project.group}:${project.name}"
+            description = name
+            url = "https://github.com/indico/indico-client-java"
+            licenses {
+                license {
+                    name = "MIT"
+                    url = "https://github.com/IndicoDataSolutions/indico-client-java/blob/master/LICENSE"
+                }
+            }
+            developers {
+                developer {
+                    id = "indico"
+                    name = "Indico Engineering"
+                    email = "contact@indico.io"
+                }
+            }
+            scm {
+                connection = "scm:git:https://github.com/indico/indico-client-java.git"
+                developerConnection = "scm:git:ssh://github.com/indico/indico-client-java.git"
+                url = "https://github.com/indico/indico-client-java"
+            }
+        }
+    }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype()
     }
 
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+    // these are not strictly required. The default timeouts are set to 1 minute. But Sonatype can be really slow.
+    // If you get the error "java.net.SocketTimeoutException: timeout", these lines will help.
+    connectTimeout = Duration.ofMinutes(3)
+    clientTimeout = Duration.ofMinutes(3)
 }
 
-test {
-    useJUnitPlatform()
+// configure publishing to a local directory for testing (not necessary)
+// ./gradlew publishMavenToLocal
+// tree ./build/repos/releases
+publishing {
+    repositories {
+        maven {
+            name = "local"
+            // change URLs to point to your repos, e.g. http://my.org/repo
+            def releasesRepoUrl = "$buildDir/repos/releases"
+            def snapshotsRepoUrl = "$buildDir/repos/snapshots"
+            url = version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
+        }
+    }
 }

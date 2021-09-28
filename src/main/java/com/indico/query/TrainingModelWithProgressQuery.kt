@@ -7,7 +7,7 @@ import com.indico.exceptions.IndicoQueryException
 import com.indico.graphql.ModelGroupProgressGraphQLQuery
 
 class TrainingModelWithProgressQuery(private val client: IndicoClient) :
-    Query<Model?> {
+    Query<Model?, ModelGroupProgressGraphQLQuery.Result>() {
     private var id = 0
     private var name: String? = null
 
@@ -45,6 +45,7 @@ class TrainingModelWithProgressQuery(private val client: IndicoClient) :
                 id = id
             ))
             val response = client.execute(call)
+            handleErrors(response)
             val modelGroups = response.data?.modelGroups?.modelGroups?:
             throw IndicoQueryException("Error fetching model group for model $id")
             if (modelGroups.isEmpty()) {
@@ -62,7 +63,7 @@ class TrainingModelWithProgressQuery(private val client: IndicoClient) :
                 .trainingProgress(progress)
                 .build()
         }catch (ex: RuntimeException) {
-            throw IndicoQueryException("Call to Train Model failed", ex)
+            throw IndicoQueryException("Call to check Model progress failed", ex)
         }
     }
 
