@@ -82,7 +82,7 @@ class ListSubmissions(private val client: IndicoKtorClient) :
         }
         return  GraphQlSubmissionFilter(
             retrieved = retrieved,
-            status = status, inputFilename = inputFileName, AND = optionalAnds, OR = optionalOrs
+            status = status, inputFilename = inputFileName, ands = optionalAnds, ors = optionalOrs
 
         )
     }
