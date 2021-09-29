@@ -1,5 +1,6 @@
 package com.indico.mutations
 
+import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.indico.IndicoKtorClient
 import com.indico.exceptions.IndicoMutationException
 import com.indico.graphql.DocumentExtractionGraphQL
@@ -54,7 +55,7 @@ class DocumentExtraction(private val indicoClient: IndicoKtorClient) : Mutation<
             val call = DocumentExtractionGraphQL(
                 variables = DocumentExtractionGraphQL.Variables(
                     files = files,
-                    jsonConfig = this.jsonConfig.toString()
+                    jsonConfig = OptionalInput.Defined(this.jsonConfig.toString())
                 )
             );
 

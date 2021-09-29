@@ -1,5 +1,6 @@
 package com.indico.mutations
 
+import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.indico.IndicoClient
 import com.indico.entity.Submission
 import com.indico.exceptions.IndicoMutationException
@@ -38,7 +39,7 @@ class UpdateSubmission(client: IndicoClient) : Mutation<Submission?, UpdateSubmi
         return try {
             val call = UpdateSubmissionGraphQL(UpdateSubmissionGraphQL.Variables(
                 submissionId = this.submissionId,
-                retrieved = this.retrieved
+                retrieved = OptionalInput.Defined(this.retrieved)
             ))
             val response = client.execute(call)
             handleErrors(response)

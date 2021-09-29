@@ -1,13 +1,16 @@
 package com.indico.query
 
+import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.indico.IndicoKtorClient
-import com.indico.graphql.inputs.SubmissionFilter
+import com.indico.entity.SubmissionFilter
 import com.indico.graphql.ListSubmissionsGraphQL
 import com.indico.entity.Submission
 import com.indico.exceptions.IndicoQueryException
-import com.indico.graphql.createsubmissionresultsgraphql.SubmissionResults
-import java.util.ArrayList
+import com.indico.graphql.enums.SubmissionStatus
+import com.sun.corba.se.impl.orbutil.graph.Graph
+import java.util.*
 import java.util.function.Consumer
+import com.indico.graphql.inputs.SubmissionFilter as GraphQlSubmissionFilter
 
 class ListSubmissions(private val client: IndicoKtorClient) :
     Query<List<Submission?>?, ListSubmissionsGraphQL.Result>() {
@@ -56,13 +59,61 @@ class ListSubmissions(private val client: IndicoKtorClient) :
         return this
     }
 
+    private fun convertSingleFilter(filter: SubmissionFilter, ands: List<GraphQlSubmissionFilter>? = ArrayList(), ors: List<GraphQlSubmissionFilter>? = ArrayList()): GraphQlSubmissionFilter{
+        var retrieved: OptionalInput<Boolean> = OptionalInput.Undefined
+        var status: OptionalInput<SubmissionStatus> = OptionalInput.Undefined
+        var inputFileName : OptionalInput<String> = OptionalInput.Undefined
+        if(filter.retrieved != null){
+            retrieved = OptionalInput.Defined(filter.retrieved)
+        }
+        if(filter.status != null){
+            status = OptionalInput.Defined(filter.status)
+        }
+        if(filter.inputFileName != null){
+            inputFileName = OptionalInput.Defined(filter.inputFileName)
+        }
+        var optionalAnds: OptionalInput<List<GraphQlSubmissionFilter>> = OptionalInput.Undefined
+        var optionalOrs : OptionalInput<List<GraphQlSubmissionFilter>> = OptionalInput.Undefined
+        if(ands?.isNotEmpty() == true){
+            optionalAnds = OptionalInput.Defined(ands)
+        }
+        if(ors?.isNotEmpty() == true){
+            optionalOrs = OptionalInput.Defined(ors)
+        }
+        return  GraphQlSubmissionFilter(
+            retrieved = retrieved,
+            status = status, inputFilename = inputFileName, AND = optionalAnds, OR = optionalOrs
+
+        )
+    }
+    private fun convertFilterList(filters: List<SubmissionFilter>?): ArrayList<GraphQlSubmissionFilter> {
+        val filterlist = ArrayList<GraphQlSubmissionFilter>()
+        filters?.iterator()?.forEach {
+            filterlist.add(
+                convertSingleFilter(it)
+            )
+        }
+        return filterlist
+    }
+    private fun convertFilters(): OptionalInput<GraphQlSubmissionFilter> {
+        val ands = convertFilterList(filters?.ands as List<SubmissionFilter>?)
+
+        val ors = convertFilterList(filters?.ors as List<SubmissionFilter>?)
+        val converted = filters?.let { convertSingleFilter(it , ands=ands, ors=ors) }
+
+        return if(converted != null) OptionalInput.Defined(converted) else OptionalInput.Undefined
+    }
+
     /**
      * Execute the query
      * @return Submission List
      */
     override fun query(): List<Submission> {
         return try {
-            val variables = ListSubmissionsGraphQL.Variables(submissionIds, workflowIds, filters, limit)
+            val variables = ListSubmissionsGraphQL.Variables(
+                submissionIds = if (submissionIds != null) OptionalInput.Defined(submissionIds) else OptionalInput.Undefined,
+                workflowIds = if (workflowIds?.any() == true) OptionalInput.Defined(workflowIds) else OptionalInput.Undefined,
+                convertFilters(), OptionalInput.Defined(limit))
             val listSubmissionsGraphQL = ListSubmissionsGraphQL(variables)
             val result = client.execute(listSubmissionsGraphQL)
             handleErrors(result)

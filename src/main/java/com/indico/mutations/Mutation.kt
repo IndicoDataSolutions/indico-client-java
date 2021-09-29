@@ -1,5 +1,6 @@
 package com.indico.mutations
 
+import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.indico.IndicoClient
 import com.indico.exceptions.IndicoMutationException
@@ -42,7 +43,7 @@ sealed class Mutation<T,R> {
                 meta.put("name", uploadMeta.getString("name"))
                 meta.put("path", uploadMeta.getString("path"))
                 meta.put("upload_type", uploadMeta.getString("upload_type"))
-                val input = FileInput(filename = f.getString("name"), filemeta = meta.toString())
+                val input = FileInput(filename = OptionalInput.Defined(f.getString("name")), filemeta = OptionalInput.Defined(meta.toString()))
                 files.add(input)
             }
             files
@@ -61,7 +62,7 @@ sealed class Mutation<T,R> {
                 meta.put("name", uploadMeta.getString("name"))
                 meta.put("path", uploadMeta.getString("path"))
                 meta.put("upload_type", uploadMeta.getString("upload_type"))
-                val input = FileInput(filename = f.getString("name"), filemeta = meta.toString())
+                val input = FileInput(filename = OptionalInput.Defined(f.getString("name")), filemeta = OptionalInput.Defined(meta.toString()))
                 files.add(input)
             }
             files

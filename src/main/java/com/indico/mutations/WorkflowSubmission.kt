@@ -1,5 +1,6 @@
 package com.indico.mutations
 
+import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.indico.IndicoClient
 import com.indico.IndicoKtorClient
 import com.indico.exceptions.IndicoMutationException
@@ -81,7 +82,7 @@ class WorkflowSubmission(private val client: IndicoClient) : Mutation<List<Int?>
         return try {
             val call = WorkflowSubmissionGraphQL(
                 WorkflowSubmissionGraphQL.Variables(
-                    files = files, workflowId = id, duplicationId = duplicationId.toString()))
+                    files = files, workflowId = id, duplicationId = OptionalInput.Defined(duplicationId.toString())))
             val response = client.execute(call)
             handleErrors(response)
             val workflowSubmission = response.data!!.workflowSubmission!!

@@ -1,10 +1,12 @@
 package com.indico.query
 
+import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.indico.IndicoClient
 import com.indico.entity.Model
 import com.indico.entity.TrainingProgress
 import com.indico.exceptions.IndicoQueryException
 import com.indico.graphql.ModelGroupProgressGraphQLQuery
+import java.util.*
 
 class TrainingModelWithProgressQuery(private val client: IndicoClient) :
     Query<Model?, ModelGroupProgressGraphQLQuery.Result>() {
@@ -42,7 +44,7 @@ class TrainingModelWithProgressQuery(private val client: IndicoClient) :
     override fun query(): Model {
         return try {
             val call = ModelGroupProgressGraphQLQuery(ModelGroupProgressGraphQLQuery.Variables(
-                id = id
+                id = if(id != null) OptionalInput.Defined(id) else OptionalInput.Undefined
             ))
             val response = client.execute(call)
             handleErrors(response)

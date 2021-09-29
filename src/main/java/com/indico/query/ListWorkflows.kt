@@ -1,5 +1,6 @@
 package com.indico.query
 
+import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.indico.IndicoClient
 import com.indico.entity.Workflow
 import com.indico.graphql.ListWorkflowsGraphQL
@@ -36,15 +37,15 @@ class ListWorkflows(private val client: IndicoClient) : Query<List<Workflow>?, L
     override fun query(): List<Workflow> {
         return try {
             val call = ListWorkflowsGraphQL(ListWorkflowsGraphQL.Variables(
-                datasetIds = this.datasetIds,
-                workflowIds = this.workflowIds
+                datasetIds = if (datasetIds != null) OptionalInput.Defined(datasetIds) else OptionalInput.Undefined,
+                workflowIds = if (workflowIds !=null) OptionalInput.Defined(workflowIds) else OptionalInput.Undefined
 
             ))
             val response = client.execute(call)
             handleErrors(response)
             val wf = response.data?.workflows?.workflows?: ArrayList()
             val workflows: MutableList<Workflow> = ArrayList()
-            wf?.forEach { workflow ->
+            wf.forEach { workflow ->
                 workflows.add(
                     Workflow.Builder()
                         .id(workflow!!.id!!)

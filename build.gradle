@@ -50,7 +50,7 @@ dependencies {
     testImplementation('org.junit.jupiter:junit-jupiter:5.5.2')
     testImplementation('org.mock-server:mockserver-netty:5.8.0')
     implementation("com.expediagroup:graphql-kotlin-ktor-client:5.0.0-alpha.3")
-    implementation("com.expediagroup:graphql-kotlin-client-serialization:5.0.0-alpha.3")
+    implementation("com.expediagroup:graphql-kotlin-client-jackson:5.0.0-alpha.3")
     implementation("com.squareup.okhttp3:okhttp:4.9.0")
     implementation('org.apache.logging.log4j:log4j-1.2-api:2.14.1')
     api('org.json:json:20190722')
@@ -67,7 +67,6 @@ graphqlIntrospectSchema {
     headers = ["Authorization" : "Bearer " + project.getProperties().getOrDefault('graphQlToken', "")]
 }
 
-
 graphqlGenerateClient {
     // Boolean flag indicating whether or not selection of deprecated fields is allowed.
     allowDeprecatedFields = true
@@ -76,7 +75,9 @@ graphqlGenerateClient {
     queryFileDirectory = "${project.projectDir}/src/main/graphql/queries"
     // GraphQL schema file. Can be used instead of `endpoint` or `sdlEndpoint`.
     schemaFile = file("${project.projectDir}/src/main/graphql/schema.graphql")
-    serializer = GraphQLSerializer.KOTLINX
+    serializer = GraphQLSerializer.JACKSON
+    useOptionalInputWrapper = true
+
 }
 
 
