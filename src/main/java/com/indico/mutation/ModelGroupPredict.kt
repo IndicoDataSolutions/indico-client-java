@@ -1,4 +1,4 @@
-package com.indico.mutations
+package com.indico.mutation
 
 import com.indico.IndicoKtorClient
 import com.indico.entity.ModelGroup

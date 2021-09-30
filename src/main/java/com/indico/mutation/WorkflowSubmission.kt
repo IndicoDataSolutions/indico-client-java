@@ -1,8 +1,7 @@
-package com.indico.mutations
+package com.indico.mutation
 
 import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.indico.IndicoClient
-import com.indico.IndicoKtorClient
 import com.indico.exceptions.IndicoMutationException
 import com.indico.graphql.WorkflowSubmissionGraphQL
 import com.indico.graphql.inputs.FileInput

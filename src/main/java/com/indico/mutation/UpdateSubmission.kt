@@ -1,4 +1,4 @@
-package com.indico.mutations
+package com.indico.mutation
 
 import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.indico.IndicoClient

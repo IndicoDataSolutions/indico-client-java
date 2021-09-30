@@ -2,16 +2,14 @@ package com.indico;
 
 import com.indico.entity.Submission;
 
-import com.indico.mutations.DocumentExtraction;
-import com.indico.mutations.WorkflowSubmission;
+import com.indico.mutation.DocumentExtraction;
+import com.indico.mutation.WorkflowSubmission;
 import com.indico.query.Job;
 import com.indico.query.ListSubmissions;
 import com.indico.query.ModelGroupQuery;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
 
 
 public class main {

@@ -1,4 +1,4 @@
-package com.indico.mutations
+package com.indico.mutation
 
 import com.indico.IndicoClient
 import com.indico.entity.Submission
@@ -28,7 +28,7 @@ class GenerateSubmissionResult(private val client: IndicoClient) : Mutation<Job?
             val response = this.client.execute(call)
             handleErrors(response)
             val submissionResults = response.data?.submissionResults?:
-                throw IndicoMutationException("Failed to generate submission results")
+                throw IndicoMutationException("Failed to generate submission results, no submission results returned.")
             val jobId: String = submissionResults.jobId!!
             Job(client, id = jobId, errors = emptyList())
          } catch (ex: RuntimeException) {

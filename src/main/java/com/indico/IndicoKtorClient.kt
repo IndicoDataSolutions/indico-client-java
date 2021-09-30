@@ -1,12 +1,13 @@
 package com.indico
 
+import com.expediagroup.graphql.client.jackson.GraphQLClientJacksonSerializer
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
-import com.indico.entity.Submission
-import com.indico.mutations.*
+import com.indico.mutation.*
 import com.indico.query.*
 import com.indico.storage.RetrieveBlob
+import com.indico.storage.UploadFile
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.utils.io.core.*
@@ -16,6 +17,9 @@ import java.io.IOException
 import java.net.URL
 import java.util.concurrent.TimeUnit
 
+/**
+ * Kotlin based concrete implementation of the IndicoClient.
+ */
 class IndicoKtorClient(val config: IndicoConfig) : Closeable, IndicoClient {
 
     var graphClient: GraphQLKtorClient
@@ -56,11 +60,13 @@ class IndicoKtorClient(val config: IndicoConfig) : Closeable, IndicoClient {
         this.httpClient = preconfigOkHttpClient
         this.graphClient = GraphQLKtorClient(
             url = URL(apiUrl),
-            httpClient = okHttpClient
+            httpClient = okHttpClient,
+            serializer = GraphQLClientJacksonSerializer()
         )
 
     }
     override fun close() {
+        this.graphClient.close()
         return
     }
 
@@ -68,7 +74,6 @@ class IndicoKtorClient(val config: IndicoConfig) : Closeable, IndicoClient {
     override fun <T : Any> execute(
         request: GraphQLClientRequest<T>,
     ): GraphQLClientResponse<T> {
-
         return runBlocking { graphClient.execute(request) }
     }
 
@@ -122,5 +127,9 @@ class IndicoKtorClient(val config: IndicoConfig) : Closeable, IndicoClient {
 
     override fun retrieveBlob(): RetrieveBlob? {
         return RetrieveBlob(this)
+    }
+
+    override fun uploadFile(): UploadFile? {
+        return UploadFile(this)
     }
 }

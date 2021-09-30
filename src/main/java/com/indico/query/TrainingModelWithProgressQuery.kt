@@ -44,7 +44,7 @@ class TrainingModelWithProgressQuery(private val client: IndicoClient) :
     override fun query(): Model {
         return try {
             val call = ModelGroupProgressGraphQLQuery(ModelGroupProgressGraphQLQuery.Variables(
-                id = if(id != null) OptionalInput.Defined(id) else OptionalInput.Undefined
+                id = OptionalInput.Defined(id)
             ))
             val response = client.execute(call)
             handleErrors(response)

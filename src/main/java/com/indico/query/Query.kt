@@ -3,9 +3,13 @@ package com.indico.query
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.indico.exceptions.IndicoMutationException
 import com.indico.exceptions.IndicoQueryException
+import com.indico.mutation.SubmissionResult
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.Logger
 import java.lang.StringBuilder
 
-abstract class Query<T,R> {
+abstract class Query<T,R>(private val logger: Logger? = LogManager.getLogger(
+    Query::class.java)) {
     /**
      * Execute the graphql query and retunrs the results as a specific type
      * @return result of query of type T
