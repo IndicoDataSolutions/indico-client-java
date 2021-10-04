@@ -8,9 +8,10 @@ import com.indico.exceptions.IndicoBaseException
 import com.indico.exceptions.IndicoMutationException
 import com.indico.exceptions.IndicoQueryException
 import com.indico.graphql.CreateSubmissionResultsGraphQL
-import com.indico.graphql.enums.SubmissionStatus
+import com.indico.graphql.enums.SubmissionStatus as GraphQlSubmissionStatus
 import com.indico.query.GetSubmission
 import com.indico.query.Job
+import com.indico.type.SubmissionStatus
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -61,12 +62,12 @@ class SubmissionResult(private val client: IndicoClient, private val logger: Log
             if (!statusCheck(submission.status)) {
                 logger?.error("Request timed out while trying to fetch for the status update")
                 throw IndicoMutationException("Request timed out")
-            } else if (submission.status == SubmissionStatus.__UNKNOWN_VALUE) {
+            } else if (submission.status == null) {
                 logger?.error("Submission status returned an unknown value.")
                 throw IndicoMutationException("Submission $submissionId does not meet status requirements (unknown status)")
             }
             val generateSubmissionResult: GenerateSubmissionResult = GenerateSubmissionResult(client)
-                .submission(submission)
+                .submission(submissionId)
             generateSubmissionResult.execute()
         } catch(ex: IndicoBaseException){
             logger?.error(ex)

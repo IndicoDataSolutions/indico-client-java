@@ -5,6 +5,7 @@ import com.indico.IndicoClient
 import com.indico.entity.Submission
 import com.indico.exceptions.IndicoMutationException
 import com.indico.graphql.UpdateSubmissionGraphQL
+import com.indico.type.SubmissionStatus
 
 class UpdateSubmission(client: IndicoClient) : Mutation<Submission?, UpdateSubmissionGraphQL.Result>() {
     private val client: IndicoClient
@@ -48,7 +49,7 @@ class UpdateSubmission(client: IndicoClient) : Mutation<Submission?, UpdateSubmi
                 .id(submission.id!!)
                 .datasetId(submission.datasetId!!)
                 .workflowId(submission.workflowId!!)
-                .status(submission.status!!)
+                .status(submission.status?.toString()?.let { SubmissionStatus.valueOf(it) })
                 .inputFile(submission.inputFile!!)
                 .inputFilename(submission.inputFilename!!)
                 .resultFile(submission.resultFile!!)

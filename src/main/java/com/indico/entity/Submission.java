@@ -1,6 +1,6 @@
 package com.indico.entity;
 
-import com.indico.graphql.enums.SubmissionStatus;
+import com.indico.type.SubmissionStatus;
 
 import java.util.UUID;
 

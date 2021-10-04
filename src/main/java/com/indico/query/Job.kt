@@ -1,19 +1,16 @@
 package com.indico.query
 
 import com.indico.IndicoClient
-import com.indico.IndicoKtorClient
 import com.indico.JSON
 import com.indico.exceptions.IndicoQueryException
 import com.indico.graphql.JobResultGraphQL
-import com.indico.graphql.enums.JobStatus
+import com.indico.type.JobStatus
 import com.indico.graphql.jobresultgraphql.Job
 import org.json.JSONArray
 import org.json.JSONObject
-import java.util.concurrent.CompletionException
 import java.lang.RuntimeException
-import java.util.concurrent.ExecutionException
-import java.lang.InterruptedException
 import java.util.ArrayList
+import com.indico.graphql.enums.JobStatus as GraphQlJobStatus
 
 /**
  *  Job information
@@ -27,7 +24,7 @@ class Job(private val indicoClient: IndicoClient, private val errors: List<Strin
      */
     fun status(): JobStatus {
        val result = fetchResult()
-        return result.status!!
+        return result.status.toString().let {JobStatus.valueOf(it) }
     }
 
     fun resultAsString(): String {
@@ -67,18 +64,14 @@ class Job(private val indicoClient: IndicoClient, private val errors: List<Strin
                 throw IndicoQueryException(jobResult.errors!!.joinToString(separator = ","))
             }
             val job = jobResult.data!!.job
-            val status: JobStatus? = job?.status
-            if (status !== JobStatus.SUCCESS) {
-                throw RuntimeException("Job finished with status : " + status?.toString())
+            val status: GraphQlJobStatus? = job?.status
+            if (status !== GraphQlJobStatus.SUCCESS) {
+                throw IndicoQueryException("Job finished with status : " + status?.toString())
             }
 
             job
-        } catch (ex: CompletionException) {
-            throw RuntimeException("Call for the job result failed", ex)
-        } catch (ex: ExecutionException) {
-            throw RuntimeException("Call for the job result failed", ex)
-        } catch (ex: InterruptedException) {
-            throw RuntimeException("Call for the job result failed", ex)
+        } catch (ex: RuntimeException) {
+            throw IndicoQueryException("Call for the job result failed", ex)
         }
     }
 

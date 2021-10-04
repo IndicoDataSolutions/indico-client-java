@@ -1,7 +1,10 @@
+package examples;
+
 import com.indico.IndicoClient;
 import com.indico.IndicoConfig;
-import com.indico.jobs.Job;
+import com.indico.IndicoKtorClient;
 import com.indico.mutation.WorkflowSubmission;
+import com.indico.query.Job;
 import com.indico.storage.Blob;
 import com.indico.storage.RetrieveBlob;
 import com.indico.type.JobStatus;
@@ -26,7 +29,8 @@ public class SubmissionExample {
 
         int workflowId = 5;
 
-        try (IndicoClient client = new IndicoClient(config)) {
+        try (IndicoClient client = new IndicoKtorClient(config)) {
+
             /*
              * Create a new submission using one of two methods, file path or bytestream.
              * Generate a submission result as soon as the submission is done processing
@@ -40,8 +44,17 @@ public class SubmissionExample {
             files.add("./path_to_file.pdf");
             List<Integer> submissionIds = workflowSubmission.files(files).workflowId(workflowId).execute();
             int submissionId = submissionIds.get(0);
+
+            /**
+             * This call unifies the results from review with the submission result
+             * and generates the final file.
+             */
             Job job = client.submissionResult().submission(submissionId).execute();
 
+            /**
+             * When using either method, it is important to note that you must
+             * re-execute the query to update the result status.
+             */
             while (job.status() == JobStatus.PENDING) {
                 Thread.sleep(1000);
                 job = client.submissionResult().submission(submissionId).execute();
@@ -52,7 +65,10 @@ public class SubmissionExample {
             String url = obj.getString("url");
             RetrieveBlob retrieveBlob = client.retrieveBlob();
             Blob blob = retrieveBlob.url(url).execute();
-            //call close on blob to dispose when done with object.
+            /**
+             * It is important to close blob storage objects to release the
+             * connections that may remain from reading the blob.
+             */
             blob.close();
             System.out.println(blob.asString());
             client.updateSubmission().submissionId(submissionId).retrieved(true).execute();
@@ -65,6 +81,9 @@ public class SubmissionExample {
             maps.put(fileName,bytes);
             submissionIds = byteWorkflowSubmission.byteStreams(maps).workflowId(workflowId).execute();
             int streamSubmissionId = submissionIds.get(0);
+            /**
+             * Essentially identical to the first method.
+             */
             Job streamJob = client.submissionResult().submission(streamSubmissionId).execute();
 
             while (streamJob.status() == JobStatus.PENDING) {
@@ -79,9 +98,9 @@ public class SubmissionExample {
              * Delay gathering the results until required
              */
             List<SubmissionFilter> filters = new ArrayList<>();
-            filters.add(SubmissionFilter.builder().status(SubmissionStatus.COMPLETE).build());
-            filters.add(SubmissionFilter.builder().status(SubmissionStatus.FAILED).build());
-            SubmissionFilter subFilter = SubmissionFilter.builder().oR(filters).build();
+            filters.add(new SubmissionFilter.Builder().status(SubmissionStatus.COMPLETE).build());
+            filters.add(new SubmissionFilter.Builder().status(SubmissionStatus.FAILED).build());
+            SubmissionFilter subFilter = new SubmissionFilter.Builder().ors(filters).build();
             List<Submission> submissions = client.listSubmissions().filters(subFilter).query();
             Hashtable<Submission, Job> resultFiles = new Hashtable<>();
 

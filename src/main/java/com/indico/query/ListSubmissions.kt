@@ -2,12 +2,12 @@ package com.indico.query
 
 import com.expediagroup.graphql.client.jackson.types.OptionalInput
 import com.indico.IndicoKtorClient
-import com.indico.entity.SubmissionFilter
+import com.indico.type.SubmissionFilter
 import com.indico.graphql.ListSubmissionsGraphQL
 import com.indico.entity.Submission
 import com.indico.exceptions.IndicoQueryException
-import com.indico.graphql.enums.SubmissionStatus
-import com.sun.corba.se.impl.orbutil.graph.Graph
+import com.indico.graphql.enums.SubmissionStatus as GraphQlSubmissionStatus
+import com.indico.type.SubmissionStatus
 import java.util.*
 import java.util.function.Consumer
 import com.indico.graphql.inputs.SubmissionFilter as GraphQlSubmissionFilter
@@ -61,13 +61,13 @@ class ListSubmissions(private val client: IndicoKtorClient) :
 
     private fun convertSingleFilter(filter: SubmissionFilter, ands: List<GraphQlSubmissionFilter>? = ArrayList(), ors: List<GraphQlSubmissionFilter>? = ArrayList()): GraphQlSubmissionFilter{
         var retrieved: OptionalInput<Boolean> = OptionalInput.Undefined
-        var status: OptionalInput<SubmissionStatus> = OptionalInput.Undefined
+        var status: OptionalInput<GraphQlSubmissionStatus> = OptionalInput.Undefined
         var inputFileName : OptionalInput<String> = OptionalInput.Undefined
         if(filter.retrieved != null){
             retrieved = OptionalInput.Defined(filter.retrieved)
         }
         if(filter.status != null){
-            status = OptionalInput.Defined(filter.status)
+            status = OptionalInput.Defined(GraphQlSubmissionStatus.valueOf(filter.status.toString()))
         }
         if(filter.inputFileName != null){
             inputFileName = OptionalInput.Defined(filter.inputFileName)
@@ -82,7 +82,7 @@ class ListSubmissions(private val client: IndicoKtorClient) :
         }
         return  GraphQlSubmissionFilter(
             retrieved = retrieved,
-            status = status, inputFilename = inputFileName, ands = optionalAnds, ors = optionalOrs
+            status =  status, inputFilename = inputFileName, ands = optionalAnds, ors = optionalOrs
 
         )
     }
@@ -110,6 +110,7 @@ class ListSubmissions(private val client: IndicoKtorClient) :
      */
     override fun query(): List<Submission> {
         return try {
+
             val variables = ListSubmissionsGraphQL.Variables(
                 submissionIds = if (submissionIds != null) OptionalInput.Defined(submissionIds) else OptionalInput.Undefined,
                 workflowIds = if (workflowIds?.any() == true) OptionalInput.Defined(workflowIds) else OptionalInput.Undefined,
@@ -125,7 +126,7 @@ class ListSubmissions(private val client: IndicoKtorClient) :
                         .id(submission!!.id!!)
                         .datasetId(submission.datasetId!!)
                         .workflowId(submission.workflowId!!)
-                        .status(submission.status)
+                        .status(submission.status?.toString()?.let { SubmissionStatus.valueOf(it) })
                         .inputFile(submission.inputFile)
                         .inputFilename(submission.inputFilename)
                         .resultFile(submission.resultFile)

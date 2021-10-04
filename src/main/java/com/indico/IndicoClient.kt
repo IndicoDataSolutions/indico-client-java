@@ -10,12 +10,12 @@ import com.indico.storage.UploadFile
 /**
  * Indico Client for communicating with the platform's GraphQL API.
  */
-interface IndicoClient {
+interface IndicoClient: AutoCloseable {
 
     /**
      * Close and dispose of connections.
      */
-    fun close()
+    override fun close()
 
     /**
      * Execute any request which inherits from GraphQLClientRequest synchronously.
@@ -53,7 +53,7 @@ interface IndicoClient {
     fun modelGroupLoad(): ModelGroupLoad?
 
     /**
-     *
+     * Retrieve model group predictions.
      */
     fun modelGroupPredict(): ModelGroupPredict?
 
@@ -80,7 +80,7 @@ interface IndicoClient {
     /**
      * Retrieve information about the training progress of a model.
      */
-    fun trainingModelWithProgress(): TrainingModelWithProgressQuery?
+    fun trainingModelWithProgressQuery(): TrainingModelWithProgressQuery?
 
     /**
      * Download a blob. Must call close() on the retrieved blob to dispose of the object after.

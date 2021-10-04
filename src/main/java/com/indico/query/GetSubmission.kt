@@ -6,6 +6,7 @@ import com.indico.entity.Submission
 import com.indico.exceptions.IndicoQueryException
 import com.indico.graphql.GetSubmissionGraphQL
 import com.indico.graphql.createsubmissionresultsgraphql.SubmissionResults
+import com.indico.type.SubmissionStatus
 
 class GetSubmission(private val client: IndicoClient) : Query<Submission?, GetSubmissionGraphQL.Result>() {
 
@@ -39,7 +40,7 @@ class GetSubmission(private val client: IndicoClient) : Query<Submission?, GetSu
                 .id(submission.id!!)
                 .datasetId(submission.datasetId!!)
                 .workflowId(submission.workflowId!!)
-                .status(submission.status)
+                .status(submission.status?.toString()?.let { SubmissionStatus.valueOf(it) })
                 .inputFile(submission.inputFile)
                 .inputFilename(submission.inputFilename)
                 .resultFile(submission.resultFile)

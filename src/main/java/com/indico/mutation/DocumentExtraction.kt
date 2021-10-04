@@ -39,9 +39,9 @@ class DocumentExtraction(private val indicoClient: IndicoKtorClient) : Mutation<
     }
 
     /**
-     * Executes request and returns Jobs
+     * Executes request and returns a list of Jobs
      *
-     * @return Job List
+     * @return List<Job>
      */
     override fun execute(): List<Job> {
         val files: MutableList<FileInput> = ArrayList<FileInput>()

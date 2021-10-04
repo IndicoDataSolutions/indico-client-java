@@ -62,9 +62,8 @@ public class Blob implements AutoCloseable {
      * Returns Blob as JSONObject
      *
      * @return JSONObject
-     * @throws IOException
      */
-    public JSONObject asJSONObject() throws IOException {
+    public JSONObject asJSONObject() {
         String jsonString = this.asString();
         return new JSON(jsonString).asJSONObject();
     }
@@ -73,15 +72,14 @@ public class Blob implements AutoCloseable {
      * Returns Blob as JSONArray
      *
      * @return JSONArray
-     * @throws IOException
      */
-    public JSONArray asJSONArray() throws IOException {
+    public JSONArray asJSONArray() {
         String jsonString = this.asString();
         return new JSON(jsonString).asJSONArray();
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws RuntimeException {
         this.response.close();
     }
 }

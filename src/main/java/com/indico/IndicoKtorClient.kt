@@ -121,7 +121,7 @@ class IndicoKtorClient(val config: IndicoConfig) : Closeable, IndicoClient {
         return ModelGroupQuery(this)
     }
 
-    override fun trainingModelWithProgress(): TrainingModelWithProgressQuery? {
+    override fun trainingModelWithProgressQuery(): TrainingModelWithProgressQuery? {
         return TrainingModelWithProgressQuery(this)
     }
 

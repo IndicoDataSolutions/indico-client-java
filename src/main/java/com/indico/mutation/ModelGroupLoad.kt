@@ -6,11 +6,15 @@ import com.indico.entity.ModelGroup
 import com.indico.exceptions.IndicoMutationException
 import com.indico.graphql.LoadModelGraphQL
 
+/**
+ * Load model group information.
+ */
 class ModelGroupLoad(private val indicoClient: IndicoKtorClient) : Mutation<String?, LoadModelGraphQL.Result>() {
     private var modelId = 0
 
+    @Deprecated("Please add model group id directly.")
     /**
-     * Use to load ModelGroup
+     * Add model group to load
      *
      * @param modelGroup ModelGroup
      * @return ModelGroupLoad
@@ -21,7 +25,7 @@ class ModelGroupLoad(private val indicoClient: IndicoKtorClient) : Mutation<Stri
     }
 
     /**
-     * Use to load ModelGroup by id
+     * Add model id of the model to fetch
      *
      * @param modelId Model id
      * @return ModelGroupLoad
