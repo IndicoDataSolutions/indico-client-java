@@ -1,8 +1,9 @@
-package examples;
+package com.indico;
 
 import com.indico.IndicoClient;
 import com.indico.IndicoConfig;
 import com.indico.IndicoKtorClient;
+import com.indico.exceptions.IndicoBaseException;
 import com.indico.mutation.WorkflowSubmission;
 import com.indico.query.Job;
 import com.indico.storage.Blob;
@@ -52,12 +53,10 @@ public class SubmissionExample {
             Job job = client.submissionResult().submission(submissionId).execute();
 
             /**
-             * When using either method, it is important to note that you must
-             * re-execute the query to update the result status.
+             * each call to .status() executes a query.
              */
             while (job.status() == JobStatus.PENDING) {
                 Thread.sleep(1000);
-                job = client.submissionResult().submission(submissionId).execute();
                 System.out.println("Job Status: " + job.status());
             }
 
@@ -88,7 +87,6 @@ public class SubmissionExample {
 
             while (streamJob.status() == JobStatus.PENDING) {
                 Thread.sleep(1000);
-                streamJob = client.submissionResult().submission(submissionId).execute();
                 System.out.println("Job Status: " + streamJob.status());
             }
 
@@ -124,7 +122,7 @@ public class SubmissionExample {
                 blob = retrieveBlob.url(url).execute();
                 System.out.println("Submission " + s.id + " has result " + blob.asString());
             }
-        } catch (Exception e) {
+        } catch (IndicoBaseException | InterruptedException e) {
             e.printStackTrace();
         }
     }
