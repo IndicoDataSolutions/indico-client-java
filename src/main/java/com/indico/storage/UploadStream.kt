@@ -36,7 +36,7 @@ class UploadStream(private val client: IndicoClient) : RestRequest<JSONArray?> {
      * @throws IOException
      */
     @Throws(IOException::class)
-    override fun call(): JSONArray {
+    override fun call(): JSONArray? {
         client as IndicoKtorClient
         val uploadUrl = client.config.appBaseUrl + "/storage/files/store"
         val multipartBody = MultipartBody.Builder().setType(MultipartBody.FORM)
@@ -54,10 +54,10 @@ class UploadStream(private val client: IndicoClient) : RestRequest<JSONArray?> {
             .url(uploadUrl)
             .post(requestBody)
             .build()
-        val result = client.httpClient.newCall(request).execute()
-        val body = result.body!!.string()
-        val fileMeta = JSON(body).asJSONArray()
-        result.close()
-        return fileMeta
+        client.httpClient.newCall(request).execute().use { result ->
+            val body = result.body?.string()
+            return body?.let { JSON(it).asJSONArray() }
+
+        }
     }
 }

@@ -1,10 +1,10 @@
 package com.indico;
 
+import com.indico.exceptions.IndicoAuthorizationException;
 import okhttp3.*;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.net.SocketTimeoutException;
 import java.util.concurrent.TimeUnit;
 
 public class AuthorizationInterceptor implements Interceptor{
@@ -42,6 +42,7 @@ public class AuthorizationInterceptor implements Interceptor{
                  refreshResponse = refreshCall.execute();
             }
             catch(Exception ex) {
+                refreshResponse.close();
                 continue;
             }
         }
@@ -49,9 +50,17 @@ public class AuthorizationInterceptor implements Interceptor{
             String responseBody = refreshResponse.body().string();
             JSONObject json = new JSONObject(responseBody);
             authToken = (String) json.get("auth_token");
-            refreshResponse.close();
+            if (refreshResponse != null)
+            {
+                refreshResponse.close();
+            }
         } else {
-            throw new RuntimeException("Failed to refresh authentication state");
+            String reason = "";
+            if (refreshResponse != null)
+            {   reason = refreshResponse.message();
+                refreshResponse.close();
+            }
+            throw new IndicoAuthorizationException("Failed to refresh authentication state " + reason);
         }
     }
 

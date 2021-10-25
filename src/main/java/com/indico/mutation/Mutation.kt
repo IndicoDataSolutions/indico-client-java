@@ -78,11 +78,11 @@ sealed class Mutation<T,R>(private val logger: Logger? = LogManager.getLogger(
     }
     private fun uploadFiles(filePaths: List<String>?, client: IndicoClient): JSONArray {
         val uploadRequest = UploadFile(client)
-        return uploadRequest.filePaths(filePaths).call()
+        return uploadRequest.filePaths(filePaths).call()!!
     }
 
     private fun uploadBytes(stream: Map<String, ByteArray>?, client: IndicoClient): JSONArray {
         val uploadRequest = UploadStream(client)
-        return uploadRequest.byteStream(stream).call()
+        return uploadRequest.byteStream(stream).call()!!
     }
 }

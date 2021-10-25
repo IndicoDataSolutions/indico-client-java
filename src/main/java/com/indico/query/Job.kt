@@ -65,11 +65,8 @@ class Job(private val indicoClient: IndicoClient, private val errors: List<Strin
             }
             val job = jobResult.data!!.job
             val status: GraphQlJobStatus? = job?.status
-            if (status !== GraphQlJobStatus.SUCCESS) {
-                throw IndicoQueryException("Job finished with status : " + status?.toString())
-            }
-
-            job
+       
+            job!!
         } catch (ex: RuntimeException) {
             throw IndicoQueryException("Call for the job result failed", ex)
         }

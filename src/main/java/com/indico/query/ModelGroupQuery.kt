@@ -59,7 +59,7 @@ class ModelGroupQuery(private val indicoClient: IndicoClient) : Query<ModelGroup
                 .selectedModel(model)
                 .build()
         } catch (ex: RuntimeException) {
-            throw IndicoQueryException("Call to generate the submission result failed", ex)
+            throw IndicoQueryException("Call to generate fetch model group query failed", ex)
         }
     }
 
