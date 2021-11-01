@@ -28,7 +28,7 @@ steps:
     - echo "sonatypeUsername=$${SONATYPE_USERNAME}" >> ~/.gradle/gradle.properties
     - echo "sonatypePassword=$${SONATYPE_PASSWORD}" >> ~/.gradle/gradle.properties
     - echo "$${SONATYPE_GPG_KEY}" | base64 -d > ~/.gradle/secring.gpg
-    #- ./gradlew publishToSonatype
+    - ./gradlew publishToSonatype
 
 - name: deploy
   image: gradle:jdk8
