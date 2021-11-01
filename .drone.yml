@@ -11,5 +11,5 @@ steps:
   ORG_GRADLE_PROJECT_sonatypePassword:
     from_secret: sonatype_password
   commands:
-  - echo hello
+  - ./gradlew build
   
