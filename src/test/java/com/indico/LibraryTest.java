@@ -1,4 +1,4 @@
-package com.indico;
+/*package com.indico;
 
 import com.indico.entity.ModelGroup;
 import com.indico.jobs.Job;
@@ -60,3 +60,4 @@ public class LibraryTest {
         Assert.assertEquals("test_value", result.getJSONObject(0).getString("test_key"));
     }
 }
+*/

@@ -1,12 +1,9 @@
 package com.indico.storage;
 
 import java.io.*;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.zip.GZIPInputStream;
 
-import com.indico.IndicoClient;
-import com.indico.Mutation;
+import com.indico.IndicoKtorClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
@@ -17,10 +14,10 @@ import okhttp3.Response;
 public class RetrieveBlob implements AutoCloseable {
 
     private String url;
-    private IndicoClient client;
+    private IndicoKtorClient client;
     private Response response;
 
-    public RetrieveBlob(IndicoClient client) {
+    public RetrieveBlob(IndicoKtorClient client) {
         this.client = client;
     }
 
@@ -58,12 +55,12 @@ public class RetrieveBlob implements AutoCloseable {
         url = url.replaceAll("\"", "");
         // Drop gzip
         String path = url.split("://")[1];
-        this.url = client.config.getAppBaseUrl() + "/" + path;
+        this.url = client.getConfig().getAppBaseUrl() + "/" + path;
         return this;
     }
 
     private Response retrieveBlob() throws IOException {
-        Response response = this.client.okHttpClient.newCall(new Request.Builder().url(this.url).get().build()).execute();
+        Response response = this.client.getHttpClient().newCall(new Request.Builder().url(this.url).get().build()).execute();
         if (response.isSuccessful()) {
             return response;
         } else {

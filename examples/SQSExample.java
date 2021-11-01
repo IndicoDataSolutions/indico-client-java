@@ -1,6 +1,8 @@
+package examples;
 
 import com.indico.IndicoClient;
 import com.indico.IndicoConfig;
+import com.indico.IndicoKtorClient;
 import org.json.JSONObject;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -39,7 +41,7 @@ public class SQSExample {
                 .connectTimeout(0)
                 .build();
 
-        IndicoClient indicoClient = new IndicoClient(config);
+        IndicoClient indicoClient = new IndicoKtorClient(config);
         //submit item(s) for processing
         submit_workflow(indicoClient);
 
@@ -59,7 +61,7 @@ public class SQSExample {
                 //fetch receipt handle and body
                 String rh = m.receiptHandle();
                 //handle the fact that certain SQS queues
-                //may escpae JSON even with raw value setting
+                //may escape JSON even with raw value setting
                 if(m.body().startsWith("\"")) {
                     StringBuilder sb = new StringBuilder(m.body());
                     sb.deleteCharAt(0);

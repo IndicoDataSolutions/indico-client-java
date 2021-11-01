@@ -1,6 +1,11 @@
+package examples;
+
+import com.indico.IndicoClient;
 import com.indico.IndicoConfig;
-import com.indico.jobs.Job;
+import com.indico.IndicoKtorClient;
+import com.indico.exceptions.IndicoBaseException;
 import com.indico.mutation.DocumentExtraction;
+import com.indico.query.Job;
 import com.indico.storage.Blob;
 import com.indico.storage.RetrieveBlob;
 import com.indico.type.JobStatus;
@@ -17,16 +22,19 @@ public class SingleDocExtraction {
                 .tokenPath("__TOKEN_PATH__")
                 .build();
 
-        try (IndicoClient client = new IndicoClient(config)) {
+        try (IndicoClient client = new IndicoKtorClient(config)) {
             DocumentExtraction extraction = client.documentExtraction();
             ArrayList<String> files = new ArrayList<>();
             files.add("__PDF_PATH__");
             JSONObject json = new JSONObject();
             json.put("preset_config", "simple");
-            List<Job> jobs = extraction.files(files).jsonConfig(json).execute();
+            extraction.files(files).jsonConfig(json);
+            List<Job> jobs = extraction.execute();
             Job job = jobs.get(0);
             while (job.status() == JobStatus.PENDING) {
                 Thread.sleep(1000);
+                jobs = extraction.execute();
+                job = jobs.get(0);
             }
             JSONObject obj = job.result();
             String url = obj.getString("url");
@@ -35,7 +43,7 @@ public class SingleDocExtraction {
             //call close on blob to dispose when done with object.
             blob.close();
             System.out.println(blob.asString());
-        } catch (Exception e) {
+        } catch (IndicoBaseException | InterruptedException e) {
             e.printStackTrace();
         }
     }

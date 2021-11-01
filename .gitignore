@@ -54,3 +54,5 @@ gradle-app.setting
 
 # Ignore Gradle Peoperties
 gradle.properties
+
+indico_api_token.txt

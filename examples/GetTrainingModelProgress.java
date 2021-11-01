@@ -1,7 +1,11 @@
+package examples;
+
 import com.indico.IndicoClient;
 import com.indico.IndicoConfig;
+import com.indico.IndicoKtorClient;
 import com.indico.entity.Model;
 import com.indico.entity.ModelGroup;
+import com.indico.exceptions.IndicoBaseException;
 import com.indico.query.ModelGroupQuery;
 import com.indico.query.TrainingModelWithProgressQuery;
 import java.io.IOException;
@@ -14,16 +18,18 @@ public class GetTrainingModelProgress {
                 .tokenPath("__TOKEN_PATH__")
                 .build();
 
-        try (IndicoClient client = new IndicoClient(config)) {
+        int modelGroupId = 1;
+
+        try (IndicoClient client = new IndicoKtorClient(config)) {
             ModelGroupQuery modelGroupQuery = client.modelGroupQuery();
             TrainingModelWithProgressQuery trainingModelWithProgress = client.trainingModelWithProgressQuery();
-            ModelGroup modelGroup = modelGroupQuery.id(__MODEL_GROUP_ID__).query();
-            Model model = trainingModelWithProgress.id(__MODEL_GROUP_ID__).query();
+            ModelGroup modelGroup = modelGroupQuery.id(modelGroupId).query();
+            Model model = trainingModelWithProgress.id(modelGroupId).query();
             System.out.println(modelGroup.name);
             System.out.println("training status : " + model.status);
             System.out.println("percent complete : " + model.trainingProgress.percentComplete);
 
-        } catch (Exception e) {
+        } catch (IndicoBaseException e) {
             e.printStackTrace();
         }
     }

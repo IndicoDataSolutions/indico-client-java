@@ -1,0 +1,37 @@
+kind: pipeline
+type: kubernetes
+name: default
+
+steps:
+- name: build
+  image: gradle:jdk8
+  commands:
+  - ./gradlew build
+
+- name: stage
+  image: gradle:jdk8
+  commands:
+  - echo "signing.keyId=$${sonatype_gpg_keyid}" > gradle.properties
+  - echo "signing.password=$${sonatype_gpg_password}" >> gradle.properties
+  - echo "signing.secretKeyRingFile=${HOME}/.gradle/secring.gpg" >> gradle.properties
+  - echo "sonatypeUsername=$${sonatype_username}" >> gradle.properties
+  - echo "sonatypePassword=$${sonatype_password}" >> gradle.properties
+  - echo ${sonatype_gpg_key} | base64 -d > ~/.gradle/secring.gpg
+  - ./gradlew publishToSonatype
+
+- name: deploy
+  image: gradle:jdk8
+  when:
+  event:
+  - promote
+  target:
+  - production
+  commands:
+  - echo "signing.keyId=$${sonatype_gpg_keyid}" > gradle.properties
+  - echo "signing.password=$${sonatype_gpg_password}" >> gradle.properties
+  - echo "signing.secretKeyRingFile=${HOME}/.gradle/secring.gpg" >> gradle.properties
+  - echo "sonatypeUsername=$${sonatype_username}" >> gradle.properties
+  - echo "sonatypePassword=$${sonatype_password}" >> gradle.properties
+  
+  - ./gradlew closeAndReleaseStagingRepository
+

@@ -1,109 +1,153 @@
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath("com.apollographql.apollo:apollo-gradle-plugin:1.2.2")
-    }
-}
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLScalar
+import com.expediagroup.graphql.plugin.gradle.config.GraphQLSerializer
 
 plugins {
-    id 'java-library'
-    id 'maven'
-    id 'signing'
-    id 'eclipse'
-    id 'idea'
+    id "java"
+    id 'org.jetbrains.kotlin.jvm' version '1.5.31'
+    id "signing"
+    id "maven-publish"
+    id "io.github.gradle-nexus.publish-plugin" version "1.0.0"
+    id 'com.expediagroup.graphql' version '5.2.0'
+
 }
 
-apply plugin: 'com.apollographql.android'
+group 'com.indico'
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives javadocJar, sourcesJar
-}
-
-signing {
-    sign configurations.archives
-}
-
-group = "com.indico"
 archivesBaseName = "indico-client-java"
-version = "4.11.3"
+version = "4.12.0"
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
+task sourceJar(type: Jar) {
+    classifier "sources"
+    from sourceSets.main.allJava
+}
 
-            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUsername, password: ossrhPassword)
-            }
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier "javadoc"
+    from javadoc.destinationDir
+}
 
-            pom.project {
-                name 'Indico IPA Client'
-                packaging 'jar'
-                description 'Java client to the Indico IPA platform'
-                url 'http://indico.com'
-                scm {
-                    connection 'scm:github.com:IndicoDataSolutions/indico-client-java.git'
-                    developerConnection 'scm:github.com:IndicoDataSolutions/indico-client-java.git'
-                    url 'https://github.com/IndicoDataSolutions/indico-client-java'
-                }
-                licenses {
-                    license {
-                        name 'MIT'
-                        url 'https://github.com/IndicoDataSolutions/indico-client-java/blob/master/LICENSE'
-                    }
-                }
-                developers {
-                    developer {
-                        id 'Indico'
-                        name 'Indico Engineering'
-                        email 'contact@indico.io'
-                    }
-                }
-            }
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
         }
     }
 }
 
-gradle.projectsEvaluated {
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:unchecked"
-    }
-}
 
 dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.5.31"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.5.31"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation("io.ktor:ktor-client-okhttp:1.6.1")
     testImplementation('org.junit.jupiter:junit-jupiter:5.5.2')
-    testImplementation('org.mock-server:mockserver-netty:5.8.0')
-    implementation('com.apollographql.apollo:apollo-runtime:1.2.2')
+    implementation("com.expediagroup:graphql-kotlin-ktor-client:5.2.0")
+    implementation("com.expediagroup:graphql-kotlin-client-jackson:5.2.0")
+    implementation("com.squareup.okhttp3:okhttp:4.9.0")
     implementation('org.apache.logging.log4j:log4j-1.2-api:2.14.1')
     api('org.json:json:20190722')
     compileOnly("org.jetbrains:annotations:13.0")
-    testCompileOnly("org.jetbrains:annotations:13.0")  
+    testCompileOnly("org.jetbrains:annotations:13.0")
 }
 
-apollo {
-    outputPackageName = "com.indico"
+
+//use with update-schema.sh to refresh graphql schema
+graphqlIntrospectSchema {
+    outputFile = file("${project.projectDir}/src/main/graphql/schema.graphql")
+    endpoint = "https://app.indico.io/graph/api/graphql"
+    headers = ["Authorization" : "Bearer " + project.getProperties().getOrDefault('graphQlToken', "")]
 }
 
-test {
-    useJUnitPlatform()
+graphqlGenerateClient {
+    // Boolean flag indicating whether or not selection of deprecated fields is allowed.
+    allowDeprecatedFields = true
+    packageName = "com.indico.graphql"
+    schemaFile = file("${project.projectDir}/src/main/resources/schema.graphql")
+    serializer = GraphQLSerializer.JACKSON
+    useOptionalInputWrapper = true
+
+}
+
+compileKotlin {
+        kotlinOptions.jvmTarget = "1.8"
+}
+
+
+// ossrh requires javadoc and sources https://central.sonatype.org/pages/requirements.html
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+
+void sign(Project project) {
+    project.signing {
+        required { project.gradle.taskGraph.hasTask("publish") }
+        def signingKeyId = project.findProperty("signingKeyId")
+        def signingKey = project.findProperty("signingKey")
+        def signingPassword = project.findProperty("signingPassword")
+        if (signingKeyId) {
+            useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
+        } else if (signingKey) {
+            useInMemoryPgpKeys(signingKey, signingPassword)
+        }
+        sign publishing.publications.maven
+    }
+}
+
+project.plugins.withType(MavenPublishPlugin).all {
+    PublishingExtension publishing = project.extensions.getByType(PublishingExtension)
+    publishing.publications.withType(MavenPublication).all { mavenPublication ->
+        mavenPublication.pom {
+            name = "${project.group}:${project.name}"
+            description = name
+            url = "https://github.com/indico/indico-client-java"
+            licenses {
+                license {
+                    name = "MIT"
+                    url = "https://github.com/IndicoDataSolutions/indico-client-java/blob/master/LICENSE"
+                }
+            }
+            developers {
+                developer {
+                    id = "indico"
+                    name = "Indico Engineering"
+                    email = "contact@indico.io"
+                }
+            }
+            scm {
+                connection = "scm:git:https://github.com/indico/indico-client-java.git"
+                developerConnection = "scm:git:ssh://github.com/indico/indico-client-java.git"
+                url = "https://github.com/indico/indico-client-java"
+            }
+            sign(project)
+        }
+    }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype()
+    }
+    connectTimeout = Duration.ofMinutes(3)
+    clientTimeout = Duration.ofMinutes(3)
+}
+
+
+publishing {
+
+    repositories {
+        maven {
+            name = "local"
+            def releasesRepoUrl = "$buildDir/repos/releases"
+            def snapshotsRepoUrl = "$buildDir/repos/snapshots"
+            url = version.endsWith("SNAPSHOT") ? snapshotsRepoUrl : releasesRepoUrl
+        }
+    }
 }
