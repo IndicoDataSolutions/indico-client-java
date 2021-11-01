@@ -10,12 +10,6 @@ steps:
 
 - name: stage
   image: gradle:jdk8
-  when:
-    event:
-      - promote
-    target:
-      - debug
-      - production
   environment:
     SONATYPE_GPG_KEYID:
       from_secret: sonatype_gpg_keyid
