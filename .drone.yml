@@ -19,5 +19,29 @@ steps:
   - echo "signing.keyId=${sonatype_gpg_keyid}" > ~/.gradle/gradle.properties
   - echo "signing.password=${sonatype_gpg_password}" >> ~/.gradle/gradle.properties
   - echo "signing.secretKeyRingFile=${HOME}/.gradle/secring.gpg" >> ~/.gradle/gradle.properties
+  - echo "sonatypeUsername=${sonatype_username}" >> ~/.gradle/gradle.properties"
+  - echo "sonatypePassword=${sonatype_password}" >> ~/.gradle/gradle.properties"
   - echo ${sonatype_gpg_key} | base64 -d > ~/.gradle/secring.gpg
   - ./gradlew publishToSonatype
+
+- name: deploy
+  image: gradle:jdk8
+  when:
+  event:
+  - promote
+  target:
+  - production
+  environment:
+  ORG_GRADLE_PROJECT_sonatypeUsername:
+    from_secret: sonatype_username
+  ORG_GRADLE_PROJECT_sonatypePassword:
+    from_secret: sonatype_password
+  commands:
+  - echo "signing.keyId=${sonatype_gpg_keyid}" > ~/.gradle/gradle.properties
+  - echo "signing.password=${sonatype_gpg_password}" >> ~/.gradle/gradle.properties
+  - echo "signing.secretKeyRingFile=${HOME}/.gradle/secring.gpg" >> ~/.gradle/gradle.properties
+  - echo "sonatypeUsername=${sonatype_username}" >> ~/.gradle/gradle.properties"
+  - echo "sonatypePassword=${sonatype_password}" >> ~/.gradle/gradle.properties"
+  - echo ${sonatype_gpg_key} | base64 -d > ~/.gradle/secring.gpg
+  - ./gradlew closeAndReleaseStagingRepository
+
