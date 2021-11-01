@@ -1,5 +1,4 @@
 kind: pipeline
-type: docker
 name: default
 
 steps:
@@ -11,5 +10,5 @@ steps:
   ORG_GRADLE_PROJECT_sonatypePassword:
     from_secret: sonatype_password
   commands:
-  - ./gradlew clean build
+  - echo hello
   
