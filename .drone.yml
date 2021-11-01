@@ -17,7 +17,7 @@ steps:
     SONATYPE_GPG_KEY:
       from_secret: sonatype_gpg_key
   commands:
-    - echo "$${SONATYPE_USERNAME}"
+    - echo "$${SONATYPE_USERNAME}" > ~/.gradle/gradle.properties
     #- ./gradlew build
 
 - name: stage
