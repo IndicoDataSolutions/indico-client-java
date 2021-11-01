@@ -17,15 +17,15 @@ steps:
   - echo "sonatypeUsername=${sonatype_username}" >> ~/.gradle/gradle.properties"
   - echo "sonatypePassword=${sonatype_password}" >> ~/.gradle/gradle.properties"
   - echo ${sonatype_gpg_key} | base64 -d > ~/.gradle/secring.gpg
-  - ./gradlew publishToSonatype
+  #- ./gradlew publishToSonatype
 
 - name: deploy
   image: gradle:jdk8
   when:
-  event:
-  - promote
-  target:
-  - production
+    event:
+      - promote
+    target:
+      - production
   commands:
   - echo "signing.keyId=${sonatype_gpg_keyid}" > ~/.gradle/gradle.properties
   - echo "signing.password=${sonatype_gpg_password}" >> ~/.gradle/gradle.properties
