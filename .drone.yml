@@ -1,0 +1,14 @@
+kind: pipeline
+name: default
+
+steps:
+- name: build
+  image: gradle:jdk8
+   environment:
+    ORG_GRADLE_PROJECT_sonatypeUsername:
+      from_secret: sonatype_username
+    ORG_GRADLE_PROJECT_sonatypePassword:
+      from_secret: sonatype_password
+  commands:
+  - ./gradlew clean build
+  
