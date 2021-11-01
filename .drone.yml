@@ -27,7 +27,7 @@ steps:
     - echo "signing.secretKeyRingFile=$${HOME}/.gradle/secring.gpg" >> ~/.gradle/gradle.properties
     - echo "sonatypeUsername=$${SONATYPE_USERNAME}" >> ~/.gradle/gradle.properties
     - echo "sonatypePassword=$${SONATYPE_PASSWORD}" >> ~/.gradle/gradle.properties
-    - echo $${SONATYPE_GPG_KEY} | base64 -d > ~/.gradle/secring.gpg
+    - echo "$${SONATYPE_GPG_KEY}" | base64 -d > ~/.gradle/secring.gpg
     #- ./gradlew publishToSonatype
 
 - name: deploy
