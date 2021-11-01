@@ -6,8 +6,17 @@ steps:
 - name: build
   image: gradle:jdk8
   commands:
-  - ./gradlew graphqlGenerateClient
-  - ./gradlew compileKotlin
+  - ./gradlew build
+
+- name: sign
+  image: plugins/gpgsign
+  settings:
+    key: 
+      from_secret: sonatype_gpg_key
+    password:
+      from_secret: sonatype_gpg_password
+    files:
+      - build/libs/*
 
 - name: stage
   image: gradle:jdk8
