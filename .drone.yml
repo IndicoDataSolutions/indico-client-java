@@ -8,16 +8,6 @@ steps:
   commands:
   - ./gradlew build
 
-- name: sign
-  image: plugins/gpgsign
-  settings:
-    key: 
-      from_secret: sonatype_gpg_key
-    password:
-      from_secret: sonatype_gpg_password
-    files:
-      - build/libs/*
-
 - name: stage
   image: gradle:jdk8
   environment:
@@ -26,4 +16,8 @@ steps:
   ORG_GRADLE_PROJECT_sonatypePassword:
     from_secret: sonatype_password
   commands:
+  - echo "signing.keyId=${sonatype_gpg_keyid}" > ~/.gradle/gradle.properties
+  - echo "signing.password=${sonatype_gpg_password}" >> ~/.gradle/gradle.properties
+  - echo "signing.secretKeyRingFile=${HOME}/.gradle/secring.gpg" >> ~/.gradle/gradle.properties
+  - echo ${sonatype_gpg_key} | base64 -d > ~/.gradle/secring.gpg
   - ./gradlew publishToSonatype
