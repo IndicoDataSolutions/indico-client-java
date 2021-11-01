@@ -5,11 +5,29 @@ name: default
 steps:
 - name: build
   image: gradle:jdk8
+  environment:
+    SONATYPE_GPG_KEYID:
+      from_secret: sonatype_gpg_keyid
+    SONATYPE_GPG_PASSWORD:
+      from_secret: sonatype_gpg_password
+    SONATYPE_USERNAME:
+      from_secret: sonatype_username
+    SONATYPE_PASSWORD:
+      from_secret: sonatype_password
+    SONATYPE_GPG_KEY:
+      from_secret: sonatype_gpg_key
   commands:
-    - ./gradlew build
+    - echo "$${SONATYPE_USERNAME}"
+    #- ./gradlew build
 
 - name: stage
   image: gradle:jdk8
+  when:
+    event: 
+      - promote
+    target:
+      - debug
+      - production
   environment:
     SONATYPE_GPG_KEYID:
       from_secret: sonatype_gpg_keyid
