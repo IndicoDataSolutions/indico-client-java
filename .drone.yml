@@ -14,7 +14,7 @@ steps:
     SONATYPE_GPG_KEYID:
       from_secret: sonatype_gpg_keyid
   commands:
-  - echo "signing.keyId=${SONATYPE_GPG_KEYID}" > gradle.properties
+  - echo "signing.keyId=$${SONATYPE_GPG_KEYID}" > gradle.properties
   - echo "signing.secretKeyRingFile=secring.gpg" >> gradle.properties
   - echo "sonatypeUsername=$${sonatype_username}" >> gradle.properties
   - echo ${sonatype_gpg_key} | base64 -d > secring.gpg
