@@ -13,13 +13,22 @@ steps:
   environment:
     SONATYPE_GPG_KEYID:
       from_secret: sonatype_gpg_keyid
+    SONATYPE_USERNAME:
+      from_secret: sonatype_username
+    SONATYPE_GPG_KEY:
+      from_secret: sonatype_gpg_key
+    SONATYPE_GPG_PASSWORD:
+      from_secret: sonatype_gpg_password
+    SONATYPE_PASSWORD:
+      from_secret: sonatype_password
   commands:
   - echo "signing.keyId=$${SONATYPE_GPG_KEYID}" > gradle.properties
+  - echo "signing.password=$${SONATYPE_GPG_PASSWORD}" >> gradle.properties
   - echo "signing.secretKeyRingFile=secring.gpg" >> gradle.properties
-  - echo "sonatypeUsername=$${sonatype_username}" >> gradle.properties
-  - echo ${sonatype_gpg_key} | base64 -d > secring.gpg
-  - pwd
-  - cat gradle.properties
+  - echo "sonatypeUsername=$${SONATYPE_USERNAME}" >> gradle.properties
+  - echo "sonatypePassword=$${SONATYPE_PASSWORD}" >> gradle.properties
+  - echo $${SONATYPE_GPG_KEY} | base64 -d > secring.gpg
+  - gradle publishToSonatype
 
 
 - name: deploy
