@@ -4,12 +4,12 @@ name: default
 
 steps:
 - name: build
-  image: gradle:jdk8
+  image: openjdk:8
   commands:
-  - gradle --no-daemon build
+  - ./gradlew
 
 - name: stage
-  image: gradle:jdk8
+  image: openjdk:8
   environment:
     SONATYPE_GPG_KEYID:
       from_secret: sonatype_gpg_keyid
@@ -29,7 +29,7 @@ steps:
   - echo "sonatypePassword=$${SONATYPE_PASSWORD}" >> gradle.properties
   - echo $${SONATYPE_GPG_KEY} >> private.key
   - gpg --import private.key
-  - gradle publishToSonatype
+  - ./gradlew publishToSonatype
 
 
 - name: deploy
