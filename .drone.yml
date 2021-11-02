@@ -6,12 +6,15 @@ steps:
 - name: build
   image: gradle:jdk8
   commands:
-  - gradle build
+  - gradle --no-daemon build
 
 - name: stage
   image: gradle:jdk8
+  environment:
+    SONATYPE_GPG_KEYID:
+      from_secret: sonatype_gpg_keyid
   commands:
-  - echo "signing.keyId=$${sonatype_gpg_keyid}" > gradle.properties
+  - echo "signing.keyId=${SONATYPE_GPG_KEYID}" > gradle.properties
   - echo "signing.secretKeyRingFile=secring.gpg" >> gradle.properties
   - echo "sonatypeUsername=$${sonatype_username}" >> gradle.properties
   - echo ${sonatype_gpg_key} | base64 -d > secring.gpg
