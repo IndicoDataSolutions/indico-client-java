@@ -24,10 +24,11 @@ steps:
   commands:
   - echo "signing.keyId=$${SONATYPE_GPG_KEYID}" > gradle.properties
   - echo "signing.password=$${SONATYPE_GPG_PASSWORD}" >> gradle.properties
-  - echo "signing.secretKeyRingFile=secring.gpg" >> gradle.properties
+  - echo "signing.secretKeyRingFile=${HOME}/.gnupg/secring.gpg" >> gradle.properties
   - echo "sonatypeUsername=$${SONATYPE_USERNAME}" >> gradle.properties
   - echo "sonatypePassword=$${SONATYPE_PASSWORD}" >> gradle.properties
-  - echo $${SONATYPE_GPG_KEY} | base64 -d > secring.gpg
+  - echo $${SONATYPE_GPG_KEY} >> private.key
+  - gpg --import private.key
   - gradle publishToSonatype
 
 
