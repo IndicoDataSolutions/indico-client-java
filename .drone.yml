@@ -26,7 +26,7 @@ steps:
   - echo "sonatypePassword=$${SONATYPE_PASSWORD}" >> gradle.properties
   - echo "$${SONATYPE_GPG_KEY}" >> private.key
   - echo "$${SONATYPE_GPG_PASSWORD}" | gpg --batch --yes --passphrase-fd 0 --import private.key
-  - gpg --export-secret-keys > ~/.gnupg/secring.gpg 
+  - echo "$${SONATYPE_GPG_PASSWORD}" | gpg --batch --yes --passphrase-fd 0 --export-secret-keys > ~/.gnupg/secring.gpg 
   - gradle --no-daemon publishToSonatype
 
 - name: build
