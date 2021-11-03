@@ -24,7 +24,8 @@ steps:
   - echo "signing.secretKeyRingFile=${HOME}/.gnupg/secring.gpg" >> gradle.properties
   - echo "sonatypeUsername=$${SONATYPE_USERNAME}" >> gradle.properties
   - echo "sonatypePassword=$${SONATYPE_PASSWORD}" >> gradle.properties
-  - echo $${SONATYPE_GPG_KEY} >> private.key
+  - echo "$${SONATYPE_GPG_KEY}" >> private.key
+  - ls -la
   - gpg --import private.key
   - gradle --no-daemon publishToSonatype
 
