@@ -3,13 +3,9 @@ type: kubernetes
 name: default
 
 steps:
-- name: build
-  image: openjdk:8
-  commands:
-  - ./gradlew
 
 - name: stage
-  image: openjdk:8
+  image: gradle:jdk8-alpine
   environment:
     SONATYPE_GPG_KEYID:
       from_secret: sonatype_gpg_keyid
@@ -30,8 +26,12 @@ steps:
   - echo "sonatypePassword=$${SONATYPE_PASSWORD}" >> gradle.properties
   - echo $${SONATYPE_GPG_KEY} >> private.key
   - gpg --import private.key
-  - ./gradlew publishToSonatype
+  - gradle --no-daemon publishToSonatype
 
+- name: build
+  image: openjdk:8
+  commands:
+  - ./gradlew
 
 - name: deploy
   image: gradle:jdk8
