@@ -4,8 +4,18 @@ name: default
 
 steps:
 
+- name: build
+  image: gradle:jdk8
+  commands:
+  - ./gradlew build
+
 - name: stage
   image: gradle:jdk8
+  when:
+    branch: 
+    - master
+    event: 
+    - push
   environment:
     SONATYPE_GPG_KEYID:
       from_secret: sonatype_gpg_keyid
@@ -21,11 +31,6 @@ steps:
   - apt-get update && apt-get install --yes --no-install-recommends gnupg2
   - chmod +x ./build.sh
   - ./build.sh
-  
-- name: build
-  image: openjdk:8
-  commands:
-  - ./gradlew
 
 - name: deploy
   image: gradle:jdk8
@@ -35,11 +40,8 @@ steps:
     target:
     - production
   commands:
-  - echo "signing.keyId=$${sonatype_gpg_keyid}" > gradle.properties
-  - echo "signing.password=$${sonatype_gpg_password}" >> gradle.properties
-  - echo "signing.secretKeyRingFile=$${HOME}/.gradle/secring.gpg" >> gradle.properties
-  - echo "sonatypeUsername=$${sonatype_username}" >> gradle.properties
-  - echo "sonatypePassword=$${sonatype_password}" >> gradle.properties
-  
+  - apt-get update && apt-get install --yes --no-install-recommends gnupg2
+  - chmod +x ./build.sh
+  - ./build.sh
   - ./gradlew closeAndReleaseStagingRepository
 
