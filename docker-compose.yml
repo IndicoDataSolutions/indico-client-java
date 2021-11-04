@@ -1,0 +1,4 @@
+java:
+  build: .
+  env_file: .env
+  command: ./build.sh
