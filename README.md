@@ -1,17 +1,22 @@
 # indico-client-java
 
+## Intro
+
+This is the Java SDK used to access Indico Data's platform. As of `4.12.0`, the Java library has been rewritten and released using Kotlin as the base language. You can find out more about our decision [here](https://indicodata.ai/blog/announcing-kotlin/). *The minimum version of the JDK we support remains Java 8.* [See the release notes](https://github.com/IndicoDataSolutions/indico-client-java/releases/tag/4.12.0) for additional information on minor API changes in v4.12 on.
+
 ## Installation
 
 ### Gradle :
+ You can use gradle or maven to reference the indico library. The latest version is on the releases page located at the right side of the main repository page.
+
  in build.gradle : 
 ```
     repositories {
-        jcenter()
         mavenCentral()
     }
 
     dependencies {
-        implementation 'com.indico:indico-client-java:4.0.6'
+        implementation 'com.indico:indico-client-java:${indico-version}'
     }
 ```
 
@@ -21,7 +26,7 @@
 <dependency>
   <groupId>com.indico</groupId>
   <artifactId>indico-client-java</artifactId>
-  <version>4.0.6</version>
+  <version>${indico-version}</version>
 </dependency>
 ```
 
@@ -50,9 +55,9 @@ host, tokenPath, connection timeout, etc.
 
 The Indico Platform uses GraphQL to communicate with ALL clients including the company’s own web application and also the 
 Indico Java Client. You’ll use an IndicoClient object to pass GraphQL queries to the Indico Platform. Here’s a simple way 
-to create a client:
+to create a client. The `IndicoClient` class is an interface, with a concrete implementation called `IndicoKtorClient`:
 ```
-IndicoClient client = new IndicoClient(config);
+IndicoClient client = new IndicoKtorClient(config);
 ```
 If you want to learn more about GraphQL, the [How to GraphQL](https://www.howtographql.com/) tutorial is a great place to start.
 
@@ -70,13 +75,13 @@ queries for you.
 
 ## Examples
 
-Several examples are provided in this repo:
-
-* **GraphQL** - Place a GraphQL call to list your datasets
+Several examples are provided in this repo under the `./examples/` folder:
+* **SubmissionExample** - An example of executing a submission to a workflow.
+* **SQSExample** - An example of fetching submission status using Amazon's SQS service.
 * **SingleDocExtraction** - OCR a single PDF file (a sample PDF is provided)
 * **GetModelTrainingProgress** - Get % complete progress on a model that is training.
 
-The examples are setup as console apps in the repo's Visual Studio project.
+The examples can be run by putting them in an appropriate java project and referencing the Indico library.
 
 ## Example Snippets
 
@@ -86,36 +91,38 @@ IndicoConfig config = new IndicoConfig.Builder()
                 .host("app.indico.io")
                 .tokenPath("/home/user/indico-api-token.txt")
                 .build();
-IndicoClient client = new IndicoClient(config);
+IndicoClient client = new IndicoKtorClient(config);
 ```
 
 ### Get a Model Group 
 ```
 // You can find both the model group id and selected model id on the model's page in the "Explain" section of the app. 
 ModelGroup mg = indico.modelGroupQuery()
-                    .id(int id)
+                    .id(id)
                     .query();
 ```
 
 ### Load a Model
 ```
 String status = indico.modelGroupLoad()
-                            .modelGroup(mg)
+                            .modelId(id)
                             .execute();
 ```
 
 ### Get Model Predictions
 ```
 // It's always much more efficient to pass in a list to predict. A List of either 3 or 3,000 samples
-// to predict would be fine.
+// to predict would be fine. 
 
 Job job = indico.modelGroupPredict()
-                .modelGroup(mg)
+                .modelId(mg)
                 .data(List<String>)
                 .execute();
 while(job.status() == JobStatus.PENDING) {
     Thread.sleep(1000);
+
 }
+//check for a successful job status before fetching and using results.
 JSONArray jobResult = job.results();
 ```
 
@@ -159,32 +166,3 @@ while (job.status() == JobStatus.PENDING) {
 }
 ```
 
-#### Send a GraphQL Query
-
-As noted above, the Indico Platform presents a GraphQL interface. In addition
-to using this Client Library, you can also send GraphQL queries to the Platform.
-Here's a snippet to list all of the Datasets in your Indico account.
-
-```
-try (IndicoClient client = new IndicoClient(config)) {
-    GraphQLRequest request = indico.graphQLRequest();
-    String query
-            = "query GetDatasets {\n"
-            + "    datasets {\n"
-            + "        id\n"
-            + "        name\n"
-            + "        status\n"
-            + "        rowCount\n"
-            + "        numModelGroups\n"
-            + "        modelGroups {\n"
-            + "            id\n"
-            + "        }\n"
-            + "    }\n"
-            + "}";
-
-    JSONObject response = request.query(query).call();
-    System.out.println(response.toString());
-} catch (Exception e) {
-    e.printStackTrace();
-}
-```
