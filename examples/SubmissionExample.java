@@ -3,7 +3,9 @@ package com.indico;
 import com.indico.IndicoClient;
 import com.indico.IndicoConfig;
 import com.indico.IndicoKtorClient;
+import com.indico.entity.SubmissionRetries;
 import com.indico.exceptions.IndicoBaseException;
+import com.indico.mutation.RetrySubmission;
 import com.indico.mutation.WorkflowSubmission;
 import com.indico.query.Job;
 import com.indico.storage.Blob;
@@ -106,6 +108,23 @@ public class SubmissionExample {
                 Job j = client.generateSubmissionResult().submission(s).execute();
                 resultFiles.put(s, j);
             }
+            /**
+             * An example of retrying the submissions in the "failed" state.
+             * A list of SubmissionRetries objects is returned.
+             * This list has information about each submission and for each submission,
+             * each retry that was executed for it.
+             */
+            List<Integer> failedIds = new ArrayList<Integer>();
+            for(Submission s : submissions){
+                if(s.status == SubmissionStatus.FAILED){
+                    failedIds.add(s.id);
+                }
+            }
+            RetrySubmission retrySubmissionQuery = client.retrySubmission();
+            retrySubmissionQuery.ids(failedIds);
+            List<SubmissionRetries> retryResults = retrySubmissionQuery.execute();
+
+            System.out.println("Retried " +  retryResults.size() + " submissions");
 
             // Do other fun things
 

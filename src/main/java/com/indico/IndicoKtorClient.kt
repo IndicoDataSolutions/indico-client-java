@@ -132,4 +132,8 @@ class IndicoKtorClient(val config: IndicoConfig) : Closeable, IndicoClient {
     override fun uploadFile(): UploadFile? {
         return UploadFile(this)
     }
+
+    override fun retrySubmission(): RetrySubmission? {
+        return RetrySubmission(this)
+    }
 }

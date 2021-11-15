@@ -1,0 +1,14 @@
+ mutation RetrySubmissionGraphQL($submissionIds:[Int]!){
+  retrySubmissions(submissionIds: $submissionIds){
+    status
+    id
+    errors
+    retries{
+      id
+      previousErrors
+      previousStatus
+      retryErrors
+      submissionId
+    }
+  }
+}

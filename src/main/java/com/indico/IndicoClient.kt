@@ -92,4 +92,9 @@ interface IndicoClient: AutoCloseable {
      */
     fun uploadFile(): UploadFile?
 
+    /**
+     * Retry a submission which has failed or otherwise is not completed.
+     */
+    fun retrySubmission(): RetrySubmission?
+
 }

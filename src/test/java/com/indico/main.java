@@ -3,7 +3,9 @@ package com.indico;
 import com.indico.entity.ModelGroup;
 import com.indico.entity.Submission;
 
+import com.indico.entity.SubmissionRetries;
 import com.indico.mutation.DocumentExtraction;
+import com.indico.mutation.RetrySubmission;
 import com.indico.mutation.UpdateSubmission;
 import com.indico.mutation.WorkflowSubmission;
 import com.indico.query.GetSubmission;
@@ -47,7 +49,7 @@ public class main {
          */
         WorkflowSubmission submitFile = client.workflowSubmission();
         List<String> files = new ArrayList<String>();
-        files.add("/home/mcahill/indico/indico-client-java2/src/test/data/pdf0.pdf");
+        files.add("/home/mcahill/indico/indico-client-java2/src/test/data/pdf1.pdf");
         List<Integer> ids = submitFile.files(files)
                 .workflowId(16575)
                 .execute();
@@ -63,6 +65,12 @@ public class main {
             System.out.println(result.status);
         }
         System.out.println("Submission result:" + result.status);
+
+        RetrySubmission retry = client.retrySubmission();
+
+        retry.ids(ids);
+        List<SubmissionRetries> retries = retry.execute();
+
 
         if(result.status == SubmissionStatus.COMPLETE) {
             System.out.println("Processing....");
