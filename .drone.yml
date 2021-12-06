@@ -6,8 +6,10 @@ steps:
 
 - name: build
   image: gradle:jdk8
+  environment:
+    INDICO_TEST_TOKEN: indico_test_token
   commands:
-  - ./gradlew build
+  - ./test.sh
 
 - name: stage
   image: gradle:jdk8
