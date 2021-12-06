@@ -6,7 +6,9 @@ import com.indico.IndicoKtorClient;
 import com.indico.entity.SubmissionRetries;
 import com.indico.exceptions.IndicoBaseException;
 import com.indico.mutation.RetrySubmission;
+import com.indico.mutation.UpdateSubmission;
 import com.indico.mutation.WorkflowSubmission;
+import com.indico.query.GetSubmission;
 import com.indico.query.Job;
 import com.indico.storage.Blob;
 import com.indico.storage.RetrieveBlob;
@@ -24,7 +26,7 @@ import org.json.JSONObject;
 
 public class SubmissionExample {
 
-    public static void main(String args[]) throws IOException {
+    public static void main(String args[]) throws IOException, InterruptedException {
         IndicoConfig config = new IndicoConfig.Builder()
                 .host("app.indico.io")
                 .tokenPath("__TOKEN_PATH__")
@@ -48,9 +50,28 @@ public class SubmissionExample {
             List<Integer> submissionIds = workflowSubmission.files(files).workflowId(workflowId).execute();
             int submissionId = submissionIds.get(0);
 
-            /**
-             * This call unifies the results from review with the submission result
-             * and generates the final file.
+
+            /** Two ways to do this: one is to query the submission exactly, which allows you to get the result file url:
+             *
+             */
+
+             GetSubmission submission = client.getSubmission();
+             submission.submissionId(submissionId);
+             Submission result = submission.query();
+             while(result.status != SubmissionStatus.COMPLETE && result.status != SubmissionStatus.FAILED){
+             result = submission.query();
+             }
+
+             if(result.status == SubmissionStatus.COMPLETE) {
+                process_result(result, client);
+             }
+             else{ //handle other statuses
+             }
+
+             /**
+             * Or: This call unifies the results from review with the submission result
+             * and generates the final file, in some cases you can get the result exactly,
+             * in others you may need to fetch the result URL as above.
              */
             Job job = client.submissionResult().submission(submissionId).execute();
 
@@ -141,8 +162,34 @@ public class SubmissionExample {
                 blob = retrieveBlob.url(url).execute();
                 System.out.println("Submission " + s.id + " has result " + blob.asString());
             }
-        } catch (IndicoBaseException | InterruptedException e) {
+        } catch (IndicoBaseException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void process_result(Submission submission, IndicoClient indicoClient) throws Exception {
+        Blob blob = null;
+        try {
+            String url = "https://YOUR_INSTANCE_URL/"+submission.resultFile;
+            RetrieveBlob ret_storage_obj = indicoClient.retrieveBlob();
+            ret_storage_obj.url(url);
+            blob = ret_storage_obj.execute();
+            blob.close();
+            UpdateSubmission update_sub = indicoClient.updateSubmission();
+            update_sub.submissionId(submission.id);
+            update_sub.retrieved(true);
+            update_sub.execute();
+
+        }catch (Exception ex){
+            System.out.println("Something went wrong!");
+            ex.printStackTrace();
+        }finally{
+            if(blob != null){
+                blob.close();
+            }
+        }
+
     }
 }
