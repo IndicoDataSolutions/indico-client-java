@@ -11,4 +11,4 @@ TOKEN=$(curl --location --request POST 'https://app.indico.io/auth/users/refresh
  | tr -d '"')
 
 
-./gradlew -PgraphQlToken=$TOKEN graphqlIntrospectSchema --stacktrace
+./gradlew -PgraphQlToken=$TOKEN graphqlIntrospectSchema
