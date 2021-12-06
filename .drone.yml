@@ -7,7 +7,8 @@ steps:
 - name: build
   image: gradle:jdk8
   environment:
-    INDICO_TEST_TOKEN: indico_test_token
+    INDICO_TEST_TOKEN: 
+      from_secret: indico_test_token
   commands:
   - ./test.sh
 
