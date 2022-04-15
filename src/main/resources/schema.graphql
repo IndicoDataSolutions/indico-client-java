@@ -2448,6 +2448,7 @@ enum SubmissionResultVersion {
   OLDEST_SUPPORTED
   ONE
   TWO
+  THREE
 }
 
 "An enumeration."

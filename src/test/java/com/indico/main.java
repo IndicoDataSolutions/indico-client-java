@@ -15,6 +15,7 @@ import com.indico.query.ModelGroupQuery;
 import com.indico.storage.Blob;
 import com.indico.storage.RetrieveBlob;
 import com.indico.type.JobStatus;
+import com.indico.type.SubmissionResultVersion;
 import com.indico.type.SubmissionStatus;
 
 import java.util.ArrayList;
