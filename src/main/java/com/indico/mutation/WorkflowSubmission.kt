@@ -101,7 +101,7 @@ class WorkflowSubmission(private val client: IndicoClient) : Mutation<List<Int?>
             val workflowSubmission = response.data!!.workflowSubmission!!
             if (workflowSubmission.isDuplicateRequest!!) {
                 logger.debug(
-                    "Duplicate submission sent for s ubmission ids " + workflowSubmission.submissionIds.toString()
+                    "Duplicate submission sent for submission ids " + workflowSubmission.submissionIds.toString()
                 )
             }
             workflowSubmission.submissionIds
