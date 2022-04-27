@@ -5,8 +5,9 @@ import com.indico.IndicoClient
 import com.indico.exceptions.IndicoMutationException
 import com.indico.graphql.WorkflowSubmissionGraphQL
 import com.indico.graphql.inputs.FileInput
+import com.indico.graphql.enums.SubmissionResultVersion as GraphQlResultVersion
+import com.indico.type.SubmissionResultVersion
 import org.apache.logging.log4j.LogManager
-import org.json.JSONArray
 import java.io.IOException
 import java.util.*
 
@@ -15,6 +16,7 @@ class WorkflowSubmission(private val client: IndicoClient) : Mutation<List<Int?>
     private var id = 0
     private var duplicationId: UUID? = null
     private var streams: Map<String, ByteArray>? = null
+    private var resultFileVersion: SubmissionResultVersion? = null
     private val logger = LogManager.getLogger(javaClass)
 
     /**
@@ -58,12 +60,16 @@ class WorkflowSubmission(private val client: IndicoClient) : Mutation<List<Int?>
         return this
     }
 
+    fun resultFileVersion(version: SubmissionResultVersion?): WorkflowSubmission{
+        resultFileVersion = version
+        return this
+    }
+
     /**
      * Executes request and returns Submissions
      * @return Integer List
      */
     override fun execute(): List<Int?>? {
-        var fileMetadata: JSONArray
         val files: MutableList<FileInput> = ArrayList<FileInput>()
         try {
             if (this.files != null) {
@@ -78,10 +84,18 @@ class WorkflowSubmission(private val client: IndicoClient) : Mutation<List<Int?>
         if (duplicationId == null) {
             duplicationId = UUID.randomUUID()
         }
+
+        val resultVersion =
+            if(resultFileVersion != null)
+                OptionalInput.Defined(GraphQlResultVersion.valueOf(resultFileVersion.toString()))
+            else OptionalInput.Undefined
+
         return try {
             val call = WorkflowSubmissionGraphQL(
                 WorkflowSubmissionGraphQL.Variables(
-                    files = files, workflowId = id, duplicationId = OptionalInput.Defined(duplicationId.toString())))
+                    files = files, workflowId = id, duplicationId = OptionalInput.Defined(duplicationId.toString()),
+                    resultVersion = resultVersion
+               ))
             val response = client.execute(call)
             handleErrors(response)
             val workflowSubmission = response.data!!.workflowSubmission!!
