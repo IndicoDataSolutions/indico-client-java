@@ -1,0 +1,12 @@
+mutation UpdateSubmissionGraphQL($submissionId: Int!, $retrieved: Boolean) {
+    updateSubmission(submissionId: $submissionId, retrieved: $retrieved) {
+        id
+        datasetId
+        workflowId
+        status
+        inputFile
+        inputFilename
+        resultFile
+        retrieved
+    }
+}

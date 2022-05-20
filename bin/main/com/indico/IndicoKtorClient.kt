@@ -6,8 +6,6 @@ import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
 import com.indico.mutation.*
 import com.indico.query.*
-import com.indico.request.GraphQLRequest
-import com.indico.request.RawGraphQLRequest
 import com.indico.storage.RetrieveBlob
 import com.indico.storage.UploadFile
 import io.ktor.client.*
@@ -137,13 +135,5 @@ class IndicoKtorClient(val config: IndicoConfig) : Closeable, IndicoClient {
 
     override fun retrySubmission(): RetrySubmission? {
         return RetrySubmission(this)
-    }
-
-    override fun rawGraphQLQuery(
-        query: String,
-        operationName: String,
-        variables: ArrayList<String>
-    ): GraphQLRequest? {
-        return GraphQLRequest(this, query, operationName, variables)
     }
 }

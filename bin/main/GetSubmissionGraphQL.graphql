@@ -1,0 +1,12 @@
+query GetSubmissionGraphQL($submissionId: Int!){
+    submission(id: $submissionId){
+        id
+        datasetId
+        workflowId
+        status
+        inputFile
+        inputFilename
+        resultFile
+        retrieved
+    }
+}

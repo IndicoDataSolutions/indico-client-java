@@ -1,0 +1,5 @@
+mutation DocumentExtractionGraphQL($files: [FileInput]!, $jsonConfig: JSONString){
+    documentExtraction(files: $files, jsonConfig: $jsonConfig){
+        jobIds
+    }
+}
