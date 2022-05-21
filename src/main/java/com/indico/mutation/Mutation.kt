@@ -42,7 +42,8 @@ sealed class Mutation<T,R>(private val logger: Logger? = LogManager.getLogger(
         return try {
             logger?.trace("Uploading files to server $fileList")
             val fileMetadata = uploadFiles(fileList, client)
-            for (f in fileMetadata) {
+            for ( i in 0..fileMetadata.length()) {
+                val f = fileMetadata[i]
                 val uploadMeta = f as JSONObject
                 val meta = JSONObject()
                 meta.put("name", uploadMeta.getString("name"))
@@ -61,7 +62,8 @@ sealed class Mutation<T,R>(private val logger: Logger? = LogManager.getLogger(
         val files: MutableList<FileInput> = ArrayList<FileInput>()
         return try {
             val fileMetadata = uploadBytes(fileList, client)
-            for (f in fileMetadata) {
+            for ( i in 0..fileMetadata.length()) {
+                val f = fileMetadata[i]
                 val uploadMeta = f as JSONObject
                 val meta = JSONObject()
                 meta.put("name", uploadMeta.getString("name"))
