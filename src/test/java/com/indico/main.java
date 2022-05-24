@@ -13,6 +13,7 @@ import com.indico.query.Job;
 import com.indico.query.ListSubmissions;
 import com.indico.query.ModelGroupQuery;
 import com.indico.request.GraphQLRequest;
+import com.indico.request.RawGraphQLRequest;
 import com.indico.storage.Blob;
 import com.indico.storage.RetrieveBlob;
 import com.indico.type.JobStatus;
@@ -48,11 +49,14 @@ public class main {
         /**
          * Raw GraphQL query
          */
-        String query = "query GetSubmissionGraphQL(${'$'}submissionId: Int!){\n    submission(id: ${'$'}submissionId){\n        id\n        datasetId\n        workflowId\n        status\n        inputFile\n        inputFilename\n        resultFile\n        retrieved\n    }\n}"
+        String query = "query GetSubmissionGraphQL(${'$'}submissionId: Int!){\n    submission(id: ${'$'}submissionId){\n        id\n        datasetId\n        workflowId\n        status\n        inputFile\n        inputFilename\n        resultFile\n        retrieved\n    }\n}";
+
         String operationName = "GetSubmissionGraphQL";
         ArrayList<String> variables = new ArrayList<String>();
         variables.add("0");
-        GraphQLRequest graphQLRequest = client.rawGraphQLQuery();
+        GraphQLRequest graphQLRequest = client.rawGraphQLQuery(query, operationName, variables);
+        RawGraphQLRequest.Result result = graphQLRequest.query();
+        System.out.println(result.getSubmission().status);
         /**
          * Submit to workflow
          */

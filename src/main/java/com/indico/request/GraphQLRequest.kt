@@ -22,7 +22,7 @@ import kotlin.reflect.KClass
 class RawGraphQLRequest(
     override val query: String,
     override val operationName: String,
-    override val variables: Variables,
+    override val variables: ArrayList<String>,
 ) : GraphQLClientRequest<RawGraphQLRequest.Result>  {
 
     public override fun responseType(): KClass<Result> =
@@ -56,7 +56,7 @@ class GraphQLRequest(
             val call = RawGraphQLRequest(
                 query,
                 operationName,
-                requestVariables,
+                variables,
             )
             val response = this.indicoClient.execute(call)
             handleErrors(response)
