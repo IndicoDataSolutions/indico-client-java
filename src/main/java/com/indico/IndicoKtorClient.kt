@@ -4,6 +4,7 @@ import com.expediagroup.graphql.client.jackson.GraphQLClientJacksonSerializer
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
+import com.fasterxml.jackson.databind.JsonNode
 import com.indico.mutation.*
 import com.indico.query.*
 import com.indico.request.GraphQLRequest
@@ -15,6 +16,7 @@ import io.ktor.client.engine.okhttp.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
+import org.json.JSONObject
 import java.io.IOException
 import java.net.URL
 import java.util.concurrent.TimeUnit
@@ -142,7 +144,7 @@ class IndicoKtorClient(val config: IndicoConfig) : Closeable, IndicoClient {
     override fun rawGraphQLQuery(
         query: String,
         operationName: String,
-        variables: ArrayList<String>
+        variables: JsonNode
     ): GraphQLRequest? {
         return GraphQLRequest(this, query, operationName, variables)
     }
