@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.indico.IndicoKtorClient
 import com.indico.exceptions.IndicoQueryException
 import com.indico.query.Query
+import org.json.JSONObject
 import kotlin.reflect.KClass
 
 
@@ -24,9 +25,9 @@ class GraphQLRequest(
     private val query: String,
     private val operationName: String,
     private val variables: JsonNode,
-) : Query<String?, JsonNode>() {
+) : Query<JSONObject?, JsonNode>() {
 
-    override fun query(): String? {
+    override fun query(): JSONObject? {
         return try {
             val call = RawGraphQLRequest(
                 query,
@@ -36,13 +37,14 @@ class GraphQLRequest(
             val response = this.indicoClient.execute(call)
             handleErrors(response)
             val objectMapper = ObjectMapper()
-            return objectMapper.writeValueAsString(response.data)
+            val responseAsString = objectMapper.writeValueAsString(response.data)
+            return JSONObject(responseAsString)
         } catch (ex: RuntimeException) {
             throw IndicoQueryException("Call to get the submission failed", ex)
         }
     }
 
-    override fun refresh(obj: String?): String? {
+    override fun refresh(obj: JSONObject?): JSONObject? {
         return obj
     }
 }
