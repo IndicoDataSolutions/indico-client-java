@@ -1,7 +1,5 @@
 package com.indico;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.indico.entity.ModelGroup;
 import com.indico.entity.Submission;
 
@@ -14,18 +12,14 @@ import com.indico.query.GetSubmission;
 import com.indico.query.Job;
 import com.indico.query.ListSubmissions;
 import com.indico.query.ModelGroupQuery;
-import com.indico.request.GraphQLRequest;
-import com.indico.request.RawGraphQLRequest;
 import com.indico.storage.Blob;
 import com.indico.storage.RetrieveBlob;
 import com.indico.type.JobStatus;
 import com.indico.type.SubmissionResultVersion;
 import com.indico.type.SubmissionStatus;
-import kotlin.jvm.internal.markers.KMutableMap;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletionException;
 
 

@@ -1,9 +1,0 @@
-query ListWorkflowsGraphQL($datasetIds: [Int], $workflowIds: [Int]){
-    workflows(datasetIds: $datasetIds, workflowIds: $workflowIds){
-        workflows {
-            id
-            name
-            reviewEnabled
-        }
-    }
-}

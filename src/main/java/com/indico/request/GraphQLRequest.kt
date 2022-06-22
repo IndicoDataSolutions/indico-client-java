@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.indico.IndicoKtorClient
 import com.indico.exceptions.IndicoQueryException
 import com.indico.query.Query
-import org.json.JSONObject
 import kotlin.reflect.KClass
 
 

@@ -1,5 +1,0 @@
-mutation CreateSubmissionResultsGraphQL($submissionId: Int!) {
-    submissionResults(submissionId: $submissionId) {
-        jobId
-    }
-}

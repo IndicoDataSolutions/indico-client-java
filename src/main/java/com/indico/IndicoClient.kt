@@ -8,7 +8,6 @@ import com.indico.query.*
 import com.indico.request.GraphQLRequest
 import com.indico.storage.RetrieveBlob
 import com.indico.storage.UploadFile
-import org.json.JSONObject
 
 /**
  * Indico Client for communicating with the platform's GraphQL API.

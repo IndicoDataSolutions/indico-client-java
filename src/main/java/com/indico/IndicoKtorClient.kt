@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.indico.mutation.*
 import com.indico.query.*
 import com.indico.request.GraphQLRequest
-import com.indico.request.RawGraphQLRequest
 import com.indico.storage.RetrieveBlob
 import com.indico.storage.UploadFile
 import io.ktor.client.*
@@ -16,7 +15,6 @@ import io.ktor.client.engine.okhttp.*
 import io.ktor.utils.io.core.*
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
-import org.json.JSONObject
 import java.io.IOException
 import java.net.URL
 import java.util.concurrent.TimeUnit

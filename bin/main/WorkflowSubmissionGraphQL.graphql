@@ -1,6 +1,0 @@
-mutation WorkflowSubmissionGraphQL($duplicationId: String, $workflowId: Int!, $files: [FileInput]!, $resultVersion:SubmissionResultVersion) {
-    workflowSubmission(duplicationId: $duplicationId, workflowId: $workflowId, files: $files, resultVersion: $resultVersion) {
-        submissionIds
-        isDuplicateRequest
-    }
-}

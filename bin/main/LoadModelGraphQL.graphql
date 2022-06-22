@@ -1,5 +1,0 @@
-mutation LoadModelGraphQL($model_id: Int!) {
-  modelLoad(modelId: $model_id) {
-    status
-  }
-}
