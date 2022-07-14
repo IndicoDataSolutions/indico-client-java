@@ -26,7 +26,7 @@ import java.util.concurrent.CompletionException;
 public class main {
 
     public static IndicoKtorClient client;
-    private static String token_path = "./";
+    private static String token_path = "./indico_api_token.txt";
 
     public static void main(String args[]) throws Exception {
 

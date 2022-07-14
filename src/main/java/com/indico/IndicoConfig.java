@@ -114,7 +114,10 @@ public class IndicoConfig {
          */
         private String resolveApiToken(String path) throws IOException {
             String apiTokenPath = path;
-            File apiTokenFile = new File(apiTokenPath.concat("/indico_api_token.txt"));
+            File apiTokenFile = new File(apiTokenPath);
+            if (!apiTokenFile.isFile()) {
+                apiTokenFile = new File(apiTokenPath.concat("/indico_api_token.txt"));
+            }
             if (!(apiTokenFile.exists() && apiTokenFile.isFile())) {
                 throw new RuntimeException("File " + apiTokenFile.getPath() + " not found.");
             } else {
