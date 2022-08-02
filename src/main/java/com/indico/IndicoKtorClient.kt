@@ -4,8 +4,10 @@ import com.expediagroup.graphql.client.jackson.GraphQLClientJacksonSerializer
 import com.expediagroup.graphql.client.ktor.GraphQLKtorClient
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
+import com.fasterxml.jackson.databind.JsonNode
 import com.indico.mutation.*
 import com.indico.query.*
+import com.indico.request.GraphQLRequest
 import com.indico.storage.RetrieveBlob
 import com.indico.storage.UploadFile
 import io.ktor.client.*
@@ -135,5 +137,13 @@ class IndicoKtorClient(val config: IndicoConfig) : Closeable, IndicoClient {
 
     override fun retrySubmission(): RetrySubmission? {
         return RetrySubmission(this)
+    }
+
+    override fun rawGraphQLQuery(
+        query: String,
+        operationName: String,
+        variables: JsonNode
+    ): GraphQLRequest? {
+        return GraphQLRequest(this, query, operationName, variables)
     }
 }

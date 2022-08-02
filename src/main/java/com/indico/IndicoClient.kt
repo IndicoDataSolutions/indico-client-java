@@ -2,8 +2,10 @@ package com.indico
 
 import com.expediagroup.graphql.client.types.GraphQLClientRequest
 import com.expediagroup.graphql.client.types.GraphQLClientResponse
+import com.fasterxml.jackson.databind.JsonNode
 import com.indico.mutation.*
 import com.indico.query.*
+import com.indico.request.GraphQLRequest
 import com.indico.storage.RetrieveBlob
 import com.indico.storage.UploadFile
 
@@ -97,4 +99,8 @@ interface IndicoClient: AutoCloseable {
      */
     fun retrySubmission(): RetrySubmission?
 
+    /**
+     * Make raw GraphQL query
+     */
+    fun rawGraphQLQuery(query: String, operationName: String, variables: JsonNode): GraphQLRequest?
 }
