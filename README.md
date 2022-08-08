@@ -94,38 +94,6 @@ IndicoConfig config = new IndicoConfig.Builder()
 IndicoClient client = new IndicoKtorClient(config);
 ```
 
-### Get a Model Group 
-```
-// You can find both the model group id and selected model id on the model's page in the "Explain" section of the app. 
-ModelGroup mg = indico.modelGroupQuery()
-                    .id(id)
-                    .query();
-```
-
-### Load a Model
-```
-String status = indico.modelGroupLoad()
-                            .modelId(id)
-                            .execute();
-```
-
-### Get Model Predictions
-```
-// It's always much more efficient to pass in a list to predict. A List of either 3 or 3,000 samples
-// to predict would be fine. 
-
-Job job = indico.modelGroupPredict()
-                .modelId(mg)
-                .data(List<String>)
-                .execute();
-while(job.status() == JobStatus.PENDING) {
-    Thread.sleep(1000);
-
-}
-//check for a successful job status before fetching and using results.
-JSONArray jobResult = job.results();
-```
-
 #### OCR Documents.
 
 documentExtraction is extremely configurable. Five pre-set configurations are provided: `standard`, `legacy`, `simple`, `detailed` and `ondocument`.
