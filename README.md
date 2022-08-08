@@ -78,7 +78,6 @@ queries for you.
 Several examples are provided in this repo under the `./examples/` folder:
 * **SubmissionExample** - An example of executing a submission to a workflow.
 * **SQSExample** - An example of fetching submission status using Amazon's SQS service.
-* **SingleDocExtraction** - OCR a single PDF file (a sample PDF is provided)
 * **GetModelTrainingProgress** - Get % complete progress on a model that is training.
 
 The examples can be run by putting them in an appropriate java project and referencing the Indico library.
@@ -93,44 +92,3 @@ IndicoConfig config = new IndicoConfig.Builder()
                 .build();
 IndicoClient client = new IndicoKtorClient(config);
 ```
-
-#### OCR Documents.
-
-documentExtraction is extremely configurable. Five pre-set configurations are provided: `standard`, `legacy`, `simple`, `detailed` and `ondocument`.
-
-Most users will only need to use “standard” to get both document and page-level text and block positions in a nested 
-response format (returned object is a nested dictionary).
-
-The “simple” configuration provides a basic and fast (3-5x faster) OCR option for native PDFs- i.e. it will NOT work 
-with scanned documents. It returns document, page, and block-level text and the returned object is a nested dictionary.
-
-The “legacy” configuration is principally intended for users who ran Indico’s original pdf_extraction function to 
-extract text and train models. Use “legacy” if you are adding samples to models that were trained with data using 
-the original pdf_extraction. It returns a dictionary containing only the extracted text at the document-level.
-
-The “detailed” configuration provides OCR metrics and details down to the character level- it’s a lot of data. In 
-addition to document, page, and block-level text, it provides information on the text font/size, confidence level 
-for extracted characters, alternative characters (i.e. second most probable character), character position information, 
-and more. It returns a nested dictionary.
-
-“ondocument” provides similar information to “detailed” but does not include text/metadata at the document-level. It 
-returns a list of dictionaries where each dictionary is page data.
-
-If the pre-set configurations don't suit your use case then you can create custom DocumentExtraction configurations.
-All of the available configuration options are described [here](https://indicodatasolutions.github.io/indico-client-python/docextract_settings.html).
-
-```
-DocumentExtraction extraction = client.documentExtraction();
-
-ArrayList<String> files = new ArrayList<>();
-files.add("__PATH_TO_A_PDF_");
-JSONObject json = new JSONObject();
-json.put("preset_config", "standard");
-List<Job> jobs = extraction.files(files).jsonConfig(json).execute();
-
-Job job = jobs.get(0);
-while (job.status() == JobStatus.PENDING) {
-    Thread.sleep(1000);
-}
-```
-

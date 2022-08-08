@@ -56,3 +56,4 @@ gradle-app.setting
 gradle.properties
 
 indico_api_token.txt
+bin/
