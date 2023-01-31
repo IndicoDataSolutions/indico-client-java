@@ -5,6 +5,7 @@ enum class SubmissionStatus {
     PENDING_REVIEW,
     PENDING_ADMIN_REVIEW,
     PENDING_AUTO_REVIEW,
+    POST_PROCESSING,
     COMPLETE,
     FAILED,
 }
