@@ -27,14 +27,16 @@ public class main {
 
     public static IndicoKtorClient client;
     private static String token_path = "./indico_api_token.txt";
+    // replace with the url of the cluster you want to test against
+    private static String host = "dev-ci.us-east-2.indico-dev.indico.io";
+    // id of a document workflow that can accept submissions (i.e. models have been trained, contains an output node)
+    private static Integer workflow_id = 858;
 
     public static void main(String args[]) throws Exception {
 
-        Integer workflow_id = 16575;
         /**
          * Set up client
          */
-        String host = "dev.indico.io";
         IndicoConfig config = new IndicoConfig.Builder().host(host)
                 .protocol("https")
                 .tokenPath(token_path)
@@ -50,9 +52,9 @@ public class main {
          */
         WorkflowSubmission submitFile = client.workflowSubmission();
         List<String> files = new ArrayList<String>();
-        files.add("/home/mcahill/indico/indico-client-java2/src/test/data/pdf1.pdf");
+        files.add("./src/test/data/pdf1.pdf");
         List<Integer> ids = submitFile.files(files)
-                .workflowId(16575)
+                .workflowId(workflow_id)
                 .execute();
 
         for(Integer id : ids){
@@ -101,7 +103,7 @@ public class main {
     public static void process_result(Submission submission, IndicoClient indicoClient) throws Exception {
         Blob blob = null;
         try {
-            String url = "https://dev.indico.io/"+submission.resultFile;
+            String url = "https://" + host + submission.resultFile;
             RetrieveBlob ret_storage_obj = indicoClient.retrieveBlob();
             ret_storage_obj.url(url);
             blob = ret_storage_obj.execute();
