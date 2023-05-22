@@ -28,9 +28,9 @@ public class main {
     public static IndicoKtorClient client;
     private static String token_path = "./indico_api_token.txt";
     // replace with the url of the cluster you want to test against
-    private static String host = "dev-ci.us-east-2.indico-dev.indico.io";
+    private static String host  =  System.getenv("INDICO_HOST");
     // id of a document workflow that can accept submissions (i.e. models have been trained, contains an output node)
-    private static Integer workflow_id = 858;
+    private static Integer workflow_id = Integer.valueOf(System.getenv("TEST_WORKFLOW_ID")); //858;
 
     public static void main(String args[]) throws Exception {
 
