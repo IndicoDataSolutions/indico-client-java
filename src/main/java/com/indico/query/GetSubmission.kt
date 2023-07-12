@@ -56,6 +56,7 @@ class GetSubmission(private val client: IndicoClient) : Query<Submission?, GetSu
      * @param obj
      * @return Submission
      */
+    @Deprecated("Deprecated 5.x")
     override fun refresh(obj: Submission?): Submission? {
         return obj
     }

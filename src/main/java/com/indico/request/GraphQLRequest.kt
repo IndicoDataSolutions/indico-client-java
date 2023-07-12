@@ -28,7 +28,7 @@ class GraphQLRequest(
 ) : Query<JSONObject?, JsonNode>() {
 
     override fun query(): JSONObject? {
-        return try {
+         try {
             val call = RawGraphQLRequest(
                 query,
                 operationName,
