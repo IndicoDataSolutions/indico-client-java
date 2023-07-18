@@ -67,7 +67,7 @@ internal class WorkflowSubmissionTest {
         assertNotNull(submission)
         var result = submission!!.query()
         while (result!!.status !== SubmissionStatus.COMPLETE && result!!.status !== SubmissionStatus.FAILED) {
-            result = submission!!.query()
+            result = submission.query()
         }
         assertTrue(result!!.status == SubmissionStatus.COMPLETE)
         process_result(result, client)
