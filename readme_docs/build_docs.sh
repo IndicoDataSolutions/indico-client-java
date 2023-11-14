@@ -1,5 +1,5 @@
-./gradlew dokkaGfm
-mv build/dokka/gfm .
+#./gradlew dokkaGfm
+#mv build/dokka/gfm .
 
 cd gfm/indico-client-java
 rm package-list
@@ -7,19 +7,19 @@ rm package-list
 # make all relative links absolute
 
 for filename in $(find . -type f); do
-  readable_filename=$(echo $filename | sed -r 's|j\-s\-o\-n|json|g; s|\-(\w)\-|\1|g; s|\-(\w[_/])|\1|g; s|\-(\w)$|\1|g; s|_|\-|g; s|/\-|/|g')
-  dirname=$(echo $readable_filename | sed -r 's|(.+com\.indico[^/]*)/.+|\1|; s|\./||; s|\.|-|g')
-  dirname="./$dirname"
   if [ $(basename $filename) = "index.md" ]; then
-    newlocation="$dirname.md"
+    newName=$(dirname $filename | sed -r 's|\-(\w)\-|\1|g; s|/-|/|g; s|-(\w)_|\1-|g; s|_|-|g; s|\./||; s|\.|-|g; s|/|-|2g; s|(.+)\-(\w)$|\1\2|g')
+    newDir=$(dirname newName)
+    echo $filename
+    echo $newName
+    echo $newDir
+    mkdir -p "./$newDir"
+    mv $filename "./$newName.md"
   else
-    mkdir -p $dirname
-    newfilename=$(echo $readable_filename | sed -r 's|(.+com\.indico[^/]*/)(.+)|\2|; s|/|\-|g')
-    newlocation="$dirname/$newfilename"
+    rm $filename
   fi
-  mv $filename $newlocation
 done
 
-mv ../index.md ./index.md
-
-find . -type d -empty -delete
+#mv ../index.md ./index.md
+#
+#find . -type d -empty -delete
