@@ -49,7 +49,7 @@ pipeline:
                       chmod +x ./readme_docs/build_docs.sh
                       ./readme_docs/build_docs.sh
 
-                      cp -r ./gfm $DOCS_PATH
+                      cp -r ./gfm/indico-client-java $DOCS_PATH
                       git clone https://user:$GITHUB_TOKEN@github.com/IndicoDataSolutions/indico-readme.git
                       cd indico-readme
                       git checkout main
@@ -81,7 +81,7 @@ pipeline:
                         resources:
                           limits:
                             cpu: "0.5"
-                            memory: 500Mi
+                            memory: 900Mi
                         annotations: {}
                         labels: {}
                         containerSecurityContext:
