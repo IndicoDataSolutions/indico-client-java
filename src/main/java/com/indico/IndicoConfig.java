@@ -6,8 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 
 /**
- * Indico client configuration
- *
  * Use the builder to modify the config and pass this object to the IndicoClient
  * constructor
  */
