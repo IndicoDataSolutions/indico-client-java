@@ -8,7 +8,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * Retrieve a blob After setting the parameters to retrieve the blob use
+ * Retrieve a blob after setting the parameters to retrieve the blob use
  * getInputStream to retrieve the content of the blob
  */
 public class RetrieveBlob implements AutoCloseable {
