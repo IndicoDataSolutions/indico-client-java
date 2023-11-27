@@ -42,6 +42,7 @@ interface IndicoClient: AutoCloseable {
     /**
      * Execute a mutation to extract information from a document.
      */
+    @Deprecated("Not supported")
     fun documentExtraction(): DocumentExtraction?
 
     /**
