@@ -41,7 +41,7 @@ internal class WorkflowSubmissionTest {
         var workflowMutation = WorkflowSubmission(client)
 
         var files = listOf(rootFolder+"org-sample.pdf", rootFolder+ "pdf1.pdf")
-        var results = workflowMutation.workflowId(16555).files(files).execute()
+        var results = workflowMutation.workflowId(workflowId).files(files).execute()
 
         assertNotNull(results)
         results?.let { assert(it.isNotEmpty()) }
@@ -55,7 +55,7 @@ internal class WorkflowSubmissionTest {
         var workflowMutation = WorkflowSubmission(client)
 
         var files = listOf(rootFolder+"org-sample.pdf", rootFolder+ "pdf1.pdf")
-        var results = workflowMutation.workflowId(16555).files(files).execute()
+        var results = workflowMutation.workflowId(workflowId).files(files).execute()
 
         assertNotNull(results)
         results?.let { assert(it.isNotEmpty()) }
@@ -83,7 +83,7 @@ internal class WorkflowSubmissionTest {
         val streamMap: MutableMap<String, ByteArray> = HashMap()
         streamMap["org-sample.pdf"] = data
 
-        var results = workflowMutation.workflowId(16555).byteStreams(streamMap).execute()
+        var results = workflowMutation.workflowId(workflowId).byteStreams(streamMap).execute()
 
         assertNotNull(results)
         results?.let { assert(it.isNotEmpty()) }
@@ -94,7 +94,7 @@ internal class WorkflowSubmissionTest {
         var workflowMutation = WorkflowSubmission(client)
 
         var files = listOf(rootFolder+"org-sample.pdf", rootFolder+ "pdf1.pdf")
-        var results = workflowMutation.workflowId(16555).files(files).execute()
+        var results = workflowMutation.workflowId(workflowId).files(files).execute()
 
         assertNotNull(results)
         results?.let { assert(it.isNotEmpty()) }
