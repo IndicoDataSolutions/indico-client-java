@@ -7,7 +7,7 @@ steps:
 - name: build
   image: gradle:jdk8
   environment:
-    INDICO_TEST_TOKEN: 
+    INDICO_TEST_TOKEN:
       from_secret: indico_test_token
   commands:
   - ./test.sh
@@ -15,9 +15,7 @@ steps:
 - name: stage
   image: gradle:jdk8
   when:
-    branch: 
-    - master
-    event: 
+    event:
     - push
   environment:
     SONATYPE_GPG_KEYID:
