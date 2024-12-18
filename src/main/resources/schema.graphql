@@ -67,20 +67,20 @@ type AnnotationClassMetrics {
 type AnnotationEvaluation {
   examples(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Find results before this cursor"
-    before: Int, 
+    before: Int,
     "Return results in descending order"
-    desc: Boolean, 
-    includeAggregate: Boolean = false, 
+    desc: Boolean,
+    includeAggregate: Boolean = false,
     "filter on a specific label"
-    label: String, 
+    label: String,
     "Max number of results to return"
-    limit: Int, 
+    limit: Int,
     "attribute to order results by"
-    orderBy: ANNOTATIONEXAMPLE_COLUMN_ENUM, 
+    orderBy: ANNOTATIONEXAMPLE_COLUMN_ENUM,
     "number of pages to skip"
-    skip: Int, 
+    skip: Int,
     "filter source data on a string"
     textSearch: String
   ): AnnotationExamplesPage
@@ -693,16 +693,16 @@ type ModelGroup {
   name: String
   pagedExamples(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Find results before this cursor"
-    before: Int, 
+    before: Int,
     "Return results in descending order"
-    desc: Boolean, 
-    filters: ExampleFilter, 
+    desc: Boolean,
+    filters: ExampleFilter,
     "Max number of results to return"
-    limit: Int, 
+    limit: Int,
     "attribute to order results by"
-    orderBy: ExampleOrder, 
+    orderBy: ExampleOrder,
     "number of pages to skip"
     skip: Int
   ): ExamplePage
@@ -924,8 +924,8 @@ type Questionnaire {
   dataType: DataType
   datasetId: Int
   examples(
-    datafileId: Int, 
-    numExamples: Int!, 
+    datafileId: Int,
+    numExamples: Int!,
     "First question in questionnaire is selected if not provided"
     questionId: Int
   ): [Example]
@@ -1148,15 +1148,15 @@ type Submission {
   retrieved: Boolean
   searchResult(
     "Max result length including keyword and surrounding text"
-    context: Int, 
+    context: Int,
     "Use case-insensitive search"
-    ignoreCase: Boolean = true, 
+    ignoreCase: Boolean = true,
     "Keyword to search the text for"
-    keyword: String!, 
+    keyword: String!,
     "Use a regex keyword to find matches in the text"
-    regex: Boolean, 
+    regex: Boolean,
     "ID of the submission file to search. Must be a part of the parent submission's `input_files`"
-    subfileId: Int, 
+    subfileId: Int,
     "List index of the submission file to search in the parent submission's `input_files`"
     subfileIndex: Int
   ): [TextSearchResult]
@@ -1337,8 +1337,8 @@ type SuperMutation {
   addDataToWorkflow(workflowId: Int!): AddDataToWorkflow
   addDatasetFiles(
     "Automatically process files that are uploaded and associated with the dataset"
-    autoprocess: Boolean = false, 
-    datasetId: Int!, 
+    autoprocess: Boolean = false,
+    datasetId: Int!,
     metadataList: JSONString!
   ): Dataset
   addDatasetUser(datasetId: Int!, email: String!, role: Roles!): DatasetUser
@@ -1348,45 +1348,45 @@ type SuperMutation {
   cancelModelTraining(modelId: Int!): CancelModelTraining
   createDataset(
     "Configurations for a dataset or datacolumn"
-    config: DataConfigInput, 
-    datasetType: DatasetType, 
+    config: DataConfigInput,
+    datasetType: DatasetType,
     "Name of the dataset to create"
     name: String!
   ): Dataset
   createExport(
     "Anonymize user information"
-    anonymous: Boolean = false, 
-    columnIds: [Int], 
+    anonymous: Boolean = false,
+    columnIds: [Int],
     "One row per example, combine labels from multiple labelers into a single row"
-    combineLabels: Boolean = false, 
-    datasetId: Int!, 
+    combineLabels: Boolean = false,
+    datasetId: Int!,
     "Include datafile information"
-    fileInfo: Boolean = true, 
-    labelsetIds: [Int], 
-    name: String, 
+    fileInfo: Boolean = true,
+    labelsetIds: [Int],
+    name: String,
     subsetIds: [Int]
   ): Export
   createFireGroup(datacolumnId: Int, datasetId: Int, filters: [FiltersInput], name: String, processors: [InputProcessor]): FireGroup
   createModelGroup(datasetId: Int!, domain: FeatureDomainEnum, finetune: Boolean, interlabelerResolution: LabelResolutionStrategy, labelsetColumnId: Int, makePredictions: Boolean = false, modelTrainingOptions: JSONString, modelType: ModelType, name: String!, processors: [InputProcessor], rowIdx: [Int], sourceColumnId: Int!, subsetId: Int, testSplit: Float = 0.2): ModelGroup
   createQuestionnaire(
     "Enable predictions on the questionnaire"
-    activeLearning: Boolean = true, 
-    dataType: DataType!, 
-    datasetId: Int!, 
+    activeLearning: Boolean = true,
+    dataType: DataType!,
+    datasetId: Int!,
     "Always use Text Labeling UI"
-    forceTextMode: Boolean, 
-    instructions: String, 
-    modelTrainingOptions: JSONString, 
-    modelType: ModelType, 
-    name: String!, 
-    numLabelersRequired: Int!, 
+    forceTextMode: Boolean,
+    instructions: String,
+    modelTrainingOptions: JSONString,
+    modelType: ModelType,
+    name: String!,
+    numLabelersRequired: Int!,
     "Create a new questionnaire from an existing labelset."
-    originalLabelsetId: Int, 
-    processors: [InputProcessor], 
-    questions: [QuestionInput]!, 
+    originalLabelsetId: Int,
+    processors: [InputProcessor],
+    questions: [QuestionInput]!,
     "Show predictions at the global level"
-    showPredictions: Boolean = true, 
-    sourceColumnId: Int!, 
+    showPredictions: Boolean = true,
+    sourceColumnId: Int!,
     "User IDs to add to the questionnaire"
     users: [Int]
   ): Questionnaire
@@ -1416,7 +1416,7 @@ type SuperMutation {
   modifyScopes(id: Int!, scopes: [Scope]!): User
   newDataset(
     "DEPRECATED: Use kloudless uploader. If false, uses Nginx for local file uploads"
-    kloudless: Boolean = false, 
+    kloudless: Boolean = false,
     metadataList: JSONString!
   ): Dataset
   optimizeModelGroup(makePredictions: Boolean, modelGroupId: Int!): ModelGroup
@@ -1427,9 +1427,9 @@ type SuperMutation {
   ): Refresh
   removeQuestionnaireUser(id: Int!, userId: Int!): RemoveQuestionnaireUser
   retrainModelGroup(
-    forceRetrain: Boolean, 
-    interlabelerResolution: LabelResolutionStrategy, 
-    modelGroupId: Int!, 
+    forceRetrain: Boolean,
+    interlabelerResolution: LabelResolutionStrategy,
+    modelGroupId: Int!,
     "Can only be updated on retrain for extraction models."
     modelType: ModelType
   ): ModelGroup
@@ -1437,52 +1437,52 @@ type SuperMutation {
   retryUrl(datafileId: Int!, datasetId: Int!, newUrl: String!): Dataset
   submissionReport(
     "Get all submissions, given valid permissions"
-    allSubmissions: Boolean = false, 
+    allSubmissions: Boolean = false,
     "Provide information about submissions, as they change over time"
-    changelog: Boolean = false, 
-    filters: SubmissionLogFilter, 
+    changelog: Boolean = false,
+    filters: SubmissionLogFilter,
     "Format of report to generate, defaults to CSV"
     reportFormat: ReportFormat
   ): GenerateSubmissionReport
   submissionResults(submissionId: Int!): SubmissionResults
   submitAutoReview(
-    changes: JSONString, 
+    changes: JSONString,
     "Bypass Review/Exception queue (not recommended)"
-    forceComplete: Boolean = false, 
-    rejected: Boolean = false, 
+    forceComplete: Boolean = false,
+    rejected: Boolean = false,
     submissionId: Int!
   ): SubmitAutoReview
   submitLabels(
-    datasetId: Int!, 
-    labels: [SubmissionLabel]!, 
-    labelsetId: Int!, 
+    datasetId: Int!,
+    labels: [SubmissionLabel]!,
+    labelsetId: Int!,
     "Model group to retrain after label submission"
     modelGroupId: Int
   ): SubmitLabels
   submitReview(changes: JSONString, notes: String, rejected: Boolean = false, submissionId: Int!): Review
   toggleWorkflowAutoReview(
     "All new submissions will wait for Auto Review"
-    enableAutoReview: Boolean!, 
+    enableAutoReview: Boolean!,
     "If toggling auto review on, mark existing subs pending review as pending auto review. Ignore if toggling off"
-    updateExistingSubmissions: Boolean = false, 
+    updateExistingSubmissions: Boolean = false,
     workflowId: Int!
   ): Workflow @deprecated(reason : "Replaced by UpdateWorkflowMeta, toggling on workflow review settings update")
   toggleWorkflowReview(
     "If toggling review off, mark existing submissions waiting for review as complete. Ignored if toggling review on."
-    completeExistingSubmissions: Boolean = false, 
+    completeExistingSubmissions: Boolean = false,
     "Place all future submissions into review queue"
-    enableReview: Boolean!, 
+    enableReview: Boolean!,
     workflowId: Int!
   ): Workflow @deprecated(reason : "Replaced by UpdateWorkflowMeta, toggling on workflow review settings update")
   unlockUser(id: Int!): User
   updateDataset(
-    datasetId: Int!, 
+    datasetId: Int!,
     "New name of the dataset."
     name: String
   ): Dataset
   updateFireGroup(filters: [FiltersInput], id: Int!, name: String): FireGroup
   updateLabelset(
-    labelsetId: Int!, 
+    labelsetId: Int!,
     "Minimum number of labelers required to label each example"
     numLabelersRequired: Int
   ): LabelSet
@@ -1491,74 +1491,74 @@ type SuperMutation {
   updateModelGroupSettings(domain: FeatureDomainEnum, finetune: Boolean, interlabelerResolution: LabelResolutionStrategy, makePredictions: Boolean, modelGroupId: Int!, predictOptions: JSONString, rocAucAveraging: RocAucAveraging, samplingStrategy: SamplingStrategy, taskType: TaskType, testSplit: Float, wordPredictorStrength: WordPredictorStrength): ModelGroup
   updateQuestionKeywords(
     "Use keywords for all users"
-    globalPreference: Boolean = false, 
-    keywords: [String]!, 
+    globalPreference: Boolean = false,
+    keywords: [String]!,
     questionnaireId: Int!
   ): UpdateKeywords
   updateQuestionnaire(
     "Enable labeling tasks"
-    active: Boolean, 
+    active: Boolean,
     "Enable predictions on the questionnaire"
-    activeLearning: Boolean, 
-    dataType: DataType, 
-    id: Int!, 
-    instructions: String, 
-    name: String, 
+    activeLearning: Boolean,
+    dataType: DataType,
+    id: Int!,
+    instructions: String,
+    name: String,
     "Show predictions at the global level"
     showPredictions: Boolean
   ): Questionnaire
   updateSubmission(
     "Mark the submission as having been retrieved"
-    retrieved: Boolean, 
+    retrieved: Boolean,
     submissionId: Int!
   ): Submission
   updateUser(name: String): User
   updateUserPreference(app: String!, key: String!, value: JSONString!): Preference
   updateWorkflowMeta(
     "Estimated human time to complete the workflow in minutes"
-    estHumanTimeMins: Int, 
-    name: String, 
-    settings: ReviewSettingsInput, 
+    estHumanTimeMins: Int,
+    name: String,
+    settings: ReviewSettingsInput,
     workflowId: Int!
   ): Workflow
   userChangelogReport(
     "Changelog up to this date (23:59 UTC)"
-    endDate: Date, 
-    filters: UserReportFilter, 
+    endDate: Date,
+    filters: UserReportFilter,
     "Format of report to generate, defaults to CSV"
-    reportFormat: ReportFormat, 
+    reportFormat: ReportFormat,
     "Changelog from this date (00:00 UTC)"
     startDate: Date
   ): GenerateUserChangelogReport
   userSnapshotReport(
     "User information on this date (23:59 UTC)"
-    date: Date, 
-    filters: UserReportFilter, 
+    date: Date,
+    filters: UserReportFilter,
     "Format of report to generate, defaults to CSV"
     reportFormat: ReportFormat
   ): GenerateUserSnapshotReport
   workflowSubmission(
     "Batch all files under a single submission"
-    bundle: Boolean = false, 
+    bundle: Boolean = false,
     "UUID for duplicate Submissions caching"
-    duplicationId: String, 
-    files: [FileInput]!, 
+    duplicationId: String,
+    files: [FileInput]!,
     "Record submission for future use"
-    recordSubmission: Boolean = true, 
+    recordSubmission: Boolean = true,
     "Submission output result file version"
-    resultVersion: SubmissionResultVersion, 
+    resultVersion: SubmissionResultVersion,
     workflowId: Int!
   ): SubmissionResult
   workflowUrlSubmission(
     "Batch all urls under a single submission"
-    bundle: Boolean = false, 
+    bundle: Boolean = false,
     "UUID for duplicate Submissions caching"
-    duplicationId: String, 
+    duplicationId: String,
     "Record submission for future use"
-    recordSubmission: Boolean = true, 
+    recordSubmission: Boolean = true,
     "Submission output result file version"
-    resultVersion: SubmissionResultVersion, 
-    urls: [String]!, 
+    resultVersion: SubmissionResultVersion,
+    urls: [String]!,
     workflowId: Int!
   ): SubmissionResult
 }
@@ -1566,18 +1566,18 @@ type SuperMutation {
 type SuperSchema {
   allUsers(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Find results before this cursor"
-    before: Int, 
+    before: Int,
     "Return results in descending order"
-    desc: Boolean, 
-    filters: UserFilter, 
+    desc: Boolean,
+    filters: UserFilter,
     "Include scopes for each user"
-    includeScopes: Boolean, 
+    includeScopes: Boolean,
     "Max number of results to return"
-    limit: Int, 
+    limit: Int,
     "attribute to order results by"
-    orderBy: USER_COLUMN_ENUM, 
+    orderBy: USER_COLUMN_ENUM,
     "number of pages to skip"
     skip: Int
   ): UserPage
@@ -1588,54 +1588,54 @@ type SuperSchema {
   datasets(permissions: [PermissionType]): [Dataset]
   datasetsPage(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Find results before this cursor"
-    before: Int, 
+    before: Int,
     "Return results in descending order"
-    desc: Boolean, 
-    filters: DatasetFilter, 
+    desc: Boolean,
+    filters: DatasetFilter,
     "Max number of results to return"
-    limit: Int, 
+    limit: Int,
     "attribute to order results by"
-    orderBy: DATASET_COLUMN_ENUM, 
-    permissions: [PermissionType], 
-    showAll: Boolean, 
+    orderBy: DATASET_COLUMN_ENUM,
+    permissions: [PermissionType],
+    showAll: Boolean,
     "number of pages to skip"
     skip: Int
   ): DatasetPage
   exports(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Find results before this cursor"
-    before: Int, 
-    columnIds: [Int], 
-    datasetId: [Int], 
+    before: Int,
+    columnIds: [Int],
+    datasetId: [Int],
     "Return results in descending order"
-    desc: Boolean, 
-    exportIds: [Int], 
-    labelsetIds: [Int], 
+    desc: Boolean,
+    exportIds: [Int],
+    labelsetIds: [Int],
     "Max number of results to return"
-    limit: Int, 
+    limit: Int,
     "attribute to order results by"
-    orderBy: EXPORT_COLUMN_ENUM, 
+    orderBy: EXPORT_COLUMN_ENUM,
     "number of pages to skip"
-    skip: Int, 
+    skip: Int,
     subsetIds: [Int]
   ): ExportPage
   fireGroups(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Find results before this cursor"
-    before: Int, 
-    datasetIds: [Int], 
+    before: Int,
+    datasetIds: [Int],
     "Return results in descending order"
-    desc: Boolean, 
-    filters: FireGroupFilter, 
-    fireGroupIds: [Int], 
+    desc: Boolean,
+    filters: FireGroupFilter,
+    fireGroupIds: [Int],
     "Max number of results to return"
-    limit: Int, 
+    limit: Int,
     "attribute to order results by"
-    orderBy: FIREGROUP_COLUMN_ENUM, 
+    orderBy: FIREGROUP_COLUMN_ENUM,
     "number of pages to skip"
     skip: Int
   ): FireGroupPage
@@ -1645,18 +1645,18 @@ type SuperSchema {
   modelGroup(modelGroupId: Int!): ModelGroup
   modelGroups(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Find results before this cursor"
-    before: Int, 
-    datasetIds: [Int], 
+    before: Int,
+    datasetIds: [Int],
     "Return results in descending order"
-    desc: Boolean, 
-    filters: ModelGroupFilter, 
+    desc: Boolean,
+    filters: ModelGroupFilter,
     "Max number of results to return"
-    limit: Int, 
-    modelGroupIds: [Int], 
+    limit: Int,
+    modelGroupIds: [Int],
     "attribute to order results by"
-    orderBy: MODELGROUP_COLUMN_ENUM, 
+    orderBy: MODELGROUP_COLUMN_ENUM,
     "number of pages to skip"
     skip: Int
   ): ModelGroupPage
@@ -1664,18 +1664,18 @@ type SuperSchema {
   oneUser(id: Int!): User
   questionnaires(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Find results before this cursor"
-    before: Int, 
-    datasetIds: [Int], 
+    before: Int,
+    datasetIds: [Int],
     "Return results in descending order"
-    desc: Boolean, 
-    filters: QuestionnaireFilter, 
+    desc: Boolean,
+    filters: QuestionnaireFilter,
     "Max number of results to return"
-    limit: Int, 
+    limit: Int,
     "attribute to order results by"
-    orderBy: QUESTIONNAIRE_COLUMN_ENUM, 
-    questionnaireIds: [Int], 
+    orderBy: QUESTIONNAIRE_COLUMN_ENUM,
+    questionnaireIds: [Int],
     "number of pages to skip"
     skip: Int
   ): QuestionnairePage
@@ -1683,86 +1683,86 @@ type SuperSchema {
   refresh: Refresh
   searchDatapoint(
     "Max result length including keyword and surrounding text"
-    context: Int, 
-    datapointId: Int!, 
+    context: Int,
+    datapointId: Int!,
     "Use case-insensitive search"
-    ignoreCase: Boolean = true, 
+    ignoreCase: Boolean = true,
     "Keyword to search the text for"
-    keyword: String!, 
+    keyword: String!,
     "Use a regex keyword to find matches in the text"
     regex: Boolean
   ): [TextSearchResult]
   submission(id: Int!): Submission
   submissions(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Find results before this cursor"
-    before: Int, 
+    before: Int,
     "Return results in descending order"
-    desc: Boolean, 
-    filters: SubmissionFilter, 
+    desc: Boolean,
+    filters: SubmissionFilter,
     "Max number of results to return"
-    limit: Int, 
+    limit: Int,
     "attribute to order results by"
-    orderBy: SUBMISSION_COLUMN_ENUM, 
+    orderBy: SUBMISSION_COLUMN_ENUM,
     "number of pages to skip"
-    skip: Int, 
-    submissionIds: [Int], 
+    skip: Int,
+    submissionIds: [Int],
     workflowIds: [Int]
   ): SubmissionPage
   submissionsLog(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Get all submissions, given valid permissions"
-    allSubmissions: Boolean = false, 
+    allSubmissions: Boolean = false,
     "Find results before this cursor"
-    before: Int, 
+    before: Int,
     "Provide information about submissions, as they change over time"
-    changelog: Boolean = false, 
+    changelog: Boolean = false,
     "Return results in descending order"
-    desc: Boolean, 
-    filters: SubmissionLogFilter, 
+    desc: Boolean,
+    filters: SubmissionLogFilter,
     "Max number of results to return"
-    limit: Int, 
+    limit: Int,
     "attribute to order results by"
-    orderBy: SUBMISSIONEVENT_COLUMN_ENUM, 
+    orderBy: SUBMISSIONEVENT_COLUMN_ENUM,
     "number of pages to skip"
     skip: Int
   ): SubmissionEventPage
   user: User
   userChangelog(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Find results before this cursor"
-    before: Int, 
+    before: Int,
     "Return results in descending order"
-    desc: Boolean, 
+    desc: Boolean,
     "Get changes on or before this day (23:59 UCT)"
-    endDate: Date, 
-    filters: UserReportFilter, 
+    endDate: Date,
+    filters: UserReportFilter,
     "Max number of results to return"
-    limit: Int = 100, 
+    limit: Int = 100,
     "attribute to order results by"
-    orderBy: USERCHANGELOG_COLUMN_ENUM, 
+    orderBy: USERCHANGELOG_COLUMN_ENUM,
     "number of pages to skip"
-    skip: Int, 
+    skip: Int,
     "Get changes on or after this daye (00:00 UTC)"
     startDate: Date
   ): UserChangelogPage
   userSnapshot(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Find results before this cursor"
-    before: Int, 
+    before: Int,
     "Snapshot of permissions at this date (23:59 UTC)"
-    date: Date, 
+    date: Date,
     "Return results in descending order"
-    desc: Boolean, 
-    filters: UserReportFilter, 
+    desc: Boolean,
+    filters: UserReportFilter,
     "Max number of results to return"
-    limit: Int = 100, 
+    limit: Int = 100,
     "attribute to order results by"
-    orderBy: USERSNAPSHOT_COLUMN_ENUM, 
+    orderBy: USERSNAPSHOT_COLUMN_ENUM,
     "number of pages to skip"
     skip: Int
   ): UserSnapshotPage
@@ -1772,21 +1772,21 @@ type SuperSchema {
   ): UserSummary
   workflows(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Find results before this cursor"
-    before: Int, 
-    datasetIds: [Int], 
+    before: Int,
+    datasetIds: [Int],
     "Return results in descending order"
-    desc: Boolean, 
-    filters: WorkflowFilter, 
+    desc: Boolean,
+    filters: WorkflowFilter,
     "Max number of results to return"
-    limit: Int, 
-    metricsStartDate: Date, 
+    limit: Int,
+    metricsStartDate: Date,
     "attribute to order results by"
-    orderBy: WORKFLOW_COLUMN_ENUM, 
-    role: Roles, 
+    orderBy: WORKFLOW_COLUMN_ENUM,
+    role: Roles,
     "number of pages to skip"
-    skip: Int, 
+    skip: Int,
     workflowIds: [Int]
   ): WorkflowPage
 }
@@ -1865,15 +1865,15 @@ type User {
   lastUpdateDate: DateTime
   logins(
     "Find results after this cursor"
-    after: Int, 
+    after: Int,
     "Find results before this cursor"
-    before: Int, 
+    before: Int,
     "Return results in descending order"
-    desc: Boolean, 
+    desc: Boolean,
     "Max number of results to return"
-    limit: Int, 
+    limit: Int,
     "attribute to order results by"
-    orderBy: LOGIN_COLUMN_ENUM, 
+    orderBy: LOGIN_COLUMN_ENUM,
     "number of pages to skip"
     skip: Int
   ): LoginPage
@@ -2196,6 +2196,12 @@ enum FileType {
   PPTX
   TIFF
   UNKNOWN
+  EML
+  MSG
+  XLS
+  XLSX
+  XLSB
+  XLSM
 }
 
 "An enumeration."
