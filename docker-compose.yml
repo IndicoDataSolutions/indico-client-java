@@ -1,6 +1,4 @@
 services:
-  java-cont:
-    build: .
   java:
     build: .
     env_file: .env
