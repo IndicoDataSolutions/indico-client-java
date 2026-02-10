@@ -1,0 +1,5437 @@
+schema {
+  query: Schema
+  mutation: Mutation
+}
+
+"Directs the executor to include this field or fragment only when the `if` argument is true"
+directive @include(
+    "Included when true."
+    if: Boolean!
+  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"Directs the executor to skip this field or fragment when the `if`'argument is true."
+directive @skip(
+    "Skipped when true."
+    if: Boolean!
+  ) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+"Marks the field, argument, input field or enum value as deprecated"
+directive @deprecated(
+    "The reason for the deprecation"
+    reason: String = "No longer supported"
+  ) on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+
+"Exposes a URL that specifies the behaviour of this scalar."
+directive @specifiedBy(
+    "The URL that specifies the behaviour of this scalar."
+    url: String!
+  ) on SCALAR
+
+"Shared attributes of all components on a workflow"
+interface ComponentInterface {
+  "Actions that can be taken on this component"
+  actions: [Action]
+  "Workflow fields that this component can consume or produce"
+  availableFields: [WorkflowField]
+  componentAppId: Int @deprecated(reason : "This is no longer stored as a first-class property on the component model but in the config for certain types of components")
+  componentStatus: ComponentStatus @deprecated(reason : "Not yet available")
+  componentType: ComponentType
+  "Names of outputs from upstream filters passed to this component"
+  filteredClasses: [String]
+  id: Int
+  "Can the results of this component be used by our Review Interface?"
+  reviewable: Boolean
+  "List of valid actions on the component"
+  validActions: [ValidAction] @deprecated(reason : "Use actions instead")
+}
+
+"Component representing integrations"
+interface IntegrationsInterface {
+  "Time the integration was created"
+  createdAt: DateTime
+  "Whether this integration is currently turned on"
+  enabled: Boolean @deprecated(reason : "Use Integration.status instead")
+  "The id of the integration"
+  id: Int
+  "The type of integration"
+  integrationType: IntegrationType
+  "Details of attempts to communicate with 3rd party"
+  pagedCommAttempts(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    "Max number of results to return"
+    limit: Int = 10, 
+    "attribute to order results by"
+    orderBy: COMMATTEMPT_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int
+  ): CommAttemptPage
+  "Current state of integration"
+  status: IntegrationStatus
+  "Id of the associated workflow"
+  workflowId: Int
+}
+
+interface LabelInterface {
+  datasetuserId: Int
+  id: Int
+  rawLabel: [RawLabel]
+  taskType: TaskType
+}
+
+"All OCR options across all engines"
+interface OCROptions {
+  ocrEngine: OCREngine
+  ocrEngineVersion: String
+}
+
+interface PredictionInterface {
+  id: Int
+  modelId: Int
+  rawPrediction: [RawPrediction]
+  taskType: TaskType
+}
+
+union Evaluation = AnnotationEvaluation | ClassificationMultipleEvaluation | ClassificationSingleEvaluation | ObjectDetectionEvaluation | RationalizedClassificationEvaluation | UnbundlingEvaluation
+
+union Prediction = AnnotationPrediction | ClassificationMultiplePrediction | ClassificationPrediction | RationalizedClassificationPrediction
+
+type ANNOTATIONTestResult {
+  falseNegative: [MultiTestResult]
+  falsePositive: [MultiTestResult]
+  modelId: Int
+  resultCounts: ResultCounts
+  threshold: Float
+  trueNegative: [MultiTestResult]
+  truePositive: [MultiTestResult]
+}
+
+"Represents an action that can be taken on a component or link"
+type Action {
+  "Component Blueprint which can be added, if this is an ADD action"
+  blueprint: ComponentBlueprint
+  "Nullable field which specifies the blueprint for ADD actions"
+  blueprintId: Int
+  "Object id this action can be performed on"
+  id: Int
+  "If this action is not valid, reason for why not. Null if the action is valid"
+  invalidReason: String
+  "The specific operation, add/edit/delete"
+  op: WorkflowActionOp
+  "Indicates this action can be taken"
+  valid: Boolean
+}
+
+type ActiveFormFields {
+  jobIds: [String]
+}
+
+type AddDataComponentStatusObject {
+  color: ComponentStatusColor
+  status: AddDataComponentStatus
+  statusMessage: String
+}
+
+type AddDataToWorkflow {
+  subsetId: Int @deprecated(reason : "No subset id is returned anymore")
+  workflow: Workflow
+}
+
+"Add a new integration to a workflow. Currently supports exchange."
+type AddExchangeIntegration {
+  integration: ExchangeIntegration
+}
+
+type AddModelGroupComponent {
+  workflow: Workflow
+}
+
+"""
+Add more target names to a model group
+Field data will be generated if not explicitly opted out of
+"""
+type AddModelGroupTargetNames {
+  fields: [WorkflowField]
+  labelset: LabelSet
+}
+
+"""
+Add a component of any type to a workflow
+'component' can contain:
+    - component_type: ComponentType, required if not using blueprint
+    - name: String
+    - config: JSONString(dict)
+"""
+type AddWorkflowComponent {
+  workflow: Workflow
+}
+
+type AnnotExamplePage {
+  annotationExamples: [AnnotationExample] @deprecated(reason : "Please use examples")
+  examples: [Example]
+  pageInfo: PageInfo
+}
+
+type AnnotationClassMetrics {
+  metrics: [AnnotationPerClassSeqMetrics]
+  name: String
+}
+
+type AnnotationEvaluation {
+  "Query for examples in test set"
+  examples(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: ExampleFilter, 
+    "Max number of results to return"
+    limit: Int = 10, 
+    "attribute to order results by"
+    orderBy: ExampleOrder, 
+    "number of pages to skip"
+    skip: Int
+  ): AnnotExamplePage
+  metrics: AnnotationModelMetrics
+  testResults(actual: [String], threshold: Float): ANNOTATIONTestResult
+}
+
+type AnnotationExample {
+  annotationLabels: [AnnotationLabel]
+  datafile: DataFile
+  example: Example
+  id: Int
+  predictions: [AnnotationPrediction]
+  rowId: Int
+  rowIndex: Int
+  text: String
+}
+
+type AnnotationLabel {
+  clsId: Int
+  end: Int
+  label: String
+  start: Int
+  userId: Int
+}
+
+type AnnotationModelLevelMetrics {
+  "F1 score calculated per-class and then averaged"
+  macroF1: Float
+  "F1 score calculated based on pooling instances across classes"
+  microF1: Float
+  "Type of span the metric is calculated on, e.g. Token, Sequence Superset"
+  spanType: String
+  "F1 score calculated per-class and then weighted averaged, weighted by instances per class"
+  weightedF1: Float
+}
+
+type AnnotationModelMetrics {
+  "Metrics for evaluating model performance per class"
+  classMetrics: [AnnotationClassMetrics]
+  "Metrics for evaluating model performance at the model level, across classes"
+  modelLevelMetrics: [AnnotationModelLevelMetrics]
+  "Model retraining is required in order to calculate metrics."
+  retrainForMetrics: Boolean
+}
+
+type AnnotationPerClassSeqMetrics {
+  "Harmonic mean of precision and recall"
+  f1Score: Float
+  "# of examples that were affirmative but were not predicted as such by the model"
+  falseNegatives: Int
+  "# of examples that were predicted affirmative in the class but negative"
+  falsePositives: Int
+  "Of the predicted true positives, the percentage that were actually correct"
+  precision: Float
+  "Of the total true positives, the percentage were recovered by the model as true positives"
+  recall: Float
+  "Type of span the metric is calculated on, e.g. Token, Sequence Superset"
+  spanType: String
+  "# of examples that were predicted affirmative and were actually affirmative"
+  truePositives: Int
+}
+
+type AnnotationPrediction {
+  clsId: Int
+  confidence: Float
+  end: Int
+  label: String
+  start: Int
+  text: String
+}
+
+type AppRoleCount {
+  count: Int
+  role: AppRole
+}
+
+"""
+Represents a possible action on a blueprint,
+and whether it's valid or not
+"""
+type BPAction {
+  invalidReason: String
+  op: BlueprintOP
+  valid: Boolean
+}
+
+"Blueprints have a standard tag and value for display"
+type BTag {
+  tag: BlueprintTag
+  value: String
+}
+
+type BaseTargetName {
+  name: String
+}
+
+"A workflow associated with a particular blueprint"
+type BlueprintAssociatedWorkflow {
+  "Id of the dataset associated with a paricular blueprint"
+  datasetId: Int
+  "Id of the workflow"
+  id: Int
+  "Name of the workflow"
+  name: String
+}
+
+"A pagination of workflows associated with a particular blueprint, and workflows available to the user"
+type BlueprintAssociatedWorkflowPage {
+  "List of workflows for a given blueprint that are accessible to the user"
+  linkableWorkflowIds: [Int]
+  "page information for blueprint associated workflows"
+  pageInfo: PageInfo
+  "List of workflows associated with a blueprint"
+  workflows: [BlueprintAssociatedWorkflow]
+}
+
+"""
+Component subclass for a Component created using a "blueprint" task
+Deprecated! Not to be confused with ComponentBlueprints
+"""
+type BlueprintComponent implements ComponentInterface {
+  "Actions that can be taken on this component"
+  actions: [Action]
+  "Workflow fields that this component can consume or produce"
+  availableFields: [WorkflowField]
+  blueprintId: String
+  componentAppId: Int @deprecated(reason : "This is no longer stored as a first-class property on the component model but in the config for certain types of components")
+  componentStatus: ComponentStatus @deprecated(reason : "Not yet available")
+  componentType: ComponentType
+  "Names of outputs from upstream filters passed to this component"
+  filteredClasses: [String]
+  id: Int
+  "Can the results of this component be used by our Review Interface?"
+  reviewable: Boolean
+  "List of valid actions on the component"
+  validActions: [ValidAction] @deprecated(reason : "Use actions instead")
+}
+
+type CLASSIFICATIONTestResult {
+  falseNegative: [SingleTestResult]
+  falsePositive: [SingleTestResult]
+  modelId: Int
+  resultCounts: ResultCounts
+  threshold: Float
+  trueNegative: [SingleTestResult]
+  truePositive: [SingleTestResult]
+}
+
+type CLASSIFICATION_MULTIPLETestResult {
+  falseNegative: [MultiTestResult]
+  falsePositive: [MultiTestResult]
+  modelId: Int
+  resultCounts: ResultCounts
+  threshold: Float
+  trueNegative: [MultiTestResult]
+  truePositive: [MultiTestResult]
+}
+
+type CLASSIFICATION_UNBUNDLINGTestResult {
+  falseNegative: [MultiTestResult]
+  falsePositive: [MultiTestResult]
+  modelId: Int
+  resultCounts: ResultCounts
+  threshold: Float
+  trueNegative: [MultiTestResult]
+  truePositive: [MultiTestResult]
+}
+
+type CancelModelTraining {
+  success: Boolean
+}
+
+type ClassBalance {
+  all: [ClassCount]
+  majorityVoteWithTies: [ClassCount]
+  majorityVoteWithoutTies: [ClassCount]
+  unanimous: [ClassCount]
+}
+
+type ClassConfidence {
+  confidence: Float
+  name: String
+}
+
+type ClassConfidenceV2 {
+  clsName: TargetName
+  confidence: Float
+}
+
+type ClassCount {
+  count: Int
+  target: String
+}
+
+type ClassLabel implements LabelInterface {
+  datasetuserId: Int
+  id: Int
+  label: _ClassLabel
+  rawLabel: [RawLabel]
+  taskType: TaskType
+}
+
+type ClassPrediction implements PredictionInterface {
+  id: Int
+  modelId: Int
+  prediction: _ClassPred
+  rawPrediction: [RawPrediction]
+  taskType: TaskType
+}
+
+type ClassStpFacts {
+  "Auto Review STP for class aggregated by parent filter context"
+  autoReviewStpForClass: Float
+  className: String
+  "Review STP for class aggregated by parent filter context."
+  reviewStpForClass: Float
+  stps: [DailyStp]
+}
+
+type ClassStpMetrics {
+  "STP metrics for this class, aggregated based on the filters applied to the query"
+  aggregate: StpMetric
+  className: String
+  "STP metrics for this class, daily"
+  daily: [DailyStpMetric]
+}
+
+type ClassificationModelMetrics {
+  confusionMatrix: ConfusionMatrix
+  metricsTable: [MetricsTable]
+  prCurves: [PRCurve]
+  rocCurves: [ROCCurve]
+}
+
+type ClassificationMultipleEvaluation {
+  confusionResult(actual: String!, predicted: String!): [SingleTestResult]
+  metrics: ClassificationModelMetrics
+  testResults(actual: [String], threshold: Float): CLASSIFICATION_MULTIPLETestResult
+}
+
+type ClassificationMultiplePrediction {
+  confidences: [ClassConfidence]
+  explanations: [Explanation]
+  labels: [String]
+  tokenPredictions: [TokenPrediction]
+}
+
+type ClassificationPrediction {
+  confidences: [ClassConfidence]
+  explanations: [Explanation]
+  label: String
+  tokenPredictions: [TokenPrediction]
+}
+
+type ClassificationSingleEvaluation {
+  confusionResult(actual: String!, predicted: String!): [SingleTestResult]
+  metrics: ClassificationModelMetrics
+  testResults(actual: String, threshold: Float): CLASSIFICATIONTestResult
+}
+
+type CommAttempt {
+  "If attempt failed, reason for failure"
+  error: String
+  "When indico finished communicating with 3rd party"
+  finished: DateTime
+  id: Int
+  "When communication attempt started"
+  started: DateTime
+  "Whether the communication attempt was successful"
+  success: Boolean
+}
+
+type CommAttemptPage {
+  commAttempts: [CommAttempt]
+  pageInfo: PageInfo
+}
+
+"A single component of a workflow, usually based on some blueprint"
+type Component implements ComponentInterface {
+  "Actions that can be taken on this component"
+  actions: [Action]
+  "Workflow fields that this component can consume or produce"
+  availableFields: [WorkflowField]
+  componentAppId: Int @deprecated(reason : "This is no longer stored as a first-class property on the component model but in the config for certain types of components")
+  componentStatus: ComponentStatus @deprecated(reason : "Not yet available")
+  componentType: ComponentType
+  "Names of outputs from upstream filters passed to this component"
+  filteredClasses: [String]
+  id: Int
+  "Name of component"
+  name: String
+  "Can the results of this component be used by our Review Interface?"
+  reviewable: Boolean
+  "List of valid actions on the component"
+  validActions: [ValidAction] @deprecated(reason : "Use actions instead")
+}
+
+"""
+A component blueprint represents a template from which
+workflow components can be created.
+"""
+type ComponentBlueprint {
+  "Actions that can be taken on the blueprint"
+  actions: [BPAction]
+  "Blueprint belongs to this family"
+  componentFamily: ComponentFamily
+  "Blueprint is of this type"
+  componentType: ComponentType
+  "ComponentBlueprint config"
+  config: GenericScalar
+  "Description for this blueprint"
+  description: String
+  "This blueprint is enabled on this platform"
+  enabled: Boolean
+  "Fields this blueprint outputs"
+  fields: [FieldData]
+  "Footnotes for this blueprint's description"
+  footer: String
+  "Icon representing this blueprint"
+  icon: String
+  "Id of the blueprint which can be used to create components"
+  id: Int
+  "Name of blueprint"
+  name: String
+  "Provider responsible for developing this blueprint"
+  provider: String
+  "Tags for this component"
+  tags: [BlueprintTag]
+  "List of workflows for a given blueprint"
+  usedWorkflows(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    "Max number of results to return"
+    limit: Int, 
+    "attribute to order results by"
+    orderBy: BLUEPRINTASSOCIATEDWORKFLOW_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int
+  ): BlueprintAssociatedWorkflowPage
+}
+
+type ComponentBlueprintPage {
+  componentBlueprints: [ComponentBlueprint]
+  pageInfo: PageInfo
+}
+
+type ComponentGallery {
+  "All tags available for component blueprints. Optionally filtered by family"
+  availableTags(
+    "Specific tags for a component family"
+    componentFamily: ComponentFamily
+  ): [BTag]
+  "Blueprint by id"
+  blueprint(id: Int!): ComponentBlueprint
+  "Blueprints by ids"
+  blueprints(ids: [Int]!): [ComponentBlueprint]
+  blueprintsPage(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: ComponentBlueprintFilter, 
+    "Max number of results to return"
+    limit: Int, 
+    "attribute to order results by"
+    orderBy: COMPONENTBLUEPRINT_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int
+  ): ComponentBlueprintPage
+}
+
+"""
+Object which represents the one-way connection between 2 components
+in a workflow
+"""
+type ComponentLink {
+  "Actions that can be taken on this link"
+  actions: [Action]
+  "Workflow fields that this component link consumes"
+  availableFields: [WorkflowField]
+  "Base configuration for this link"
+  config: JSONString
+  "Filters applied to documents flowing on this link"
+  filters: Filters
+  "Parent component documents flow from"
+  headComponentId: Int
+  id: Int
+  "Child component documents flow to"
+  tailComponentId: Int
+  "List of valid actions on the component link"
+  validActions: [ValidAction] @deprecated(reason : "Use actions instead")
+  "Workflow this link belongs to"
+  workflowId: Int
+}
+
+type ComponentStatus {
+  addData: AddDataComponentStatusObject
+  submission: SubmissionComponentStatusObject
+}
+
+type ConfusionMatrix {
+  classes: [String]
+  matrix: [[Float]]
+}
+
+"Component subclass for a Content-length Filter Component"
+type ContentLengthComponent implements ComponentInterface {
+  "Actions that can be taken on this component"
+  actions: [Action]
+  "Workflow fields that this component can consume or produce"
+  availableFields: [WorkflowField]
+  componentAppId: Int @deprecated(reason : "This is no longer stored as a first-class property on the component model but in the config for certain types of components")
+  componentStatus: ComponentStatus @deprecated(reason : "Not yet available")
+  componentType: ComponentType
+  "Names of outputs from upstream filters passed to this component"
+  filteredClasses: [String]
+  id: Int
+  maximum: Int
+  minimum: Int
+  "Name of component"
+  name: String
+  "Can the results of this component be used by our Review Interface?"
+  reviewable: Boolean
+  "List of valid actions on the component"
+  validActions: [ValidAction] @deprecated(reason : "Use actions instead")
+}
+
+type CreateWorkflow {
+  workflow: Workflow
+}
+
+type CreateWorkflowFromBlueprint {
+  workflow: Workflow
+}
+
+"Component subclass for a Custom Deployed Component"
+type CustomComponent implements ComponentInterface {
+  "Actions that can be taken on this component"
+  actions: [Action]
+  "Workflow fields that this component can consume or produce"
+  availableFields: [WorkflowField]
+  componentAppId: Int @deprecated(reason : "This is no longer stored as a first-class property on the component model but in the config for certain types of components")
+  componentStatus: ComponentStatus @deprecated(reason : "Not yet available")
+  componentType: ComponentType
+  "Names of outputs from upstream filters passed to this component"
+  filteredClasses: [String]
+  id: Int
+  "Name of custom component"
+  name: String
+  "Can the results of this component be used by our Review Interface?"
+  reviewable: Boolean
+  "List of valid actions on the component"
+  validActions: [ValidAction] @deprecated(reason : "Use actions instead")
+}
+
+"Component subclass for a Custom Deployed Model"
+type CustomModelComponent implements ComponentInterface {
+  "Actions that can be taken on this component"
+  actions: [Action]
+  "Workflow fields that this component can consume or produce"
+  availableFields: [WorkflowField]
+  "Output class names"
+  classNames: [BaseTargetName]
+  componentAppId: Int @deprecated(reason : "This is no longer stored as a first-class property on the component model but in the config for certain types of components")
+  componentStatus: ComponentStatus @deprecated(reason : "Not yet available")
+  componentType: ComponentType
+  "Names of outputs from upstream filters passed to this component"
+  filteredClasses: [String]
+  id: Int
+  "Name of custom component"
+  name: String
+  "Can the results of this component be used by our Review Interface?"
+  reviewable: Boolean
+  "List of valid actions on the component"
+  validActions: [ValidAction] @deprecated(reason : "Use actions instead")
+}
+
+type DailyAvg {
+  avg: Float
+  date: Date
+}
+
+type DailyCount {
+  count: Int
+  date: Date
+}
+
+type DailyPredictionMetric {
+  date: Date
+  numPreds: Int
+}
+
+type DailyQueueMetric {
+  "Average cumulative age of items on queues waiting to be reviewed [QUEUES_STAT]"
+  avgAgeInQueue: Float
+  date: Date
+  "Cumulative hours of items on queues waiting to be reviewed [QUEUES_STAT]"
+  hoursOnQueue: Float
+  "Number of submissions on the queues waiting to be reviewed [QUEUES_STAT]"
+  subsOnQueue: Int
+}
+
+type DailyStp {
+  autoReviewDenom: Int
+  autoReviewNumerator: Int
+  autoReviewStpPct: Float
+  date: Date
+  reviewDenom: Int
+  reviewNumerator: Int
+  reviewStpPct: Float
+}
+
+type DailyStpMetric {
+  "The union of user supplied labels and auto review labels [PREDICTIONS_STP]"
+  autoReviewDenom: Int
+  "The number of human accepted auto review labels [PREDICTIONS_STP]"
+  autoReviewNumerator: Int
+  "Auto review numerator divided by auto review denomoinator, applicable if auto-review is enabled [PREDICTIONS_STP]"
+  autoReviewStpPct: Float
+  date: Date
+  "The union of user supplied labels and model predictions [PREDICTIONS_STP]"
+  reviewDenom: Int
+  "The number of human accepted model predictions that exactly match model predictions [PREDICTIONS_STP]"
+  reviewNumerator: Int
+  "Review numerator divided by review denominator, applicable if review is enabled and auto-review is disabled [PREDICTIONS_STP]"
+  reviewStpPct: Float
+}
+
+type DailySubmissionMetric {
+  "Number of items completed in the workflow, whether review was enabled or disabled [SUBMISSION_COMPLETED]"
+  completed: Int
+  "Number of items accepted in the exceptions queue [SUBMISSION_REVIEW_STAT]"
+  completedExceptionQueue: Int
+  "Number of items that were accepted in either the review or exceptions queue [SUBMISSION_REVIEW_STAT]"
+  completedInReview: Int
+  "Number of items accepted in the review queue [SUBMISSION_REVIEW_STAT]"
+  completedReviewQueue: Int
+  date: Date
+  "Number of items rejected from the exceptions queue [SUBMISSION_REVIEW_STAT]"
+  rejectedInReview: Int
+  "Number of items submitted to the workflow [SUBMISSION_SUBMITTED]"
+  submitted: Int
+}
+
+type DailyTimeOnTask {
+  date: Date
+  minutes: Float
+  numReviews: Int
+}
+
+type DailyTimeOnTaskMetric {
+  "The average amount of minutes reviewers spend on documents for this workflow, aggregated across review and exceptions queue"
+  avgMinsPerDoc: Float
+  "The average amount of minutes reviewers spend on documents for this workflow in the exceptions queue"
+  avgMinsPerDocExceptions: Float
+  "The average amount of minutes reviewers spend on documents for this workflow in the review queue"
+  avgMinsPerDocReview: Float
+  date: Date
+}
+
+"""
+Represents the columns of data in a
+dataset that can be used for training
+If the dataset is created using CSVs, the name
+comes from column name in the CSV. If a CSV is not used
+or if the CSV column name is blank, a default name is created.
+For example, if your dataset is just links to files, the column
+is often called 'documents'
+"""
+type DataColumn {
+  "order of the column in the dataset. Usually relevant with CSVs"
+  columnIndex: Int
+  "id of the dataset this column belongs to"
+  datasetId: Int
+  "type of data included in the column"
+  datatype: DataTypes
+  id: Int
+  "name of this column"
+  name: String
+  "was OCR used to parse the data in the column"
+  ocrUsed: Boolean
+}
+
+"Data processing configurations for dataset"
+type DataConfig {
+  emailOptions: EmailOptions
+  ocrOptions: OCROptions
+}
+
+"""
+Represents 1 source file within a Dataset
+May be a CSV, which other DataFiles can spawn from
+or an image or pdf, etc, which is what models and workflows
+will use for training data
+"""
+type DataFile {
+  "This datafile was deleted from the dataset"
+  deleted: Boolean
+  "If this Datafile failed processing, this is why"
+  failureType: FileFailureType
+  "Redundant representation of the rainbow_url"
+  fileHash: String
+  "Size of the datafile in bytes"
+  fileSize: Int
+  "Type of the datafile - UNKNOWN if not processed yet"
+  fileType: FileType
+  id: Int
+  "Name of the uploaded file"
+  name: String
+  "Number of pages in this datafile"
+  numPages: Int
+  "Ids of the datafilepages extracted from this datafile, if any"
+  pageIds: [Int]
+  "Page objects extracted from this datafile"
+  pages(pageNums: [Int]): [DataFilePage]
+  "Indico URL to the source file"
+  rainbowUrl: String
+  "Status of the file as it's being processed for the dataset"
+  status: FileStatus
+  "More information about the current status, including failure information"
+  statusMeta: JSONString
+}
+
+"A single page within a source datafile"
+type DataFilePage {
+  "The datafile this page belongs to"
+  datafileId: Int
+  "Ending char index of this page in the context of the datafile"
+  docEndOffset: Int
+  "Starting char index of this page in the context of the datafile"
+  docStartOffset: Int
+  id: Int
+  "Indico URL to an image of this page"
+  image: String
+  "Indico URL to a JSON file containing OCR data for this datafile"
+  pageInfo: String
+  "Index of this page within the source datafile"
+  pageNum: Int
+  "Indico URL to a thumbnail image of this page"
+  thumbnail: String
+}
+
+"""
+Cyclone Label Breakdown Response
+
+response = {
+    "num_empty_examples": len(empty_sources),
+    "num_examples": num_examples,
+    "labelset_id": labelset.id,
+    "target_contradictions": percent_contradictions,
+    "source_duplicates": percent_source_duplicate,
+    "class_balance": target_counter,
+    "warnings": warnings,
+}
+"""
+type DataInfo {
+  classBalance: ClassBalance
+  datasetId: Int
+  labelsetId: Int
+  numEmptyExamples: Int
+  numExamples: Int
+  sourceColumnId: Int
+  sourceDuplicates: Float
+  subsetIds: [Int] @deprecated(reason : "No longer used")
+  targetContradictions: Float
+  warnings: [String]
+}
+
+"""
+This is the beginning of working with Indico! A dataset
+represents all the possible training data you'd like to work with
+to build one or more workflows. Includes users you'd like to work
+on the dataset with, the source datafiles, any labelsets for the files, 
+etc
+"""
+type Dataset {
+  "When your dataset was first created"
+  createdAt: String
+  "User id of the user that created this dataset"
+  createdBy: Int
+  "Configuration used to parse and extract information from the datafiles added to this dataset. The same configuration will be used to parse and extract information from files submitted to workflows on this dataset"
+  dataConfig: DataConfig
+  dataInfo(labelsetId: Int, sourceColumnId: Int): DataInfo @deprecated(reason : "Fetch class balance info under ModelGroup")
+  "All the source Datacolumns in this dataset. Does NOT include any label columns uploaded as part of the dataset with CSV datafiles"
+  datacolumns: [DataColumn]
+  "Id of the datacolumn that will be used to source training data for all of your models and workflows. See DataColumn for more info"
+  defaultDatacolumnId: Int
+  defaultSubsetId: Int @deprecated(reason : "No longer use subsets to limit data")
+  "Any errors encountered while creating your dataset"
+  errorInfo: String
+  "Data exports made for this dataset"
+  exports: [Export]
+  "Types of files in this dataset"
+  fileTypes(
+    "Include only filetypes associated with rows"
+    filterable: Boolean = true
+  ): [FileType]
+  "All the source files added to this dataset"
+  files: [DataFile]
+  id: Int
+  "All the source label columns in this dataset"
+  labelsets: [LabelSet]
+  "Retrieve a specific Model Group belonging to this dataset by id"
+  modelGroup(id: Int): ModelGroup
+  "All model groups that were created from this dataset"
+  modelGroups(taskTypes: [TaskType]): [ModelGroup]
+  "Name of this dataset"
+  name: String
+  "Number of model groups belonging to this Dataset"
+  numModelGroups: Int
+  "Number of questionnaires aka Teach Tasks belonging to this Dataset"
+  numQuestionnaires: Int
+  "Permissions the current user has on this dataset"
+  permissions: [String]
+  "Number of rows in the dataset that can be used in model training"
+  rowCount: Int
+  "Status of this dataset which allows it to be used to create workflows, etc"
+  status: DatasetStatus
+  "Type of data your dataset holds"
+  type: DatasetType
+  "The last time properties of the dataset changed"
+  updatedAt: String
+  "User id of the user that edited or caused dataset changes"
+  updatedBy: Int
+  "All the users that have explicit access to this dataset"
+  users: [DatasetUser]
+}
+
+"Paginated result object for listing datasets"
+type DatasetPage {
+  datasets: [Dataset]
+  "Information about this current page. See PageInfo for more information"
+  pageInfo: PageInfo
+}
+
+type DatasetRole {
+  datasetId: Int
+  role: Roles
+}
+
+"""
+A user on a dataset. References a Platform CoreUser
+but with dataset-specific permissions
+"""
+type DatasetUser {
+  "Id of dataset this user belongs to"
+  datasetId: Int
+  "Email of CoreUser"
+  email: String
+  id: Int
+  "Name of CoreUser"
+  name: String
+  "Dataset permissions this user has on the dataset"
+  permissions: [String]
+  "Dataset role (aggregate of permissions) this user has on the dataset"
+  role: Roles
+  "Platform CoreUser reference"
+  userId: Int
+}
+
+"Delete this dataset from the platform"
+type DeleteDataset {
+  success: Boolean
+}
+
+"Remove a user from a dataset. Also remove the user from all dataset tasks"
+type DeleteDatasetUser {
+  success: Boolean
+}
+
+"""
+Deletes an integration from a workflow. This permanently removes the integration.
+You cannot undo this action.
+"""
+type DeleteIntegration {
+  "True if the integration is succesfully deleted"
+  success: Boolean
+}
+
+type DeletePreference {
+  success: Boolean
+}
+
+type DeleteWorkflow {
+  success: Boolean
+}
+
+type DeleteWorkflowComponent {
+  workflow: Workflow
+}
+
+"""
+Extract text from a document using one of our OCR engine providers.
+Returns: List of ids of the document processing jobs kicked off by this mutation. Can be used to query for status and results. 
+"""
+type DocumentExtraction {
+  jobIds: [String]
+}
+
+"Email options for dataset"
+type EmailOptions {
+  includeSections: EmailSectionOptions
+}
+
+"Email sections to include for processing"
+type EmailSectionOptions {
+  attachments: Boolean
+  body: Boolean
+  header: Boolean
+}
+
+type EnabledCount {
+  "Number of deactivated users"
+  disabled: Int
+  "Number of active users"
+  enabled: Int
+}
+
+"Generic class to hold OCR Engine configuration fields"
+type EngineConfigField {
+  description: String
+  fieldType: String
+  name: String
+}
+
+"Holds all possible configurations for the OCR Engine"
+type EngineOptions {
+  defaultLanguage: OCRLanguage
+  formattedName: String
+  languages: [OCRLanguage]
+  legacy: Boolean
+  name: OCREngine
+  options: [EngineConfigField]
+  typeName: String
+  versionName: String
+}
+
+"""
+An object that tracks labels and predictions for some
+piece of data on a labelset
+Use sub-classes so in the future, different queries can
+define which exact examples they supply
+ie example list - no labels or preds
+relabel - w/ labels and preds
+teach - w/ preds
+"""
+type Example {
+  autolabeled: Boolean
+  context: ExampleContext
+  datafile: DataFile
+  datafileId: Int
+  datapointId: Int
+  datarowId: Int
+  id: Int
+  labels: [LabelInterface]
+  labelsetId: Int
+  modelId: Int
+  modelPrediction: PredictionInterface
+  partial: Boolean
+  rowIndex: Int @deprecated(reason : "No longer unique. Please use id")
+  "Search for text within example"
+  search(
+    "Max result length including keyword and surrounding text"
+    context: Int, 
+    "Use case-insensitive search"
+    ignoreCase: Boolean = true, 
+    "Keyword to search the text for"
+    keyword: String!, 
+    "Use a regex keyword to find matches in the text"
+    regex: Boolean
+  ): [TextSearchResult]
+  "HIGH-COST: url or text of contextualized example"
+  source: String
+  status: ExampleStatus
+  taskType: TaskType
+  updatedAt: DateTime
+}
+
+"""
+The portion of the source file that this example
+will cover
+"""
+type ExampleContext {
+  "pixel bounds of the image"
+  bounds: [SpatialSpan]
+  id: Int
+  "character bounds of the text"
+  spans: [TokenSpan]
+}
+
+type ExamplePage {
+  examples: [Example]
+  pageInfo: PageInfo
+}
+
+type ExchangeIntegration implements IntegrationsInterface {
+  config: ExchangeIntegrationConfiguration
+  "Time the integration was created"
+  createdAt: DateTime
+  "Whether this integration is currently turned on"
+  enabled: Boolean @deprecated(reason : "Use Integration.status instead")
+  "The id of the integration"
+  id: Int
+  "The type of integration"
+  integrationType: IntegrationType
+  "Details of attempts to communicate with 3rd party"
+  pagedCommAttempts(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    "Max number of results to return"
+    limit: Int = 10, 
+    "attribute to order results by"
+    orderBy: COMMATTEMPT_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int
+  ): CommAttemptPage
+  "Current state of integration"
+  status: IntegrationStatus
+  "Id of the associated workflow"
+  workflowId: Int
+}
+
+type ExchangeIntegrationConfiguration {
+  "Filters for inbox ie: is_read, is_from_domain, is_unread, is_not_from_domain, etc. "
+  filters: JSONString
+  "Identifier for mailbox folder"
+  folderId: String
+  "Display name of the mailbox folder"
+  folderName: String
+  "User's ID"
+  userId: String
+}
+
+type ExplainMeta {
+  datasetId: Int
+  exampleId: Int
+  rowId: Int @deprecated(reason : "Please use example id")
+  rowIndex: Int @deprecated(reason : "Please use example id")
+  sourceColumnId: Int
+}
+
+type Explanation {
+  label: String
+  metadata: ExplainMeta
+  similarity: Float
+  text: String
+}
+
+type Export {
+  "Indicates user ids have been anonymized"
+  anonymous: Boolean
+  columnIds: [Int]
+  "Unix timestamp"
+  createdAt: String
+  "user id"
+  createdBy: Int
+  datasetId: Int
+  "Download URL of this export"
+  downloadUrl: String
+  "Frozen labelsets to select examples"
+  frozenLabelsetIds: [Int]
+  id: Int
+  labelsetId: Int
+  labelsetIds: [Int] @deprecated(reason : "Use labelset id")
+  modelIds: [Int]
+  name: String
+  "Number of labels in the export"
+  numLabels: Int
+  status: ExportStatus
+  subsetIds: [Int] @deprecated(reason : "Use frozen_labelset_ids")
+}
+
+type ExportPage {
+  exports: [Export]
+  pageInfo: PageInfo
+}
+
+"Component subclass for an OOTB, Third-Party Model"
+type ExternalModelComponent implements ComponentInterface {
+  "Actions that can be taken on this component"
+  actions: [Action]
+  "Workflow fields that this component can consume or produce"
+  availableFields: [WorkflowField]
+  "Output class names"
+  classNames: [BaseTargetName]
+  componentAppId: Int @deprecated(reason : "This is no longer stored as a first-class property on the component model but in the config for certain types of components")
+  componentStatus: ComponentStatus @deprecated(reason : "Not yet available")
+  componentType: ComponentType
+  "Names of outputs from upstream filters passed to this component"
+  filteredClasses: [String]
+  id: Int
+  "Name of external model service"
+  modelService: String
+  "Name of external model"
+  name: String
+  "Can the results of this component be used by our Review Interface?"
+  reviewable: Boolean
+  taskType: TaskType
+  "List of valid actions on the component"
+  validActions: [ValidAction] @deprecated(reason : "Use actions instead")
+}
+
+type ExtractLabel implements LabelInterface {
+  datasetuserId: Int
+  id: Int
+  label: [_ExtractLabel]
+  rawLabel: [RawLabel]
+  taskType: TaskType
+}
+
+type ExtractPrediction implements PredictionInterface {
+  id: Int
+  modelId: Int
+  prediction: [_ExtractionPred]
+  rawPrediction: [RawPrediction]
+  taskType: TaskType
+}
+
+"Represents a field output on a blueprint"
+type FieldData {
+  "Data type of the field"
+  datatype: String
+  "Icon to display for the field"
+  icon: String
+  "Name of the field"
+  name: String
+}
+
+"""
+Definition for which filters have been applied between
+a parent and child component
+"""
+type Filters {
+  "Label/Prediction filters for the documents"
+  classes: [String] @deprecated(reason : "Classes are populated from workflow field options")
+  "Content length filter requirements"
+  length: LengthFilter
+  "This link goes straight from the component to output"
+  passed: Boolean
+}
+
+"Object with labelset snapshot information for when the model is trained"
+type FrozenLabelSet {
+  "The target names of the model at the time of training"
+  frozenTargetNames: [TargetName]
+  "ID of the labelset snapshot"
+  id: Int
+}
+
+"Representing the full gallery for users"
+type Gallery {
+  "Gallery for components"
+  component: ComponentGallery
+  "Gallery for workflows"
+  workflow: WorkflowGallery
+}
+
+"""
+Example:
+mutation generate_new_refresh_token {
+    GenerateNewApiRefreshToken{
+        refresh_token
+    }
+}
+"""
+type GenerateNewApiRefreshToken {
+  refreshToken: String
+}
+
+type GenerateResetLink {
+  link: String
+}
+
+type GenerateSubmissionReport {
+  jobId: String
+}
+
+type GenerateUserChangelogReport {
+  jobId: String
+}
+
+type GenerateUserSnapshotReport {
+  jobId: String
+}
+
+"""
+Subclass for a component representing the initial data collection and OCR
+state of a workflow
+"""
+type InputComponent implements ComponentInterface {
+  "Actions that can be taken on this component"
+  actions: [Action]
+  "Workflow fields that this component can consume or produce"
+  availableFields: [WorkflowField]
+  componentAppId: Int @deprecated(reason : "This is no longer stored as a first-class property on the component model but in the config for certain types of components")
+  componentStatus: ComponentStatus @deprecated(reason : "Not yet available")
+  componentType: ComponentType
+  "Names of outputs from upstream filters passed to this component"
+  filteredClasses: [String]
+  id: Int
+  "List of integrations created for this workflow"
+  integrations: [IntegrationsInterface]
+  "Can the results of this component be used by our Review Interface?"
+  reviewable: Boolean
+  "List of valid actions on the component"
+  validActions: [ValidAction] @deprecated(reason : "Use actions instead")
+}
+
+type Job {
+  id: String
+  ready: Boolean
+  result: JSONString
+  status: JobStatus
+}
+
+type LabelSet {
+  datacolumnId: Int
+  datasetId: Int
+  id: Int
+  name: String
+  numFullyLabeled: Int
+  numLabelersRequired: Int
+  numLabelsetPoints: Int @deprecated(reason : "Use total_num_examples instead")
+  numRejected: Int
+  "The source data for this labelset was produced from an upstream model's labels"
+  spanned: Boolean
+  targetNames: [TargetName]
+  "Target types available for this labelset's task type"
+  targetTypes: [TargetType]
+  taskType: TaskType
+  "Number of examples in labelset"
+  totalNumExamples: Int
+}
+
+"""
+Object describing the differences between the current labelset and its prior
+state when training occurred
+"""
+type LabelSetDiff {
+  "Lists of added and removed target names from the set the model was trained on"
+  targetNames: TargetNameDiff
+}
+
+"""
+Definition of a content length filtering strategy
+for a Content Length Filter Component
+"""
+type LengthFilter {
+  description: String
+  maximum: Int
+  minimum: Int
+}
+
+"Component subclass for a Link component that follows a classification-task-type model component"
+type LinkClassificationModelComponent implements ComponentInterface {
+  "Actions that can be taken on this component"
+  actions: [Action]
+  "Workflow fields that this component can consume or produce"
+  availableFields: [WorkflowField]
+  "Selected classes from the classification model linked"
+  classes: [[String]] @deprecated(reason : "Classes are populated from workflow field options")
+  componentAppId: Int @deprecated(reason : "This is no longer stored as a first-class property on the component model but in the config for certain types of components")
+  componentStatus: ComponentStatus @deprecated(reason : "Not yet available")
+  componentType: ComponentType
+  "Names of outputs from upstream filters passed to this component"
+  filteredClasses: [String]
+  id: Int
+  "Predicted or actual"
+  labels: String @deprecated(reason : "Actual labels always used")
+  "Name of component"
+  name: String
+  "Can the results of this component be used by our Review Interface?"
+  reviewable: Boolean
+  "List of valid actions on the component"
+  validActions: [ValidAction] @deprecated(reason : "Use actions instead")
+}
+
+"""
+Component subclass for a Component which follows an extraction-task-type
+Model Component and groups predictions together into user-defined groups
+"""
+type LinkLabelComponent implements ComponentInterface {
+  "Actions that can be taken on this component"
+  actions: [Action]
+  "Workflow fields that this component can consume or produce"
+  availableFields: [WorkflowField]
+  componentAppId: Int @deprecated(reason : "This is no longer stored as a first-class property on the component model but in the config for certain types of components")
+  componentStatus: ComponentStatus @deprecated(reason : "Not yet available")
+  componentType: ComponentType
+  "Names of outputs from upstream filters passed to this component"
+  filteredClasses: [String]
+  "configuration for a single group"
+  groups: [LinkLabelGroup]
+  id: Int
+  "ID of the labelset that the combined labels come from"
+  labelsetId: Int @deprecated(reason : "Obsolete. Refer to the workflow's fields instead.")
+  "Model group that outputs the labels to be combined"
+  modelGroupId: Int
+  "Name of component"
+  name: String
+  "Can the results of this component be used by our Review Interface?"
+  reviewable: Boolean
+  "List of valid actions on the component"
+  validActions: [ValidAction] @deprecated(reason : "Use actions instead")
+}
+
+"Definition for a \"grouping strategy\" to be used by a Link Label Component"
+type LinkLabelGroup {
+  "id of the model group that this component comes after"
+  ModelGroupId: Int
+  "ids and names for classes to be included in the group"
+  classNameValues: [TargetName] @deprecated(reason : "Reference fields instead.")
+  "IDs for classes to be included in the group"
+  classNames: [Int] @deprecated(reason : "Reference field ids instead.")
+  "IDs for workflow fields to be included in the group."
+  fieldIds: [Int]
+  "Workflow fields included in the group"
+  fields: [WorkflowField]
+  "unique id for this group"
+  id: String
+  "name for this group"
+  name: String
+  "strategy for merging labels into groups"
+  strategy: LabelLinkStrategy
+  "strategy-specific settings for how labels are combined"
+  strategySettings: JSONString
+}
+
+type Login {
+  id: Int
+  loggedInAt: DateTimeISO
+  loginIp: String
+}
+
+type LoginPage {
+  logins: [Login]
+  pageInfo: PageInfo
+}
+
+type MetricsTable {
+  accuracy: Float
+  auc: Float
+  f1Score: Float
+  name: String
+  precision: Float
+  recall: Float
+}
+
+type Model {
+  classNames: [String]
+  collectionName: String
+  createdAt: String
+  createdBy: Int
+  evaluation: Evaluation
+  id: Int
+  "Changes made to the labelset since the model was last trained, compared against the frozen state of the model's labelset. In the case of missing frozen labelsets, none is returned"
+  labelsetDiff: LabelSetDiff
+  linkable: Boolean
+  "File path to the model"
+  modelFilePath: String
+  modelGroupId: Int
+  modelInfo: JSONString
+  modelOptions: JSONString
+  modelType: ModelType
+  predictionLabelsetId: Int
+  predictions(sources: [String], threshold: Float): [Prediction]
+  rareClasses: [ClassCount]
+  status: ModelStatus
+  "Testing labelset snapshot information for when the model is trained"
+  testingFrozenLabelset: FrozenLabelSet
+  testingFrozenLabelsetId: Int
+  testingSubsetId: Int @deprecated(reason : "Use testing_frozen_labelset_id")
+  "Training labelset snapshot information for when the model is trained"
+  trainingFrozenLabelset: FrozenLabelSet
+  trainingFrozenLabelsetId: Int
+  trainingProgress: TrainingProgress
+  trainingSubsetId: Int @deprecated(reason : "Use training_frozen_labelset_id")
+  unlabeledClasses: [String]
+  updatedAt: String
+  updatedBy: Int
+}
+
+type ModelGroup {
+  "Ordered list of target names used to train the model."
+  classNames: [String] @deprecated(reason : "Please use clsNames instead")
+  "ID of the workflow component associated with this model group."
+  componentId: Int
+  "Time of model group creation"
+  createdAt: String
+  "User ID that created this model gruop"
+  createdBy: Int
+  dataInfo: DataInfo
+  dataType: DataTypes
+  datasetId: Int
+  "Query for a single example with any labels and selected model predictions"
+  example(
+    exampleId: Int, 
+    "Deprecated - please specify example_id"
+    rowIndex: Int
+  ): Example
+  "All field links associated with this component ID."
+  fieldLinks: [WorkflowFieldLink]
+  "List of fields associated with this particular model"
+  fields: [WorkflowField]
+  id: Int
+  interlabelerResolution: LabelResolutionStrategy
+  labelset: LabelSet
+  "Column id where model labels are stored"
+  labelsetColumnId: Int
+  model(id: Int!): Model
+  modelOptions: ModelOptions
+  models: [Model]
+  name: String
+  "Query for example list page. Examples do not provide labels or predictions"
+  pagedExamples(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: ExampleFilter, 
+    "Max number of results to return"
+    limit: Int = 10, 
+    "attribute to order results by"
+    orderBy: ExampleOrder, 
+    "number of pages to skip"
+    skip: Int
+  ): ExamplePage
+  processors: [Processor]
+  "ID of the questionnaire this model group was created from"
+  questionnaireId: Int
+  retrainRequired: Boolean
+  selectedModel: Model
+  selectedModelId: Int
+  sourceColumn: DataColumn
+  "Column id where raw data for model is stored"
+  sourceColumnId: Int
+  status: ModelStatus
+  "ID of the data subset this model group was created from"
+  subsetId: Int
+  taskType: TaskType
+  "Time of last model group update"
+  updatedAt: String
+  "User ID that last updated this model group"
+  updatedBy: Int
+  "ID of the workflow that contains this model group"
+  workflowId: Int
+}
+
+"Component subclass for a Trainable Indico Model Group"
+type ModelGroupComponent implements ComponentInterface {
+  "Actions that can be taken on this component"
+  actions: [Action]
+  "Workflow fields that this component can consume or produce"
+  availableFields: [WorkflowField]
+  "Class names output by this component"
+  classNames: [BaseTargetName]
+  componentAppId: Int @deprecated(reason : "This is no longer stored as a first-class property on the component model but in the config for certain types of components")
+  componentStatus: ComponentStatus @deprecated(reason : "Not yet available")
+  componentType: ComponentType
+  "Names of outputs from upstream filters passed to this component"
+  filteredClasses: [String]
+  id: Int
+  "Model Group this component represents"
+  modelGroup: ModelGroup
+  "Model type of the model group this component represents"
+  modelType: ModelType
+  "Name of model group this component represents"
+  name: String
+  "Can the results of this component be used by our Review Interface?"
+  reviewable: Boolean
+  "Task type of the model group this component represents"
+  taskType: TaskType
+  "List of valid actions on the component"
+  validActions: [ValidAction] @deprecated(reason : "Use actions instead")
+}
+
+type ModelGroupPage {
+  modelGroups: [ModelGroup]
+  pageInfo: PageInfo
+}
+
+type ModelLoad {
+  status: String
+}
+
+type ModelOptions {
+  domain: FeatureDomainEnum
+  highQuality: Boolean
+  id: Int
+  interlabelerResolution: LabelResolutionStrategy
+  modelTrainingOptions: JSONString
+  predictOptions: JSONString
+  samplingStrategy: SamplingStrategy
+  seed: Int
+  testSplit: Float
+  weightByClassFrequency: Boolean
+  wordPredictorStrength: WordPredictorStrength
+}
+
+type ModelPredict {
+  jobId: String
+}
+
+type ModelSimilarity {
+  row: Int
+  value: Int
+}
+
+type ModelStp {
+  autoReviewDenom: Int
+  autoReviewNumerator: Int
+  autoReviewStpPct: Float
+  modelGroupId: Int
+  name: String
+  reviewDenom: Int
+  reviewNumerator: Int
+  reviewStpPct: Float
+}
+
+type ModelStpDailyFacts {
+  "Auto Review STP for model aggregated by parent filter context."
+  autoReviewStpForModel: Float
+  classStps: [ClassStpFacts]
+  modelGroupId: Int
+  name: String
+  "Review STP for model aggregated by parent filter context."
+  reviewStpForModel: Float
+  startDate: String
+  stps: [DailyStp]
+  workflowId: Int
+}
+
+type ModelStpMetrics {
+  "Aggregate STP metrics for the model based on filters applied to the query"
+  aggregate: StpMetric
+  "STP metrics for each class associated with the model"
+  classMetrics: [ClassStpMetrics]
+  "Daily STP metrics for the model"
+  daily: [DailyStpMetric]
+  modelGroupId: Int
+  name: String
+}
+
+type MultiClassLabel implements LabelInterface {
+  datasetuserId: Int
+  id: Int
+  label: _MultiClassLabel
+  rawLabel: [RawLabel]
+  taskType: TaskType
+}
+
+type MultiClassPrediction implements PredictionInterface {
+  id: Int
+  modelId: Int
+  prediction: _MultiClassPred
+  rawPrediction: [RawPrediction]
+  taskType: TaskType
+}
+
+type MultiTestResult {
+  actual: [String]
+  exampleId: Int
+  explanations: [Explanation]
+  predicted: [String]
+  rowIdx: Int @deprecated(reason : "Please use example_id")
+  score: [ClassConfidence]
+  text: String
+}
+
+type Mutation {
+  activateUser(id: Int!): User
+  activeFormFields(files: [FileInput]): ActiveFormFields
+  "Start processing recently added CSV data files to the dataset"
+  addDataCsv(
+    "Ids of the DataFiles to process"
+    datafileIds: [Int], 
+    "Id of the dataset to add the files to"
+    datasetId: Int!
+  ): Dataset
+  "Start processing recently added non-CSV data files to the dataset"
+  addDataFiles(
+    "Ids of the DataFiles to process"
+    datafileIds: [Int], 
+    "Id of the dataset to add the files to"
+    datasetId: Int!
+  ): Dataset
+  addDataToWorkflow(workflowId: Int!): AddDataToWorkflow
+  """
+  Add some uploaded files of any type to the dataset. We recommend
+  autoprocess=True, otherwise AddDataFiles or AddDataCSV should be
+  called after the files are added
+  """
+  addDatasetFiles(
+    "Automatically process files that are uploaded and associated with the dataset"
+    autoprocess: Boolean = false, 
+    "Id of dataset to add files to"
+    datasetId: Int!, 
+    "A list of dicts representing each of the files to be uploaded. For each file, include `id` which must be some string, `name` which represents the name of the file you'd like to see in displays, `size` which is the size of the file, and `path` which is the /uploads/... Indico path the file currently resides at"
+    metadataList: JSONString!
+  ): Dataset
+  """
+  Add user to dataset. If role permits, also add user to all tasks
+  The user must already be registered with the platform
+  """
+  addDatasetUser(
+    "Id of the dataset to add the user to"
+    datasetId: Int!, 
+    "Email of the user to add to the dataset."
+    email: String!, 
+    "Dataset role the user should have"
+    role: Roles!
+  ): DatasetUser
+  "Add a new integration to a workflow. Currently supports exchange."
+  addExchangeIntegrationToWorkflow(
+    "Exchange configuration options"
+    config: ExchangeIntegrationConfigurationInput!, 
+    "Exchange credentials"
+    credentials: ExchangeIntegrationCredentialsInput!, 
+    "Id of the workflow to add the exchange integration to"
+    workflowId: Int!
+  ): AddExchangeIntegration
+  """
+  Add a new field to an existing workflow.  If component_id and target_name_ids arguments are additionally provided, this mutation also links the newly created field to the workflow component.
+  New field must have a name that is unique from any existing fields.
+  """
+  addField(
+    "ID of the workflow component to link newly created field to"
+    componentId: Int, 
+    "The datatype of the field (e.g. 'date', 'price', etc.)"
+    datatype: String, 
+    "Configuration dictionary that controls how the normalized type is displayed in Indico Review UI"
+    formatConfig: GenericScalar, 
+    "Configuration dictionary that controls what inputs are recognized as valid instances of a given type"
+    inputConfig: GenericScalar, 
+    "Denotes whether a single field instance or multiple field instances are expected for an associated field.  For instance, an invoice may have multiple 'Line Item Total's (multiple=True), but would be expected to only have a single 'Invoice Date' field (multiple=False)"
+    multiple: Boolean, 
+    "Field name displayed in review UI and the workflow result file"
+    name: String!, 
+    "Controls whether or not a valid instance of a field must be present to submit an review."
+    required: Boolean, 
+    "Target name IDs that the newly created field should be associated with. Must be target names associated with the provided component ID."
+    targetNameIds: [Int], 
+    "Names of targets to associate with field (if any)."
+    targetNames: [String], 
+    "Configuration that controls which additional validation checks should be run and what actions should be taken in case of their failure."
+    validationConfig: [ValidationInputConfig], 
+    "Workflow ID"
+    workflowId: Int!
+  ): WorkflowField
+  "Add a class name to a labelset - Deprecated!"
+  addLabelsetTarget(
+    "Settings for creation of a new field to associate with the new target name."
+    fieldData: ComponentFieldInput, 
+    "Labelset to add the target name to"
+    labelsetId: Int!, 
+    "Name of the newly created target"
+    targetName: String!, 
+    "Labelset target name type"
+    targetType: TargetType
+  ): LabelSet @deprecated(reason : "Please use addModelGroupTargetNames")
+  addModelGroupComponent(
+    "Component ID to add the current component after (only provide when adding to a component)"
+    afterComponentId: Int, 
+    "Component link ID to add the current component after (only provide when adding to a link)"
+    afterLinkId: Int, 
+    "Use a blueprint to produce this component. Optional"
+    blueprintId: Int, 
+    "Dataset ID"
+    datasetId: Int!, 
+    "Label resolution strategy"
+    interlabelerResolution: LabelResolutionStrategy, 
+    "Labelset ID (use new_labelset_args to create a new labelset)"
+    labelsetColumnId: Int = null, 
+    "Model training options"
+    modelTrainingOptions: JSONString, 
+    "Model type"
+    modelType: ModelType, 
+    "Name of the model group"
+    name: String!, 
+    "Arguments for the new labelset to be created"
+    newLabelsetArgs: NewLabelsetInput, 
+    "Arguments for the new questionnaire to be created"
+    questionnaireArgs: QuestionnaireInput, 
+    "Workflow ID"
+    workflowId: Int!
+  ): AddModelGroupComponent
+  """
+  Add more target names to a model group
+  Field data will be generated if not explicitly opted out of
+  """
+  addModelGroupTargetNames(
+    "List of settings for creation of a new field/fields to associate with the new target name/names."
+    fieldData: [FieldInput], 
+    "Id of the model group"
+    modelGroupId: Int!, 
+    "Target name information"
+    targetNames: [TargetNameInput]!
+  ): AddModelGroupTargetNames
+  addQuestionnaireUser(id: Int!, userId: Int!): QuestionnaireUser
+  addTarget(questionnaireId: Int!, target: String!): Question
+  """
+  Add a component of any type to a workflow
+  'component' can contain:
+      - component_type: ComponentType, required if not using blueprint
+      - name: String
+      - config: JSONString(dict)
+  """
+  addWorkflowComponent(
+    afterComponentId: Int, 
+    afterComponentLinkId: Int, 
+    "Use a blueprint to produce this component."
+    blueprintId: Int, 
+    component: JSONString!, 
+    workflowId: Int!
+  ): AddWorkflowComponent
+  cancelModelTraining(modelId: Int!): CancelModelTraining
+  "Create a brand new, empty dataset"
+  createDataset(
+    "Configurations for a dataset or datacolumn"
+    config: DataConfigInput, 
+    "Type of data the dataset will hold. Defaults to DOCUMENT"
+    datasetType: DatasetType, 
+    "Name of the dataset to create"
+    name: String!
+  ): Dataset
+  createExport(
+    "Anonymize user information"
+    anonymous: Boolean = false, 
+    "Additional columns. Labelset's datacolumn is implicitly added"
+    columnIds: [Int], 
+    "Combine labels from multiple labelers using this strategy"
+    combineLabels: LabelResolutionStrategy, 
+    datasetId: Int!, 
+    "Include datafile information"
+    fileInfo: Boolean = true, 
+    "Frozen labelsets of Labelset to limit examples by"
+    frozenLabelsetIds: [Int], 
+    "Only include examples that have at least 1 label"
+    labeledOnly: Boolean = false, 
+    labelsetId: Int!, 
+    "Which models to include predictions from"
+    modelIds: [Int], 
+    "Name for export"
+    name: String
+  ): Export
+  createModelGroup(afterComponentId: Int, afterLinkId: Int, datasetId: Int!, domain: FeatureDomainEnum, finetune: Boolean, interlabelerResolution: LabelResolutionStrategy, labelsetColumnId: Int, makePredictions: Boolean = false, modelTrainingOptions: JSONString, modelType: ModelType, name: String!, rowIdx: [Int], sourceColumnId: Int!, subsetId: Int, testSplit: Float = 0.2, workflowId: Int!): ModelGroup @deprecated(reason : "Moved to AddModelGroupComponent")
+  createQuestionnaire(
+    "Enable predictions on the questionnaire"
+    activeLearning: Boolean = true, 
+    afterComponentId: Int, 
+    afterLinkId: Int, 
+    dataType: DataType!, 
+    datasetId: Int!, 
+    "Always use Text Labeling UI"
+    forceTextMode: Boolean, 
+    instructions: String, 
+    modelTrainingOptions: JSONString, 
+    modelType: ModelType, 
+    name: String!, 
+    numLabelersRequired: Int!, 
+    "Create a new questionnaire from an existing labelset."
+    originalLabelsetId: Int, 
+    questions: [QuestionInput]!, 
+    "Show predictions at the global level"
+    showPredictions: Boolean = true, 
+    sourceColumnId: Int!, 
+    "User IDs to add to the questionnaire"
+    users: [Int], 
+    workflowId: Int!
+  ): Questionnaire @deprecated(reason : "Moved to AddModelGroupComponent")
+  createWorkflow(datasetId: Int!, name: String!): CreateWorkflow
+  createWorkflowFromBlueprint(blueprintId: Int!, name: String, users: [UserInput]): CreateWorkflowFromBlueprint
+  deactivateUser(id: Int!): User
+  "Delete this dataset from the platform"
+  deleteDataset(
+    "Id of the dataset to delete"
+    id: Int!
+  ): DeleteDataset
+  """
+  Remove a file from a dataset. WARNING: do not use with non-FAILED files
+  which will result in non-deterministic behavior
+  """
+  deleteDatasetFile(
+    "Id of dataset to remove the file from"
+    datasetId: Int!, 
+    "Id of the datafile to remove from the dataset"
+    fileId: Int!
+  ): Dataset
+  "Remove a user from a dataset. Also remove the user from all dataset tasks"
+  deleteDatasetUser(
+    "Id of the dataset to delete the user from"
+    datasetId: Int!, 
+    "Id of the platform user to modify permissions for"
+    userId: Int!
+  ): DeleteDatasetUser
+  deleteUserPreference(app: String!, key: String!): DeletePreference
+  deleteWorkflow(workflowId: Int!): DeleteWorkflow
+  deleteWorkflowComponent(componentId: Int!, workflowId: Int!): DeleteWorkflowComponent
+  """
+  Deletes an integration from a workflow. This permanently removes the integration.
+  You cannot undo this action.
+  """
+  deleteWorkflowIntegration(
+    "The id of the integration to delete"
+    integrationId: Int!
+  ): DeleteIntegration
+  """
+  Extract text from a document using one of our OCR engine providers.
+  Returns: List of ids of the document processing jobs kicked off by this mutation. Can be used to query for status and results. 
+  """
+  documentExtraction(
+    "List of file name and storage metadatas per document"
+    files: [FileInput], 
+    """
+    
+        Preset or custom OCR configurations.
+        Full config information can be found here: 
+        https://docs.indicodata.ai/articles/#!documentation-publication/ocr
+    """
+    jsonConfig: JSONString, 
+    "Which OCR Engine to use"
+    ocrEngine: OCREngine = READAPI_V2
+  ): DocumentExtraction
+  """
+  Example:
+  mutation generate_new_refresh_token {
+      GenerateNewApiRefreshToken{
+          refresh_token
+      }
+  }
+  """
+  generateNewApiRefreshToken: GenerateNewApiRefreshToken
+  generateResetLink(userId: Int!): GenerateResetLink
+  invalidateSessions(id: Int!): User
+  modelLoad(modelId: Int!): ModelLoad @deprecated(reason : "Models are loaded automatically on first predict")
+  modelPredict(data: [String], modelId: Int!, predictOptions: JSONString = null): ModelPredict
+  "Modify user's dataset role. If new role permits, also add user to all tasks"
+  modifyDatasetUser(
+    "Id of the dataset to modify the user for"
+    datasetId: Int!, 
+    "New dataset role the user should have"
+    role: Roles!, 
+    "Id of the platform user to modify permissions for"
+    userId: Int!
+  ): DatasetUser
+  modifyScopes(id: Int!, scopes: [Scope]!): User
+  "Create a new dataset with some files"
+  newDataset(
+    "DEPRECATED: Use kloudless uploader"
+    kloudless: Boolean = false, 
+    metadataList: JSONString!
+  ): Dataset @deprecated(reason : "Use createDataset instead")
+  "Given a field ID and a label of that field type, return a normalized version of the field."
+  normalizeLabel(
+    "Character end offset into the document"
+    end: Int, 
+    "Field ID"
+    fieldId: Int!, 
+    "Dictionary of any additional metadata associated with the text, e.g. model confidences: {'confidences': {...}}"
+    meta: GenericScalar, 
+    "Character start offset into the document"
+    start: Int, 
+    "Text to be normalized"
+    text: String!
+  ): [NormalizedLabel]
+  optimizeModelGroup(makePredictions: Boolean, modelGroupId: Int!): ModelGroup
+  """
+  Pauses integration. Submissions will not be automatically processed
+  and new items will not be queued while paused.
+  """
+  pauseWorkflowIntegration(
+    "The id of the integration to pause"
+    integrationId: Int!
+  ): PauseIntegration
+  pdfExtraction(data: [String]!, images: Boolean, metadata: Boolean, pageFormat: String, rawText: Boolean, singleColumn: Boolean, tables: Boolean, text: Boolean): PDFExtraction
+  "Prune component field links and fields from deleted target names on a given workflow"
+  pruneFields(
+    "Workflow ID"
+    workflowId: Int!
+  ): PruneFields
+  refreshViews(
+    "Force refresh views if the views were refreshed less than cooldown period ago."
+    force: Boolean = false
+  ): Refresh
+  removeQuestionnaireUser(id: Int!, userId: Int!): RemoveQuestionnaireUser
+  """
+  Remove target names by id from a given workflow. Validate if target names can be
+  removed before removal.
+  """
+  removeTargetNames(
+    "List of TargetName Ids to remove"
+    targetNameIds: [Int]!, 
+    "Workflow ID"
+    workflowId: Int!
+  ): RemoveTargetNames
+  requestStorageDownloadUrl(
+    "Storage URI with indico-file/indico-cache scheme"
+    uri: String!
+  ): RequestStorageDownloadUrl
+  requestStorageUploadUrl: RequestStorageUploadUrl
+  "Resume execution of a deferred task in a submission's workflow"
+  resumeSubmissionTask(
+    "Id of the component"
+    componentId: Int!, 
+    "Result to use for the resumed task"
+    response: ResumedTaskResponse!, 
+    "Id of the submission to resume"
+    submissionId: Int!, 
+    "Task UID to resume"
+    taskUid: String!, 
+    "Id of the running workflow"
+    workflowId: Int!
+  ): ResumeSubmissionTask
+  retrainModelGroup(
+    forceRetrain: Boolean, 
+    interlabelerResolution: LabelResolutionStrategy = null, 
+    modelGroupId: Int!, 
+    "Can only be updated on retrain for extraction models."
+    modelType: ModelType = null, 
+    workflowId: Int
+  ): ModelGroup
+  retrySubmissions(submissionIds: [Int]!): [Submission]
+  """
+  Given a FAILED datafile on the dataset, provide an Indico or external URL
+  which will be downloaded and reprocessed for this datafile
+  """
+  retryUrl(
+    "Id of the datafile to retry processing for"
+    datafileId: Int!, 
+    "Id of the dataset to retry a file for"
+    datasetId: Int!, 
+    "New external or internal Indico URL to process for the datafile"
+    newUrl: String!
+  ): Dataset
+  setUserExpiration(
+    "A date today or in the future to expire this user. Leave blank to remove user expiration date"
+    expirationDate: InputDate, 
+    id: Int!
+  ): User
+  "Starts integration. If integration is already running, this mutation is a no-op"
+  startWorkflowIntegration(
+    "The id of the integration to start"
+    integrationId: Int!
+  ): StartIntegration
+  submissionReport(
+    "Get all submissions, given valid permissions"
+    allSubmissions: Boolean = false, 
+    "Provide information about submissions, as they change over time"
+    changelog: Boolean = false, 
+    filters: SubmissionLogFilter, 
+    "Format of report to generate, defaults to CSV"
+    reportFormat: ReportFormat = CSV
+  ): GenerateSubmissionReport
+  submissionResults(submissionId: Int!): SubmissionResults
+  """
+  Produce a Job which tracks the creation of a CSV containing all the flattened
+  results of the given submission ids
+  """
+  submissionResultsReport(
+    "Ids of submissions to aggregate results for. Must provide btwn at least 1 and no more than 50 ids"
+    submissionIds: [Int!]!, 
+    "Workflow id to filter submissions from"
+    workflowId: Int!
+  ): Job
+  submitAutoReview(
+    changes: JSONString, 
+    "Bypass Review/Exception queue (not recommended)"
+    forceComplete: Boolean = false, 
+    rejected: Boolean = false, 
+    submissionId: Int!
+  ): SubmitAutoReview
+  "Deprecated - assumes all row_indices reflect example id"
+  submitLabels(
+    datasetId: Int!, 
+    labels: [SubmissionLabel]!, 
+    labelsetId: Int!, 
+    "Model group to retrain after label submission"
+    modelGroupId: Int
+  ): SubmitLabels @deprecated(reason : "Please use SubmitLabelsV2")
+  submitLabelsV2(
+    labels: [LabelInput]!, 
+    labelsetId: Int!, 
+    "Model group to retrain after label submission"
+    modelGroupId: Int
+  ): SubmitLabelsV2
+  submitReview(changes: JSONString, notes: String, rejected: Boolean = false, submissionId: Int!): Review
+  toggleWorkflowAutoReview(
+    "All new submissions will wait for Auto Review"
+    enableAutoReview: Boolean!, 
+    "If toggling auto review on, mark existing subs pending review as pending auto review. Ignore if toggling off"
+    updateExistingSubmissions: Boolean = false, 
+    workflowId: Int!
+  ): Workflow @deprecated(reason : "Replaced by UpdateWorkflowMeta, toggling on workflow settings update")
+  toggleWorkflowReview(
+    "If toggling review off, mark existing submissions waiting for review as complete. Ignored if toggling review on."
+    completeExistingSubmissions: Boolean = false, 
+    "Place all future submissions into review queue"
+    enableReview: Boolean!, 
+    workflowId: Int!
+  ): Workflow @deprecated(reason : "Replaced by UpdateWorkflowMeta, toggling on workflow settings update")
+  unlockUser(id: Int!): User
+  "Update properties of the dataset"
+  updateDataset(
+    datasetId: Int!, 
+    "New name of the dataset."
+    name: String
+  ): Dataset
+  "Update the workflow field with the provided ID."
+  updateField(
+    "The datatype of the field (e.g. 'date', 'price', etc.)"
+    datatype: String, 
+    fieldId: Int!, 
+    "Configuration dictionary that controls how the normalized type is displayed in Indico Review UI"
+    formatConfig: GenericScalar, 
+    "Configuration dictionary that controls what inputs are recognized as valid instances of a given type"
+    inputConfig: GenericScalar, 
+    "Denotes whether a single field instance or multiple field instances are expected for an associated field.  For instance, an invoice may have multiple 'Line Item Total's (multiple=True), but would be expected to only have a single 'Invoice Date' field (multiple=False)"
+    multiple: Boolean, 
+    "Field name displayed in review UI and the workflow result file"
+    name: String, 
+    "Controls whether or not a valid instance of a field must be present to submit an review."
+    required: Boolean, 
+    "Configuration that controls which additional validation checks should be run and what actions should be taken in case of their failure."
+    validationConfig: [ValidationInputConfig]
+  ): WorkflowField
+  updateLabelset(
+    labelsetId: Int!, 
+    "Minimum number of labelers required to label each example"
+    numLabelersRequired: Int
+  ): LabelSet
+  updateLabelsetTargetPositions(labelsetId: Int!, targetNames: [String]): LabelSet
+  updateModelGroupName(modelGroupId: Int!, name: String!): ModelGroup
+  updateModelGroupSettings(domain: FeatureDomainEnum, finetune: Boolean, interlabelerResolution: LabelResolutionStrategy, makePredictions: Boolean, modelGroupId: Int!, modelTrainingOptions: JSONString, predictOptions: JSONString, rocAucAveraging: RocAucAveraging, samplingStrategy: SamplingStrategy, taskType: TaskType, testSplit: Float, wordPredictorStrength: WordPredictorStrength): ModelGroup
+  updateQuestionKeywords(
+    "Use keywords for all users"
+    globalPreference: Boolean = false, 
+    keywords: [String]!, 
+    questionnaireId: Int!
+  ): UpdateKeywords
+  updateQuestionnaire(
+    "Enable labeling tasks"
+    active: Boolean, 
+    "Enable predictions on the questionnaire"
+    activeLearning: Boolean, 
+    dataType: DataType, 
+    id: Int!, 
+    instructions: String, 
+    name: String, 
+    "Show predictions at the global level"
+    showPredictions: Boolean
+  ): Questionnaire
+  updateSubmission(
+    "Mark the submission as having been retrieved"
+    retrieved: Boolean, 
+    submissionId: Int!
+  ): Submission
+  updateUser(name: String): User
+  updateUserPreference(app: String!, key: String!, value: JSONString!): Preference
+  updateWorkflowMeta(
+    "Estimated human time to complete the workflow in minutes"
+    estHumanTimeMins: Int, 
+    name: String, 
+    settings: ReviewSettingsInput, 
+    workflowId: Int!
+  ): Workflow
+  userChangelogReport(
+    "Changelog up to this date (23:59 UTC)"
+    endDate: Date, 
+    filters: UserReportFilter, 
+    "Format of report to generate, defaults to CSV"
+    reportFormat: ReportFormat, 
+    "Changelog from this date (00:00 UTC)"
+    startDate: Date
+  ): GenerateUserChangelogReport
+  userSnapshotReport(
+    "User information on this date (23:59 UTC)"
+    date: Date, 
+    filters: UserReportFilter, 
+    "Format of report to generate, defaults to CSV"
+    reportFormat: ReportFormat
+  ): GenerateUserSnapshotReport
+  """
+  Validates credentials and configuration for Exchange Integration. Does not create an integration.
+  Credentials are validated before the config. Correct credentials must be passed in before config is validated.
+  """
+  validateExchangeConfigCredentials(
+    "Exchange configuration options"
+    config: ExchangeIntegrationConfigurationInput!, 
+    "Exchange credentials"
+    credentials: ExchangeIntegrationCredentialsInput!
+  ): ValidateExchangeConfigCredentials
+  """
+  Submit files to a workflow for processing
+  Returns: SubmissionResult object which contains ids that can be queried for status and results.
+  """
+  workflowSubmission(
+    "Batch all files under a single submission"
+    bundle: Boolean = false, 
+    "UUID for duplicate Submissions caching"
+    duplicationId: String, 
+    "List of FileInput objects"
+    files: [FileInput]!, 
+    "Submission output result file version"
+    resultVersion: SubmissionResultVersion, 
+    "Id of the workflow to submit to"
+    workflowId: Int!
+  ): SubmissionResult
+  workflowUrlSubmission(
+    "Batch all urls under a single submission"
+    bundle: Boolean = false, 
+    "UUID for duplicate Submissions caching"
+    duplicationId: String, 
+    "Submission output result file version"
+    resultVersion: SubmissionResultVersion = null, 
+    urls: [String]!, 
+    workflowId: Int!
+  ): SubmissionResult
+}
+
+"The result of normalizing and running all validation rules on a provided text extraction."
+type NormalizedLabel {
+  "End offset of extraction in the document (chars)"
+  end: Int
+  "A formatted version of the extracted structured data (if normalization succeeded).  Same as `text` if normalization failed."
+  formatted: String
+  "Copy of any metadata passed to the normalization mutation (e.g. confidence info)"
+  meta: GenericScalar
+  "Start offset of extraction in the document (chars)"
+  start: Int
+  "Overall status.  If any validation errors occurred, equates to the highest severity error."
+  status: ValidationStatus
+  "A structured representation of the data (if normalization succeeded).  None if normalization failed."
+  structured: GenericScalar
+  "Original extraction text"
+  text: String
+  "Results of all individual validation rules"
+  validation: [ValidationResult]
+}
+
+type OBJECT_DETECTIONTestResult {
+  falseNegative: [MultiTestResult]
+  falsePositive: [MultiTestResult]
+  modelId: Int
+  resultCounts: ResultCounts
+  threshold: Float
+  trueNegative: [MultiTestResult]
+  truePositive: [MultiTestResult]
+}
+
+"""
+The options for OCR Engines available
+on this platform
+"""
+type OCREngineOptions {
+  "The default OCR engine that will be used for datasets"
+  defaultEngine: OCREngine
+  "All the options for each engine available on this platform"
+  engines: [EngineOptions]
+  "The engines available on this platform"
+  types: [OCREngineType]
+}
+
+"Represents a type of OCR Engine on the platform"
+type OCREngineType {
+  description: String
+  name: String
+}
+
+"Language that can be parsed by the OCR Engine"
+type OCRLanguage {
+  code: String
+  name: String
+}
+
+type ObjectDetectionEvaluation {
+  metrics: JSONString
+  testResults(actual: [String], threshold: Float): OBJECT_DETECTIONTestResult
+}
+
+type OmnipageOcrOptions implements OCROptions {
+  "Auto rotate"
+  autoRotate: Boolean
+  "Return table information for post-processing rules"
+  cells: Boolean
+  "Force render"
+  forceRender: Boolean
+  "List of languages to use"
+  languages: [omnipageLanguageCode]
+  "Native layout"
+  nativeLayout: Boolean
+  "Native PDF"
+  nativePdf: Boolean
+  ocrEngine: OCREngine
+  ocrEngineVersion: String
+  "Read table as a single column"
+  singleColumn: Boolean
+  "PDF split version"
+  splitVersion: Int
+  "Spreadsheet converter version (supported versions: 1,2,3,4)"
+  spreadsheetConverterVersion: Int
+  "Read table in row or column order"
+  tableReadOrder: TableReadOrder
+  "Scale up low resolution images"
+  upscaleImages: Boolean
+}
+
+type PDFExtraction {
+  jobId: String
+}
+
+type PRCurve {
+  confidences: [String]
+  name: String
+  precision: [Float]
+  recall: [Float]
+}
+
+"""
+Representation for paginated results for a List query
+Use `endCursor` as part of the `after` parameter to get the next page
+or `startCursor` as part of the `before` parameter to get to the previous page
+"""
+type PageInfo {
+  "Total number of results for this query"
+  aggregateCount: Int
+  "Cursor on the last result - from which the next page can be acquired"
+  endCursor: Int
+  "Another page is available"
+  hasNextPage: Boolean
+  "Cursor on the first result - from which the previous page can be acquired"
+  startCursor: Int
+}
+
+"""
+Pauses integration. Submissions will not be automatically processed
+and new items will not be queued while paused.
+"""
+type PauseIntegration {
+  "True if the integration is succesfully paused"
+  success: Boolean
+}
+
+type PredictionMetric {
+  numPreds: Int
+}
+
+type PredictionMetrics {
+  "Total number of model generated predictions for this workflow [PREDICTIONS_COUNT]"
+  aggregate: PredictionMetric
+  "Number of model generated predictions for the workflow, each day [PREDICTIONS_COUNT]"
+  daily: [DailyPredictionMetric]
+}
+
+type Preference {
+  app: String
+  key: String
+  value: JSONString
+}
+
+type Processor {
+  args: JSONString
+  processorType: ProcessorType!
+}
+
+"Prune component field links and fields from deleted target names on a given workflow"
+type PruneFields {
+  "Success"
+  success: Boolean
+}
+
+type Question {
+  DatasetId: Int
+  SubsetId: Int
+  id: Int
+  keywords: [String]
+  labelset: LabelSet
+  labelsetId: Int
+  modelGroup: ModelGroup
+  modelGroupId: Int
+  questionnaireId: Int
+  status: QuestionStatus
+  "Ordered list of target names."
+  targets: [String] @deprecated(reason : "Use labelset.targetNames")
+  text: String
+  type: TaskType
+}
+
+"Indico Teach Task - has some settings and 1 Question"
+type Questionnaire {
+  "Labeling tasks are enabled"
+  active: Boolean
+  "Predictions are enabled"
+  activeLearning: Boolean
+  assignedUsers: [QuestionnaireUser]
+  "Unix timestamp"
+  createdAt: String
+  "User id"
+  createdBy: Int
+  dataType: DataType
+  datasetId: Int
+  "Examples which still require labeling"
+  examples(datafileId: Int, numExamples: Int!): [Example]
+  "Labeling will always be done in Text mode"
+  forceTextMode: Boolean
+  "Unique ID of the questionnaire"
+  id: Int
+  instructions: String
+  labelsetId: Int
+  modelGroupId: Int
+  name: String
+  numFullyLabeled: Int
+  numLabeledByMe: Int
+  numRejected: Int
+  numTotalExamples: Int
+  "On-document labeling interface enabled"
+  odl: Boolean
+  processors: [Processor]
+  question: Question
+  questions: [Question] @deprecated(reason : "Use question")
+  "cumulative status of all questions in questionnaire"
+  questionsStatus: QuestionStatus @deprecated(reason : "Use status")
+  role: Roles
+  "Show predictions at the global level"
+  showPredictions: Boolean
+  sourceColumnId: Int
+  status: QuestionStatus
+  subsetId: Int
+  "Unix timestamp"
+  updatedAt: String
+  "User id"
+  updatedBy: Int
+}
+
+type QuestionnairePage {
+  pageInfo: PageInfo
+  questionnaires: [Questionnaire]
+}
+
+type QuestionnaireUser {
+  "Time the questionnaire user was created"
+  createdAt: String
+  "User ID of the user that created the questionnaire"
+  createdBy: Int
+  datasetId: Int
+  "Email of the user associated with the questionnaire"
+  email: String
+  id: Int
+  labelCount: Int
+  "Name of the user associated with the questionnaire"
+  name: String
+  permissions: [String]
+  questionnaireId: Int
+  role: Roles
+  "ID of the user associated with the questionnaire"
+  userId: Int
+}
+
+type QueueMetrics {
+  dailyCumulative: [DailyQueueMetric]
+}
+
+type RATIONALIZED_CLASSIFICATIONTestResult {
+  falseNegative: [SingleTestResult]
+  falsePositive: [SingleTestResult]
+  modelId: Int
+  resultCounts: ResultCounts
+  threshold: Float
+  trueNegative: [SingleTestResult]
+  truePositive: [SingleTestResult]
+}
+
+type ROCCurve {
+  auc: Float
+  confidences: [String]
+  falsePositiveRate: [Float]
+  name: String
+  truePositiveRate: [Float]
+}
+
+type RationalizedClassificationEvaluation {
+  confusionResult(actual: String!, predicted: String!): [SingleTestResult]
+  metrics: ClassificationModelMetrics
+  testResults(actual: String, threshold: Float): RATIONALIZED_CLASSIFICATIONTestResult
+}
+
+type RationalizedClassificationPrediction {
+  confidences: [ClassConfidence]
+  explanations: [Explanation]
+  label: String
+  tokenPredictions: [TokenPrediction]
+}
+
+type RawLabel {
+  "pixel bounds of the image"
+  bounds: [SpatialSpan]
+  "Class name selected for this label"
+  clsName: TargetName
+  "character bounds of the text"
+  spans: [TokenSpan]
+}
+
+type RawPrediction {
+  "pixel bounds of the image"
+  bounds: [SpatialSpan]
+  "Confidences of all predicted classes"
+  classConfidences: [ClassConfidenceV2]
+  "Chosen class predicted by model"
+  clsName: TargetName
+  "character bounds of the text"
+  spans: [TokenSpan]
+}
+
+type ReadapiOcrOptions implements OCROptions {
+  "Auto rotate"
+  autoRotate: Boolean
+  "List of languages to use"
+  languages: [readapiLanguageCode]
+  ocrEngine: OCREngine
+  ocrEngineVersion: String
+  "Read table as a single column"
+  singleColumn: Boolean
+  "Spreadsheet converter version (supported versions: 1,2,3,4)"
+  spreadsheetConverterVersion: Int
+  "Scale up low resolution images"
+  upscaleImages: Boolean
+}
+
+type ReadapiTablesV1OcrOptions implements OCROptions {
+  "Auto rotate"
+  autoRotate: Boolean
+  "List of languages to use"
+  languages: [readapiTablesV1LanguageCode]
+  ocrEngine: OCREngine
+  ocrEngineVersion: String
+  "Read table as a single column"
+  singleColumn: Boolean
+  "Spreadsheet converter version (supported versions: 1,2,3,4)"
+  spreadsheetConverterVersion: Int
+  "Scale up low resolution images"
+  upscaleImages: Boolean
+}
+
+type ReadapiV2OcrOptions implements OCROptions {
+  "Auto rotate"
+  autoRotate: Boolean
+  "List of languages to use"
+  languages: [readapiV2LanguageCode]
+  ocrEngine: OCREngine
+  ocrEngineVersion: String
+  "Read table as a single column"
+  singleColumn: Boolean
+  "Spreadsheet converter version (supported versions: 1,2,3,4)"
+  spreadsheetConverterVersion: Int
+  "Scale up low resolution images"
+  upscaleImages: Boolean
+}
+
+type Refresh {
+  refreshStartedAt: DateTimeISO
+  refreshedAt: DateTimeISO
+  refreshing: Boolean
+}
+
+type RefreshTokenMeta {
+  createdAt: DateTime
+  id: Int
+  isApiToken: Boolean
+  isValid: Boolean
+  userId: Int
+}
+
+type RemoveQuestionnaireUser {
+  success: Boolean
+}
+
+"""
+Remove target names by id from a given workflow. Validate if target names can be
+removed before removal.
+"""
+type RemoveTargetNames {
+  "Success"
+  success: Boolean
+  "List of TargetName Ids removed"
+  targetNameIds: [Int]
+}
+
+type RequestStorageDownloadUrl {
+  "Relative path"
+  relativePath: String
+  "Signed URL"
+  signedUrl: String
+}
+
+type RequestStorageUploadUrl {
+  "Relative path"
+  relativePath: String
+  "Signed URL"
+  signedUrl: String
+}
+
+type ResultCounts {
+  falseNegative: Float
+  falsePositive: Float
+  trueNegative: Float
+  truePositive: Float
+}
+
+"Resume execution of a deferred task in a submission's workflow"
+type ResumeSubmissionTask {
+  success: Boolean
+}
+
+"Represents a review for a submission created by a machine (AUTO_REVIEW) or reviewer"
+type Review {
+  adminReview: Boolean @deprecated(reason : "Please use review_type")
+  "Changes for this review. This field is not generally available. Use submission result files instead"
+  changes: JSONString
+  "When this review was completed by the reviewer"
+  completedAt: String
+  "When this user first opened the file. See started_at as well"
+  createdAt: String
+  "Reviewer id"
+  createdBy: Int
+  id: Int
+  notes: String
+  rejected: Boolean
+  reviewType: ReviewType
+  "When this review was started. Differs from created_at because a reviewer may restart their review at any time"
+  startedAt: String
+  submissionId: Int
+}
+
+"Subclass for a component representing the Review stage(s) in a workflow"
+type ReviewComponent implements ComponentInterface {
+  "Actions that can be taken on this component"
+  actions: [Action]
+  "Enable the Auto review queue"
+  autoReviewQueueEnabled: Boolean
+  "Workflow fields that this component can consume or produce"
+  availableFields: [WorkflowField]
+  componentAppId: Int @deprecated(reason : "This is no longer stored as a first-class property on the component model but in the config for certain types of components")
+  componentStatus: ComponentStatus @deprecated(reason : "Not yet available")
+  componentType: ComponentType
+  "Add value to Exceptions queue submissions in the workflow"
+  exceptionsQueueAddValueEnabled: Boolean
+  "Enable the Exceptions queue"
+  exceptionsQueueEnabled: Boolean
+  "Add a rejection reason to review queue submissions in the workflow"
+  exceptionsQueueRejectionReasonRequired: Boolean
+  "Enable Submissions List for exceptions queue. Accessible from the Review List page."
+  exceptionsSubmissionListEnabled: Boolean
+  "Names of outputs from upstream filters passed to this component"
+  filteredClasses: [String]
+  id: Int
+  "Name of component"
+  name: String
+  "Add value to Review queue submissions in the workflow"
+  reviewQueueAddValueEnabled: Boolean
+  "Enable the Review queue. If disabled, also disables the Exceptions and Auto review queues"
+  reviewQueueEnabled: Boolean
+  "Add a rejection reason to Review queue submissions in the workflow"
+  reviewQueueRejectionReasonRequired: Boolean
+  "Required number of reviewers per submission in the workflow"
+  reviewQueueReviewersRequired: Int
+  "Enable Submissions List for review queue. Accessible from the Review List page."
+  reviewSubmissionListEnabled: Boolean
+  "Can the results of this component be used by our Review Interface?"
+  reviewable: Boolean
+  "List of valid actions on the component"
+  validActions: [ValidAction] @deprecated(reason : "Use actions instead")
+}
+
+type ReviewSettings {
+  "Enable the Auto review queue"
+  autoReviewQueueEnabled: Boolean
+  "Add value to Exceptions queue submissions in the workflow"
+  exceptionsQueueAddValueEnabled: Boolean
+  "Enable the Exceptions queue"
+  exceptionsQueueEnabled: Boolean
+  "Add a rejection reason to review queue submissions in the workflow"
+  exceptionsQueueRejectionReasonRequired: Boolean
+  "Enable Submissions List for exceptions queue. Accessible from the Review List page."
+  exceptionsSubmissionListEnabled: Boolean
+  "Add value to Review queue submissions in the workflow"
+  reviewQueueAddValueEnabled: Boolean
+  "Enable the Review queue. If disabled, also disables the Exceptions and Auto review queues"
+  reviewQueueEnabled: Boolean
+  "Add a rejection reason to Review queue submissions in the workflow"
+  reviewQueueRejectionReasonRequired: Boolean
+  "Required number of reviewers per submission in the workflow"
+  reviewQueueReviewersRequired: Int
+  "Enable Submissions List for review queue. Accessible from the Review List page."
+  reviewSubmissionListEnabled: Boolean
+}
+
+type Schema {
+  allUsers(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: UserFilter, 
+    "Include scopes for each user"
+    includeScopes: Boolean, 
+    "Max number of results to return"
+    limit: Int, 
+    "attribute to order results by"
+    orderBy: USER_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int
+  ): UserPage
+  checkoutSpecificSubmission(submissionId: Int!): Submission
+  "Retrieve a datafile"
+  datafile(datafileId: Int!): DataFile
+  "Retrieve multiple datafiles"
+  datafiles(datafileIds: [Int]!): [DataFile]
+  "Get a single dataset by id"
+  dataset(id: Int): Dataset
+  datasets(permissions: [PermissionType]): [Dataset]
+  datasetsPage(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: DatasetFilter, 
+    "Max number of results to return"
+    limit: Int, 
+    "attribute to order results by"
+    orderBy: DATASET_COLUMN_ENUM, 
+    permissions: [PermissionType], 
+    showAll: Boolean, 
+    "number of pages to skip"
+    skip: Int
+  ): DatasetPage
+  exports(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    columnIds: [Int], 
+    datasetId: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    exportIds: [Int], 
+    frozenLabelsetIds: [Int], 
+    labelsetIds: [Int], 
+    "Max number of results to return"
+    limit: Int, 
+    "attribute to order results by"
+    orderBy: EXPORT_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int
+  ): ExportPage
+  field(
+    "Field ID"
+    fieldId: Int
+  ): WorkflowField
+  fieldTypes(
+    name: String, 
+    "If provided, return only fields compatible with this task type."
+    taskType: TaskType, 
+    workflowId: Int
+  ): [WorkflowFieldType]
+  fields(
+    "Name of a specific field on the specified workflow."
+    name: String, 
+    "Workflow ID"
+    workflowId: Int!
+  ): [WorkflowField]
+  "Get a single model by model file path"
+  findModel(
+    "File path of the model to find"
+    modelFilePath: String!
+  ): Model
+  gallery: Gallery
+  ipaVersion: String
+  job(id: String): Job
+  modelGroup(modelGroupId: Int!): ModelGroup
+  modelGroups(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    datasetIds: [Int], 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: ModelGroupFilter, 
+    "Max number of results to return"
+    limit: Int, 
+    modelGroupIds: [Int], 
+    "attribute to order results by"
+    orderBy: MODELGROUP_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int
+  ): ModelGroupPage
+  modelSimilarity(modelGroupId: Int!, modelId: Int!, query: String!): [ModelSimilarity]
+  ocrOptions: OCREngineOptions
+  oneUser(id: Int!): User
+  questionnaire(id: Int!): Questionnaire
+  questionnaires(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    datasetIds: [Int], 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: QuestionnaireFilter, 
+    "Max number of results to return"
+    limit: Int, 
+    "attribute to order results by"
+    orderBy: QUESTIONNAIRE_COLUMN_ENUM, 
+    questionnaireIds: [Int], 
+    "number of pages to skip"
+    skip: Int
+  ): QuestionnairePage
+  randomSubmission(adminReview: Boolean = false, workflowId: Int!): Submission
+  refresh: Refresh
+  "Search for some piece of text within a particular datapoint on the dataset"
+  searchDatapoint(
+    "Max result length including keyword and surrounding text"
+    context: Int, 
+    datapointId: Int!, 
+    "Use case-insensitive search"
+    ignoreCase: Boolean = true, 
+    "Keyword to search the text for"
+    keyword: String!, 
+    "Use a regex keyword to find matches in the text"
+    regex: Boolean
+  ): [TextSearchResult] @deprecated(reason : "Use search example instead")
+  submission(id: Int!): Submission
+  submissions(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: SubmissionFilter, 
+    "Max number of results to return"
+    limit: Int, 
+    "attribute to order results by"
+    orderBy: SUBMISSION_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int, 
+    submissionIds: [Int], 
+    workflowIds: [Int]
+  ): SubmissionPage
+  submissionsLog(
+    "Find results after this cursor"
+    after: Int, 
+    "Get all submissions, given valid permissions"
+    allSubmissions: Boolean = false, 
+    "Find results before this cursor"
+    before: Int, 
+    "Include info about submissions as they change over time"
+    changelog: Boolean = false, 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: SubmissionLogFilter, 
+    "Max number of results to return"
+    limit: Int, 
+    "attribute to order results by"
+    orderBy: SUBMISSIONEVENT_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int
+  ): SubmissionEventPage
+  user: User
+  userChangelog(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    "Get changes on or before this day (23:59 UCT)"
+    endDate: Date, 
+    filters: UserReportFilter, 
+    "Max number of results to return"
+    limit: Int = 100, 
+    "attribute to order results by"
+    orderBy: USERCHANGELOG_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int, 
+    "Get changes on or after this daye (00:00 UTC)"
+    startDate: Date
+  ): UserChangelogPage
+  userSnapshot(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Snapshot of permissions at this date (23:59 UTC)"
+    date: Date, 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: UserReportFilter, 
+    "Max number of results to return"
+    limit: Int = 100, 
+    "attribute to order results by"
+    orderBy: USERSNAPSHOT_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int
+  ): UserSnapshotPage
+  userSummary(
+    "User summary at this date (23:59 UTC)"
+    date: Date
+  ): UserSummary
+  workflowBlueprints(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: WorkflowBlueprintFilter, 
+    "Max number of results to return"
+    limit: Int, 
+    "attribute to order results by"
+    orderBy: WORKFLOWBLUEPRINT_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int
+  ): WorkflowBlueprintPage @deprecated(reason : "Use gallery.workflow.blueprintsPage instead")
+  workflows(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    datasetIds: [Int], 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: WorkflowFilter, 
+    "Max number of results to return"
+    limit: Int, 
+    metricsStartDate: Date, 
+    "attribute to order results by"
+    orderBy: WORKFLOW_COLUMN_ENUM, 
+    role: Roles, 
+    "number of pages to skip"
+    skip: Int, 
+    workflowIds: [Int]
+  ): WorkflowPage
+}
+
+type ScopeAccess {
+  scope: Scope
+  userId: Int
+}
+
+"The latest representation of a label"
+type SimpleLabel implements LabelInterface {
+  datasetuserId: Int
+  id: Int
+  rawLabel: [RawLabel]
+  taskType: TaskType
+}
+
+"The latest representation of a prediction"
+type SimplePrediction implements PredictionInterface {
+  id: Int
+  modelId: Int
+  rawPrediction: [RawPrediction]
+  taskType: TaskType
+}
+
+type SingleTestResult {
+  actual: String
+  exampleId: Int
+  explanations: [Explanation]
+  predicted: String
+  rowIdx: Int @deprecated(reason : "Please use example_id")
+  score: [ClassConfidence]
+  text: String
+}
+
+type SpatialSpan {
+  bottom: Int
+  ctxId: Int
+  idx: Int
+  left: Int
+  pageNum: Int
+  right: Int
+  top: Int
+  "image url"
+  value: String
+}
+
+"Starts integration. If integration is already running, this mutation is a no-op"
+type StartIntegration {
+  "True if the integration is succesfully started"
+  success: Boolean
+}
+
+type StpFacts {
+  model: [ModelStp]
+}
+
+type StpFactsDaily {
+  model: [ModelStpDailyFacts]
+  startDate: String
+  workflow: [DailyStp]
+  workflowId: Int
+}
+
+type StpMetric {
+  "The union of user supplied labels and auto review labels [PREDICTIONS_STP]"
+  autoReviewDenom: Int
+  "The number of human accepted auto review labels [PREDICTIONS_STP]"
+  autoReviewNumerator: Int
+  "Auto review numerator divided by auto review denomoinator, applicable if auto-review is enabled [PREDICTIONS_STP]"
+  autoReviewStpPct: Float
+  "The union of user supplied labels and model predictions [PREDICTIONS_STP]"
+  reviewDenom: Int
+  "The number of human accepted model predictions that exactly match model predictions [PREDICTIONS_STP]"
+  reviewNumerator: Int
+  "Review numerator divided by review denominator, applicable if review is enabled and auto-review is disabled [PREDICTIONS_STP]"
+  reviewStpPct: Float
+}
+
+type StpMetrics {
+  "Schema for model STP metrics including class STP metrics as child nodes on this object's schema"
+  model: [ModelStpMetrics]
+  "STP metrics aggregate at the level of the workflow"
+  workflow: WorkflowStpMetrics
+}
+
+"Object containing data associated with a workflow submission"
+type Submission {
+  "Internal field for review load"
+  AutoReviewLoaded: Boolean
+  "Latest auto review for submission"
+  autoReview: Review
+  "Datetime the submission reached a completed state"
+  completedAt: DateTime
+  "Datetime the submission was created"
+  createdAt: DateTime
+  "ID of the user who created the submission"
+  createdBy: Int
+  "ID of the dataset associated with the submission"
+  datasetId: Int
+  "DEPRECATED: Submission files have been deleted from file store"
+  deleted: Boolean @deprecated(reason : "Now uses `files_deleted`")
+  "Errors occurred during this submission"
+  errors: String
+  "Submission files have been deleted from file store"
+  filesDeleted: Boolean
+  "Unique ID of the submission"
+  id: Int
+  "Local URL to first stored input"
+  inputFile: String
+  "Original name of first file"
+  inputFilename: String
+  inputFiles: [SubmissionFile]
+  "OCR engine used for submission"
+  ocrEngine: String
+  outputFiles: [SubmissionOutput]
+  "Local URL to most recently stored output"
+  resultFile: String
+  retries: [SubmissionRetry]
+  "Submission has been marked as having been retrieved"
+  retrieved: Boolean
+  "True if the submission is being actively reviewed"
+  reviewInProgress: Boolean
+  "completed reviews of this submission, without changes"
+  reviews(
+    "include pending and incomplete reviews in this list"
+    allReviews: Boolean = false
+  ): [Review]
+  "List of TextSearchResults"
+  searchResult(
+    "Max result length including keyword and surrounding text"
+    context: Int, 
+    "Use case-insensitive search"
+    ignoreCase: Boolean = true, 
+    "Keyword to search the text for"
+    keyword: String!, 
+    "Use a regex keyword to find matches in the text"
+    regex: Boolean, 
+    "ID of the submission's input files to search"
+    subfileId: Int, 
+    "Index of the submission's input files to search"
+    subfileIndex: Int
+  ): [TextSearchResult]
+  "Current status of the submission process"
+  status: SubmissionStatus
+  "Datetime the submission was updated"
+  updatedAt: DateTime
+  "ID of the user who updated the submission"
+  updatedBy: Int
+  "ID of the workflow associated with the submission"
+  workflowId: Int
+}
+
+type SubmissionComponentStatusObject {
+  color: ComponentStatusColor
+  status: SubmissionComponentStatus
+  statusMessage: String
+}
+
+type SubmissionCounts {
+  complete: Int
+  failed: Int
+  pendingAdminReview: Int
+  pendingAutoReview: Int
+  pendingReview: Int
+  processing: Int
+}
+
+"""
+Creates an unique ID as a string, so that GraphQL will display
+all of the events in a changelog
+"""
+type SubmissionEvent {
+  "Internal field for review load"
+  AutoReviewLoaded: Boolean
+  "Latest auto review for submission"
+  autoReview: Review
+  "Datetime the submission reached a completed state"
+  completedAt: DateTime
+  "Datetime the submission was created"
+  createdAt: DateTime
+  "ID of the user who created the submission"
+  createdBy: Int
+  "ID of the dataset associated with the submission"
+  datasetId: Int
+  "DEPRECATED: Submission files have been deleted from file store"
+  deleted: Boolean @deprecated(reason : "Now uses `files_deleted`")
+  "Errors occurred during this submission"
+  errors: String
+  "Submission files have been deleted from file store"
+  filesDeleted: Boolean
+  "Unique combination of ID and updated_at"
+  id: String
+  "Local URL to first stored input"
+  inputFile: String
+  "Original name of first file"
+  inputFilename: String
+  inputFiles: [SubmissionFile]
+  "OCR engine used for submission"
+  ocrEngine: String
+  outputFiles: [SubmissionOutput]
+  "Local URL to most recently stored output"
+  resultFile: String
+  retries: [SubmissionRetry]
+  "Submission has been marked as having been retrieved"
+  retrieved: Boolean
+  "Current status of the submission process"
+  status: SubmissionStatus
+  "ID of the submission"
+  submissionId: Int
+  "Datetime the submission was updated"
+  updatedAt: DateTime
+  "ID of the user who updated the submission"
+  updatedBy: Int
+  "ID of the workflow associated with the submission"
+  workflowId: Int
+}
+
+type SubmissionEventPage {
+  pageInfo: PageInfo
+  submissions: [SubmissionEvent]
+}
+
+type SubmissionFacts {
+  daily: SubmissionFactsDaily
+  startDate: Date
+  total: SubmissionFactsTotal
+  workflowId: Int
+}
+
+type SubmissionFactsDaily {
+  avgHoursOnQueue: [DailyAvg]
+  completed: [DailyCount]
+  completedExceptionQueue: [DailyCount]
+  completedInReview: [DailyCount]
+  completedReviewQueue: [DailyCount]
+  predictions: [DailyCount]
+  rejectedInReview: [DailyCount]
+  startDate: String
+  stp: StpFactsDaily
+  submitted: [DailyCount]
+  submittedAndCompletedInReview: [DailyCount]
+  timeOnTask: TimeOnTaskDaily
+  workflowId: Int
+}
+
+type SubmissionFactsTotal {
+  startDate: String
+  stp: StpFacts
+  submitted: Int
+  workflowId: Int
+}
+
+"Each submission can have 1 or more (bundled) files associated with it"
+type SubmissionFile {
+  "Size of file in bytes"
+  fileSize: Int
+  "Name of original file"
+  filename: String
+  "Local URL to stored input"
+  filepath: String
+  "Type of file"
+  filetype: FileType
+  "Unique ID of this file"
+  id: Int
+  "Number of pages in file"
+  numPages: Int
+  "ID of the submission this file is associated with"
+  submissionId: Int
+}
+
+type SubmissionMetric {
+  "Number of items completed in the workflow, whether review was enabled or disabled [SUBMISSION_COMPLETED]"
+  completed: Int
+  "Number of items accepted in the exceptions queue [SUBMISSION_REVIEW_STAT]"
+  completedExceptionQueue: Int
+  "Number of items that were accepted in either the review or exceptions queue [SUBMISSION_REVIEW_STAT]"
+  completedInReview: Int
+  "Number of items accepted in the review queue [SUBMISSION_REVIEW_STAT]"
+  completedReviewQueue: Int
+  "Number of items rejected from the exceptions queue [SUBMISSION_REVIEW_STAT]"
+  rejectedInReview: Int
+  "Number of items submitted to the workflow [SUBMISSION_SUBMITTED]"
+  submitted: Int
+}
+
+type SubmissionMetrics {
+  aggregate: SubmissionMetric
+  daily: [DailySubmissionMetric]
+}
+
+"Each submission can have 1 or more output files created during the workflow"
+type SubmissionOutput {
+  "ID of the workflow component that made this file"
+  componentId: Int
+  "Datetime the output file was created"
+  createdAt: DateTime
+  "Local URL to stored input"
+  filepath: String
+  "Unique ID of this output"
+  id: Int
+  "ID of the submission this file is associated with"
+  submissionId: Int
+}
+
+type SubmissionPage {
+  pageInfo: PageInfo
+  submissions: [Submission]
+}
+
+"""
+Server response object when submitting to a workflow containing ids
+to track the submissions and the submissions themselves if requested
+"""
+type SubmissionResult {
+  "Returned if submissions are duplicates"
+  isDuplicateRequest: Boolean
+  "Returned if submissions are not recorded"
+  jobIds: [String]
+  "Returned if submissions are recorded"
+  submissionIds: [Int]
+  "List of submission objects"
+  submissions: [Submission]
+}
+
+type SubmissionResults {
+  jobId: String
+}
+
+type SubmissionRetry {
+  "Unique ID of the submission retry"
+  id: Int
+  "Errors from previous submission"
+  previousErrors: String
+  "Status of submission before it was retried"
+  previousStatus: SubmissionStatus
+  "Errors that occurred during the retrying of this submission"
+  retryErrors: String
+  "Unique ID of the associated submission"
+  submissionId: Int
+}
+
+type SubmitAutoReview {
+  jobId: String
+}
+
+"Deprecated - assumes all row_indices reflect example id"
+type SubmitLabels {
+  success: Boolean
+}
+
+type SubmitLabelsV2 {
+  success: Boolean
+}
+
+type TargetName {
+  "Whether this target name has been deleted"
+  active: Boolean
+  id: Int
+  labelsetId: Int
+  name: String
+  position: Int
+  targetType: TargetType
+}
+
+"Target name changes from labelset difference object"
+type TargetNameDiff {
+  "List of added target names"
+  added: [TargetName]
+  "Count of added target names"
+  addedCount: Int
+  "List of removed target names"
+  removed: [TargetName]
+  "Count of removed target names"
+  removedCount: Int
+}
+
+"A single search result with its context"
+type TextSearchResult {
+  context: TextSearchResultSnippet
+  result: TextSearchResultSnippet
+}
+
+"A piece of text in the document with location information"
+type TextSearchResultSnippet {
+  "Exclusive end index in text"
+  end: Int
+  "Starting index in text"
+  start: Int
+  text: String
+}
+
+type TimeOnTaskDaily {
+  exceptions: [DailyTimeOnTask]
+  review: [DailyTimeOnTask]
+}
+
+type TimeOnTaskMetric {
+  "The average amount of minutes reviewers spend on documents for this workflow, aggregated across review and exceptions queue"
+  avgMinsPerDoc: Float
+  "The average amount of minutes reviewers spend on documents for this workflow in the exceptions queue"
+  avgMinsPerDocExceptions: Float
+  "The average amount of minutes reviewers spend on documents for this workflow in the review queue"
+  avgMinsPerDocReview: Float
+}
+
+type TimeOnTaskMetrics {
+  aggregate: TimeOnTaskMetric
+  daily: [DailyTimeOnTaskMetric]
+}
+
+type TokenPrediction {
+  confidences: [ClassConfidence]
+  token: _Token
+}
+
+type TokenSpan {
+  ctxId: Int
+  end: Int
+  idx: Int
+  pageNum: Int
+  start: Int
+  "HIGH-COST: loads the text for each example"
+  value: String
+}
+
+type TrainingProgress {
+  percentComplete: Float
+}
+
+type UnbundlingClassMetrics {
+  metrics: [UnbundlingPerClassSeqMetrics]
+  name: String
+}
+
+type UnbundlingEvaluation {
+  "Query for examples in test set"
+  examples(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: ExampleFilter, 
+    "Max number of results to return"
+    limit: Int = 10, 
+    "attribute to order results by"
+    orderBy: ExampleOrder, 
+    "number of pages to skip"
+    skip: Int
+  ): ExamplePage
+  metrics: UnbundlingModelMetrics
+  testResults(actual: [String], threshold: Float): CLASSIFICATION_UNBUNDLINGTestResult
+}
+
+type UnbundlingModelLevelMetrics {
+  "Harmonic mean of precision and recall"
+  f1Score: Float
+  "Type of model the metric is calculated on, e.g. Classify, Split"
+  modelType: String
+  "Of the predicted true positives, the percentage that were actually correct"
+  precision: Float
+  "Of the total true positives, the percentage were recovered by the model as true positives"
+  recall: Float
+  "# of actual true occurences"
+  support: Int
+}
+
+type UnbundlingModelMetrics {
+  "Metrics for evaluating model performance per class"
+  classMetrics: [UnbundlingClassMetrics]
+  "Metrics for evaluating model performance at the model level, across classes"
+  modelLevelMetrics: [UnbundlingModelLevelMetrics]
+}
+
+type UnbundlingPerClassSeqMetrics {
+  "Harmonic mean of precision and recall"
+  f1Score: Float
+  "# of examples that were affirmative but were not predicted as such by the model"
+  falseNegatives: Int
+  "# of examples that were predicted affirmative in the class but negative"
+  falsePositives: Int
+  "Of the predicted true positives, the percentage that were actually correct"
+  precision: Float
+  "Of the total true positives, the percentage were recovered by the model as true positives"
+  recall: Float
+  "Type of span the metric is calculated on, e.g. Page"
+  spanType: String
+  "# of actual true occurences"
+  support: Int
+  "# of examples that were predicted affirmative and were actually affirmative"
+  truePositives: Int
+}
+
+type UpdateKeywords {
+  keywords: [String]
+}
+
+"Basic user object"
+type User {
+  acceptedTerms: Boolean
+  accountLockedAt: DateTime
+  active: Boolean
+  apiRefreshToken: RefreshTokenMeta
+  "Epoch time of confirmation of user registration"
+  confirmedAt: String
+  confirmedDate: DateTime
+  email: String
+  "What day (if set) the user will be expired"
+  expiresAt: DateTime
+  id: Int
+  lastUpdate: String
+  lastUpdateDate: DateTime
+  logins(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    "Max number of results to return"
+    limit: Int = 20, 
+    "attribute to order results by"
+    orderBy: LOGIN_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int
+  ): LoginPage
+  name: String
+  numManagedDatasets: Int
+  preferences(app: String!, keys: [String]): [Preference]
+  "Epoch time of user registration"
+  registeredAt: String
+  registeredDate: DateTime
+  scopes: [ScopeAccess]
+  "The stage account setup is in"
+  setupProgress: UserProgressStatus
+  uuid: String
+}
+
+type UserChangelog {
+  changesMade: [UserChangeType]
+  datasets: [DatasetRole]
+  date: DateTime
+  enabled: Boolean
+  "Unique combination of date and user_id"
+  id: String
+  previousDatasets: [DatasetRole]
+  previousRoles: [AppRole]
+  previouslyEnabled: Boolean
+  roles: [AppRole]
+  updatedAt: DateTime
+  updatedBy: Int
+  updaterEmail: String
+  userEmail: String
+  userId: Int
+}
+
+type UserChangelogPage {
+  pageInfo: PageInfo
+  results: [UserChangelog]
+}
+
+type UserPage {
+  pageInfo: PageInfo
+  users: [User]
+}
+
+type UserSnapshot {
+  createdAt: DateTime
+  datasets: [DatasetRole]
+  email: String
+  enabled: Boolean
+  id: Int
+  name: String
+  roles: [AppRole]
+}
+
+type UserSnapshotPage {
+  pageInfo: PageInfo
+  results: [UserSnapshot]
+}
+
+type UserSummary {
+  appRoles: [AppRoleCount]
+  users: EnabledCount
+}
+
+"""
+Deprecated
+Represents a valid action on a component or a link
+"""
+type ValidAction {
+  "The component family of the action, model/filter/transformer"
+  componentFamily: ComponentFamily
+  "The component type of the action"
+  componentType: ComponentType
+  "The specific operation, add/edit/delete"
+  operation: WorkflowActionOp
+  "The specifics of a component type"
+  subType: String
+}
+
+"""
+Validates credentials and configuration for Exchange Integration. Does not create an integration.
+Credentials are validated before the config. Correct credentials must be passed in before config is validated.
+"""
+type ValidateExchangeConfigCredentials {
+  "if config or credentials are invalid, a short description of the reason"
+  error: String
+  "if config or credentials are invalid, details of the error"
+  errorDetails: String
+  "true if the configuration and credentials are valid"
+  isValid: Boolean
+}
+
+"Configuration for a specific validation rule"
+type ValidationConfig {
+  "Determines how failure to validate is handled."
+  onFailure: ValidationActionType
+  "Name of the validation rule, e.g. 'TYPE_CONVERSION' or 'DATE_RANGE'"
+  settingName: String
+  "Setting value for the validation rule, e.g. {'start_date': '2020-01-01', 'end_date': '2021-01-01'}"
+  settingValue: GenericScalar
+}
+
+"The result of running a specific validation rule on some extracted text."
+type ValidationResult {
+  "Description of the validation error that occurred (if status is not SUCCESS)."
+  errorMessage: String
+  "Indicates whether or not the validation rule succeeded, and on failure returns the severity level indicated on validation rule setup"
+  validationStatus: ValidationStatus
+  "Name of the validation rule, e.g. 'TYPE_CONVERSION' or 'DATE_RANGE'"
+  validationType: String
+}
+
+type Workflow {
+  "DEPRECATED: Status of the Auto review queue"
+  autoReviewEnabled: Boolean @deprecated(reason : "Now uses settings' `auto_review_queue_enabled`")
+  componentBlueprints(componentType: ComponentType): [ComponentBlueprint]
+  componentLinks: [ComponentLink]
+  components: [ComponentInterface]
+  "Time the workflow was created at"
+  createdAt: String
+  "ID of the user who created the workflow"
+  createdBy: Int
+  dataset: Dataset
+  "ID of the dataset the workflow is associated with"
+  datasetId: Int
+  "Estimated human time to complete the workflow in minutes"
+  estHumanTimeMins: Int
+  "Field types available for the workflow"
+  fieldTypes(
+    name: String, 
+    "If provided, return only fields compatible with this target type."
+    targetType: TargetType, 
+    "If provided, return only fields compatible with this task type."
+    taskType: TaskType
+  ): [WorkflowFieldType]
+  "Fields associated with the workflow and their relationships to workflow components"
+  fields: [WorkflowField]
+  "Unique ID of the workflow"
+  id: Int
+  metrics(endDate: Date, startDate: Date): WorkflowMetrics
+  metricsStartDate: String
+  "Workflow name"
+  name: String
+  "Target names not used in any filters and that can be removed from the workflow."
+  removableTargetNames: [TargetName]
+  "DEPRECATED: Status of the Review queue"
+  reviewEnabled: Boolean @deprecated(reason : "Now uses settings' `review_queue_enabled`")
+  "Whether or not the workflow can be reviewed"
+  reviewable: Boolean
+  reviewableModelGroups: [ModelGroup]
+  settings: ReviewSettings
+  "Current status of the workflow"
+  status: WorkflowStatus
+  submissionCounts: SubmissionCounts
+  submissionFacts: SubmissionFacts
+  "Whether the workflow is able to process submissions"
+  submissionRunnable: Boolean
+  "Reason why the workflow is unreviewable"
+  unreviewableReason: String
+  "Reason why the workflow is no runnable"
+  unrunnableReason: String
+  "Time the workflow was last updated"
+  updatedAt: String
+  "ID of the user who last updated the workflow"
+  updatedBy: Int
+  userRole: Roles
+}
+
+"""
+A workflow blueprint represents a template from which
+an entire workflow and its components can be created.
+"""
+type WorkflowBlueprint {
+  "Description of the workflow blueprint"
+  description: String
+  "Whether the workflow blueprint is enabled"
+  enabled: Boolean
+  "ID of the workflow blueprint"
+  id: Int
+  "Name of the workflow blueprint"
+  name: String
+  "Type of the workflow blueprint, system or user"
+  type: WorkflowBlueprintType
+  "UUID of the workflow blueprint"
+  uuid: String
+}
+
+type WorkflowBlueprintPage {
+  pageInfo: PageInfo
+  workflowBlueprints: [WorkflowBlueprint]
+}
+
+type WorkflowField {
+  "The datatype of the field (e.g. 'date', 'price', etc.)"
+  datatype: String
+  "Configuration dictionary that controls how the normalized type is displayed in Indico Review UI"
+  formatConfig: GenericScalar
+  "Field ID"
+  id: Int
+  "Configuration dictionary that controls what inputs are recognized as valid instances of a given type"
+  inputConfig: GenericScalar
+  "Associated workflow model group components and target names"
+  links: [WorkflowFieldLink]
+  "Denotes whether a single field instance or multiple field instances are expected for an associated field.  For instance, an invoice may have multiple 'Line Item Total's (multiple=True), but would be expected to only have a single 'Invoice Date' field (multiple=False)"
+  multiple: Boolean
+  "Field name displayed in review UI and the workflow result file"
+  name: String
+  "Controls whether or not a valid instance of a field must be present to submit an review."
+  required: Boolean
+  "Configuration that controls which additional validation checks should be run and what actions should be taken in case of their failure."
+  validationConfig: [ValidationConfig]
+  "Workflow ID"
+  workflowId: Int
+}
+
+"Link representing the association between a workflow component and a workflow field"
+type WorkflowFieldLink {
+  "Component ID"
+  componentId: Int
+  "Field ID"
+  fieldId: Int
+  "Workflow field link ID"
+  id: Int
+  "ID of target name associated with a model component. Not provided for custom models or external models."
+  targetId: Int
+  "Target class name associated with a model component"
+  targetName: String
+  "ID of target name associated with a model component. Not provided for custom models or external models."
+  targetNameId: Int
+  "Workflow ID"
+  workflowId: Int
+}
+
+"A datatype that can be used to normalize a given field (e.g. 'date', 'price', 'general', etc.)"
+type WorkflowFieldType {
+  "The schema and defaults for field `format_config`.  Defines settings that control how normalized fields are formatted in the Review UI."
+  formatConfigSchema: GenericScalar
+  "The schema and defaults for field `input_config`.  Defines settings that control which text extractions are considered valid instances of a field type."
+  inputConfigSchema: GenericScalar
+  "The name of the field datatype (e.g. 'date', 'price', etc.)"
+  name: String
+  "Target type corresponding to this field type."
+  targetType: TargetType
+  validationConfigSchema: GenericScalar
+  "The ID of the workflow the field type is associated with (if using a custom field type)."
+  workflowId: Int
+}
+
+type WorkflowGallery {
+  blueprintsPage(
+    "Find results after this cursor"
+    after: Int, 
+    "Find results before this cursor"
+    before: Int, 
+    "Return results in descending order"
+    desc: Boolean, 
+    filters: WorkflowBlueprintFilter, 
+    "Max number of results to return"
+    limit: Int, 
+    "attribute to order results by"
+    orderBy: WORKFLOWBLUEPRINT_COLUMN_ENUM, 
+    "number of pages to skip"
+    skip: Int
+  ): WorkflowBlueprintPage
+}
+
+type WorkflowMetrics {
+  endDate: Date
+  "The first date an item was submitted to this workflow"
+  firstSubmittedDate: Date
+  predictions: PredictionMetrics
+  queues: QueueMetrics
+  startDate: Date
+  straightThroughProcessing: StpMetrics
+  submissions: SubmissionMetrics
+  tagsAvailable: [WorkflowMetricsTag]
+  timeOnTask: TimeOnTaskMetrics
+  workflowId: Int
+}
+
+type WorkflowPage {
+  pageInfo: PageInfo
+  workflows: [Workflow]
+}
+
+type WorkflowStpMetrics {
+  "Daily STP metrics aggregated to the level of the workflow"
+  daily: [DailyStpMetric]
+}
+
+type _ClassLabel {
+  clsName: TargetName
+}
+
+type _ClassPred {
+  classConfidences: [ClassConfidenceV2]
+  clsName: TargetName
+}
+
+type _ExtractLabel {
+  clsName: TargetName
+  end: Int
+  pageNum: Int
+  start: Int
+}
+
+type _ExtractionPred {
+  classConfidences: [ClassConfidenceV2]
+  clsName: TargetName
+  end: Int
+  pageNum: Int
+  start: Int
+}
+
+type _MultiClassLabel {
+  clsNames: [TargetName]
+}
+
+type _MultiClassPred {
+  classConfidences: [ClassConfidenceV2]
+  clsNames: [TargetName]
+}
+
+type _Token {
+  end: Int
+  start: Int
+  text: String
+}
+
+"An enumeration."
+enum AddDataComponentStatus {
+  FAILED
+  NOT_READY
+  READY
+}
+
+"Roles for App Users and the mapping of permissions"
+enum AppRole {
+  APP_ADMIN
+  CELERY_FLOWER
+  MANAGE_ALL_DATA
+  REPORT_GENERATOR
+  TEAM_ADMIN
+  TEAM_DEVELOPER
+  TEAM_USER
+}
+
+"An enumeration."
+enum BLUEPRINTASSOCIATEDWORKFLOW_COLUMN_ENUM {
+  DATASET_ID
+  ID
+  NAME
+}
+
+"An enumeration."
+enum BlueprintOP {
+  CREATE
+  DELETE
+  LIST_WORKFLOWS
+}
+
+"Tags for all blueprints"
+enum BlueprintTag {
+  accelerator
+  base64ai
+  classification
+  custom
+  extraction
+  forms
+  huggingface
+  imported
+  indico
+  microsoft
+  openai
+  privateai
+  static
+  trainable
+}
+
+"An enumeration."
+enum COMMATTEMPT_COLUMN_ENUM {
+  ERROR
+  FINISHED
+  ID
+  STARTED
+  SUCCESS
+}
+
+"An enumeration."
+enum COMPONENTBLUEPRINT_COLUMN_ENUM {
+  COMPONENT_FAMILY
+  COMPONENT_TYPE
+  DESCRIPTION
+  ENABLED
+  FOOTER
+  ICON
+  ID
+  NAME
+  PROVIDER
+}
+
+"Groups for component types"
+enum ComponentFamily {
+  FILTER
+  MODEL
+  OUTPUT
+  REVIEW
+  TRANSFORMER
+}
+
+"An enumeration."
+enum ComponentStatusColor {
+  GREEN
+  RED
+  YELLOW
+}
+
+"An enumeration."
+enum ComponentType {
+  BLUEPRINT
+  CONTENT_LENGTH
+  CUSTOM_FILTER
+  CUSTOM_MODEL
+  CUSTOM_OUTPUT
+  CUSTOM_RESULT
+  CUSTOM_TRANSFORMER
+  DEFAULT_OUTPUT
+  DOCUMENT
+  EXTERNAL_MODEL
+  INPUT_IMAGE
+  INPUT_OCR_EXTRACTION
+  LINK_CLASSIFICATION_MODEL
+  LINK_LABEL
+  MODEL_GROUP
+  OUTPUT_CSV_FORMATTER
+  OUTPUT_JSON_FORMATTER
+  QUESTIONNAIRE
+  RESULT
+  REVIEW
+  SPLIT
+  VALIDATION
+}
+
+"An enumeration."
+enum DATASET_COLUMN_ENUM {
+  CREATED_AT
+  CREATED_BY
+  DEFAULT_DATACOLUMN_ID
+  DEFAULT_SUBSET_ID
+  ERROR_INFO
+  ID
+  NAME
+  NUM_MODEL_GROUPS
+  NUM_QUESTIONNAIRES
+  ROW_COUNT
+  STATUS
+  TYPE
+  UPDATED_AT
+  UPDATED_BY
+}
+
+enum DataType {
+  IMAGE
+  TEXT
+}
+
+"An enumeration."
+enum DataTypes {
+  CATEGORICAL
+  IMAGE
+  NUMERIC
+  STRING
+  UNKNOWN
+}
+
+"Status enums for Datasets"
+enum DatasetStatus {
+  COMPLETE
+  CREATING
+  DELETING
+  FAILED
+  PROCESSED
+  STAGED
+  UPLOADING
+}
+
+"An enumeration."
+enum DatasetType {
+  DOCUMENT
+  IMAGE
+  TEXT
+}
+
+"An enumeration."
+enum EXPORT_COLUMN_ENUM {
+  ANONYMOUS
+  CREATED_AT
+  CREATED_BY
+  DATASET_ID
+  DOWNLOAD_URL
+  ID
+  LABELSET_ID
+  NAME
+  NUM_LABELS
+  STATUS
+}
+
+enum ExampleOrder {
+  DATAFILE_NAME
+  ID
+  STATUS
+  UPDATED_AT
+}
+
+"An enumeration."
+enum ExampleStatus {
+  COMPLETE
+  INCOMPLETE
+  REJECTED
+}
+
+"Status enums for Exports"
+enum ExportStatus {
+  COMPLETE
+  FAILED
+  STARTED
+}
+
+"An enumeration."
+enum FeatureDomainEnum {
+  EMOTION
+  ENSEMBLE
+  FASTTEXT
+  FINANCE
+  IMAGE_ENSEMBLE
+  IMAGE_V2
+  IMAGE_V3
+  IMAGE_V4
+  SENTIMENT
+  STANDARD
+  STANDARD_V2
+  TOPICS
+  UNSUPERVISEDSENTIMENT
+}
+
+"An enumeration."
+enum FileFailureType {
+  CORRUPT_IMAGE
+  CSV_MULTIPLE_URLS
+  CSV_NO_URL_DS_TYPE_DOCUMENT
+  CSV_NO_URL_DS_TYPE_IMAGE
+  CSV_PARSING
+  CSV_REQUIRES_CONTENT
+  CSV_TOO_MANY_ROWS
+  CSV_TOO_MANY_TARGETS
+  DOWNLOAD
+  EMPTY_FILE
+  EXTRACTION
+  INCOMPATIBLE_CSV_COLUMNS
+  INCOMPATIBLE_TYPE
+  PASSWORD_PROTECTED
+  SERVER
+  TOO_LARGE
+  TOO_MANY_PAGES
+  UNSUPPORTED_TYPE
+}
+
+"An enumeration."
+enum FileStatus {
+  DOWNLOADED
+  DOWNLOADING
+  EXTRACTED
+  EXTRACTING
+  FAILED
+  PROCESSED
+  PROCESSING
+}
+
+"Enum for file types"
+enum FileType {
+  CSV
+  DOC
+  DOCX
+  EML
+  EXCEL
+  JPG
+  MSG
+  PDF
+  PNG
+  PPT
+  PPTX
+  RTF
+  TIFF
+  TXT
+  UNKNOWN
+  XLS
+  XLSX
+}
+
+"An enumeration."
+enum IntegrationStatus {
+  ACTIVE
+  FAILED
+  PAUSED
+}
+
+"An enumeration."
+enum IntegrationType {
+  EXCHANGE
+}
+
+"Adapted from Celery Task Status"
+enum JobStatus {
+  FAILURE
+  IGNORED
+  PENDING
+  RECEIVED
+  REJECTED
+  RETRY
+  REVOKED
+  STARTED
+  SUCCESS
+  TRAILED
+}
+
+"An enumeration."
+enum LOGIN_COLUMN_ENUM {
+  ID
+  LOGIN_IP
+}
+
+"An enumeration."
+enum LabelLinkStrategy {
+  BY_KEY
+  BY_ROW
+}
+
+"An enumeration."
+enum LabelResolutionStrategy {
+  ALL
+  MAJORITY_VOTE_WITHOUT_TIES
+  MAJORITY_VOTE_WITH_TIES
+  UNANIMOUS
+}
+
+"An enumeration."
+enum MODELGROUP_COLUMN_ENUM {
+  COMPONENT_ID
+  CREATED_AT
+  CREATED_BY
+  DATASET_ID
+  DATA_TYPE
+  ID
+  INTERLABELER_RESOLUTION
+  LABELSET_COLUMN_ID
+  NAME
+  QUESTIONNAIRE_ID
+  RETRAIN_REQUIRED
+  SELECTED_MODEL_ID
+  SOURCE_COLUMN_ID
+  STATUS
+  SUBSET_ID
+  TASK_TYPE
+  UPDATED_AT
+  UPDATED_BY
+  WORKFLOW_ID
+}
+
+"An enumeration."
+enum ModelStatus {
+  COMPLETE
+  CREATING
+  FAILED
+  NOT_ENOUGH_DATA
+  TRAINING
+}
+
+"An enumeration."
+enum ModelType {
+  DOCUMENT
+  ENSEMBLE
+  FINETUNE
+  FORM_EXTRACTION
+  OBJECT_DETECTION
+  RATIONALIZED
+  STANDARD
+  TABLE
+  TFIDF
+  TFIDF_GBT
+  TFIDF_LR
+  UNBUNDLE
+}
+
+"An enumeration."
+enum OCREngine {
+  OMNIPAGE
+  READAPI
+  READAPI_TABLES_V1
+  READAPI_V2
+}
+
+"Permissions that are mapped to AppRoles"
+enum PermissionType {
+  ADD_ADMIN_REVIEW
+  ADD_LABEL
+  ADD_REVIEW
+  CREATE_SUBMISSION
+  DELETE_DATASET
+  FEATURIZE
+  MANAGE_USERS
+  MODIFY_METADATA
+  READ_DATAPOINTS
+  READ_LABELS
+  READ_METADATA
+  READ_SUBMISSIONS
+  READ_USERS
+}
+
+"""
+
+    DEPRECATED: but kept around for old migrations
+    
+"""
+enum ProcessorType {
+  CONTENT_LENGTH
+  INPUT_IMAGE
+  INPUT_OCR_EXTRACTION
+  LINK_CLASSIFICATION_MODEL
+  OUTPUT_CSV_FORMATTER
+  OUTPUT_JSON_FORMATTER
+  SPLIT
+  VALIDATION
+}
+
+"An enumeration."
+enum QUESTIONNAIRE_COLUMN_ENUM {
+  ACTIVE
+  ACTIVE_LEARNING
+  CREATED_AT
+  CREATED_BY
+  DATASET_ID
+  DATA_TYPE
+  FORCE_TEXT_MODE
+  ID
+  INSTRUCTIONS
+  LABELSET_ID
+  MODEL_GROUP_ID
+  NAME
+  NUM_FULLY_LABELED
+  NUM_LABELED_BY_ME
+  NUM_REJECTED
+  NUM_TOTAL_EXAMPLES
+  ODL
+  QUESTIONS_STATUS
+  ROLE
+  SHOW_PREDICTIONS
+  SOURCE_COLUMN_ID
+  STATUS
+  SUBSET_ID
+  UPDATED_AT
+  UPDATED_BY
+}
+
+"Status enums for Questions"
+enum QuestionStatus {
+  COMPLETE
+  FAILED
+  STARTED
+}
+
+"Supported formats for reports"
+enum ReportFormat {
+  CSV
+  JSON
+}
+
+"An enumeration."
+enum ReviewType {
+  ADMIN
+  AUTO
+  MANUAL
+}
+
+"An enumeration."
+enum RocAucAveraging {
+  SIMPLE
+  WEIGHTED
+}
+
+enum Roles {
+  ANALYST
+  LABELER
+  LABELER_AND_REVIEWER
+  MANAGER
+  REVIEWER
+}
+
+"An enumeration."
+enum SUBMISSIONEVENT_COLUMN_ENUM {
+  COMPLETED_AT
+  CREATED_AT
+  CREATED_BY
+  DATASET_ID
+  DELETED
+  ERRORS
+  FILES_DELETED
+  ID
+  INPUT_FILE
+  INPUT_FILENAME
+  OCR_ENGINE
+  RESULT_FILE
+  RETRIEVED
+  STATUS
+  SUBMISSION_ID
+  UPDATED_AT
+  UPDATED_BY
+  WORKFLOW_ID
+  _AUTO_REVIEW_LOADED
+}
+
+"An enumeration."
+enum SUBMISSION_COLUMN_ENUM {
+  COMPLETED_AT
+  CREATED_AT
+  CREATED_BY
+  DATASET_ID
+  DELETED
+  ERRORS
+  FILES_DELETED
+  ID
+  INPUT_FILE
+  INPUT_FILENAME
+  OCR_ENGINE
+  RESULT_FILE
+  RETRIEVED
+  REVIEW_IN_PROGRESS
+  STATUS
+  UPDATED_AT
+  UPDATED_BY
+  WORKFLOW_ID
+  _AUTO_REVIEW_LOADED
+}
+
+"An enumeration."
+enum SamplingStrategy {
+  NO_SAMPLING
+  RANDOM_OVERSAMPLE
+}
+
+"User Scopes"
+enum Scope {
+  ALL_SUBMISSION_LOGS
+  ALL_USER_REPORTS
+  APP_ACCESS
+  BASE
+  CELERY_FLOWER
+  CHANGE_PASSWORD
+  CONFIRM_ACCOUNT
+  GRAPHIQL
+  MANAGE_ALL_DATA
+  MANAGE_DATASET
+  MANAGE_USERS
+  METRICS
+  REFRESH_TOKEN
+  USER_INFORMATION
+}
+
+"An enumeration."
+enum SubmissionComponentStatus {
+  CANNOT_EXECUTE
+  CAN_EXECUTE
+}
+
+"An enumeration."
+enum SubmissionResultVersion {
+  LATEST
+  OLDEST_SUPPORTED
+  ONE
+  THREE
+  TWO
+}
+
+"An enumeration."
+enum SubmissionStatus {
+  COMPLETE
+  FAILED
+  PENDING_ADMIN_REVIEW
+  PENDING_AUTO_REVIEW
+  PENDING_REVIEW
+  PROCESSING
+}
+
+"An enumeration."
+enum TableReadOrder {
+  COLUMN
+  ROW
+}
+
+"An enumeration."
+enum TargetType {
+  ANCHOR
+  CATEGORY
+  CHECKBOX
+  CROP
+  PAGE_RANGE
+  RADIO
+  SIGNATURE
+  TEXT
+}
+
+"An enumeration."
+enum TaskType {
+  ANNOTATION
+  CLASSIFICATION
+  CLASSIFICATION_MULTIPLE
+  CLASSIFICATION_UNBUNDLING
+  FORM_EXTRACTION
+  OBJECT_DETECTION
+  RATIONALIZED_CLASSIFICATION
+  REGRESSION
+}
+
+"An enumeration."
+enum USERCHANGELOG_COLUMN_ENUM {
+  DATE
+  ENABLED
+  ID
+  PREVIOUSLY_ENABLED
+  UPDATED_AT
+  UPDATED_BY
+  UPDATER_EMAIL
+  USER_EMAIL
+  USER_ID
+}
+
+"An enumeration."
+enum USERSNAPSHOT_COLUMN_ENUM {
+  CREATED_AT
+  EMAIL
+  ENABLED
+  ID
+  NAME
+}
+
+"An enumeration."
+enum USER_COLUMN_ENUM {
+  ACCEPTED_TERMS
+  ACCOUNT_LOCKED_AT
+  ACTIVE
+  CONFIRMED_AT
+  CONFIRMED_DATE
+  EMAIL
+  EXPIRES_AT
+  ID
+  LAST_UPDATE
+  LAST_UPDATE_DATE
+  NAME
+  NUM_MANAGED_DATASETS
+  REGISTERED_AT
+  REGISTERED_DATE
+  SETUP_PROGRESS
+  UUID
+}
+
+"change types for user is modified"
+enum UserChangeType {
+  APP_ROLE
+  DATASET_ROLE
+  ENABLEMENT
+}
+
+enum UserProgressStatus {
+  COMPLETE
+  COPYING_DATASETS
+}
+
+"An enumeration."
+enum ValidationActionType {
+  ERROR
+  NO_ACTION
+  REJECT
+  WARN
+}
+
+"An enumeration."
+enum ValidationStatus {
+  ERROR
+  INFO
+  REJECT
+  SUCCESS
+  WARN
+}
+
+"An enumeration."
+enum WORKFLOWBLUEPRINT_COLUMN_ENUM {
+  DESCRIPTION
+  ENABLED
+  ID
+  NAME
+  TYPE
+  UUID
+}
+
+"An enumeration."
+enum WORKFLOW_COLUMN_ENUM {
+  AUTO_REVIEW_ENABLED
+  CREATED_AT
+  CREATED_BY
+  DATASET_ID
+  EST_HUMAN_TIME_MINS
+  ID
+  METRICS_START_DATE
+  NAME
+  REVIEWABLE
+  REVIEW_ENABLED
+  STATUS
+  SUBMISSION_RUNNABLE
+  UNREVIEWABLE_REASON
+  UNRUNNABLE_REASON
+  UPDATED_AT
+  UPDATED_BY
+  USER_ROLE
+}
+
+"An enumeration."
+enum WordPredictorStrength {
+  MODERATE
+  STRONG
+  WEAK
+}
+
+"Actions that can be taken on components and links"
+enum WorkflowActionOp {
+  ADD
+  DELETE
+}
+
+"An enumeration."
+enum WorkflowBlueprintType {
+  SYSTEM
+  USER
+}
+
+"An enumeration."
+enum WorkflowMetricsTag {
+  PREDICTIONS_COUNT
+  PREDICTIONS_STP
+  QUEUES_STAT
+  SUBMISSION_COMPLETED
+  SUBMISSION_REVIEW_STAT
+  SUBMISSION_SUBMITTED
+}
+
+"An enumeration."
+enum WorkflowStatus {
+  ADDING_DATA
+  COMPLETE
+}
+
+"An enumeration."
+enum omnipageLanguageCode {
+  AFR
+  ALB
+  AUTO
+  BAS
+  BRA
+  BRE
+  CAT
+  CRO
+  CZH
+  DAN
+  DUT
+  ENG
+  EST
+  FIN
+  FRE
+  FRI
+  GAL
+  GER
+  GLI
+  HUN
+  ICE
+  IDO
+  IND
+  ITA
+  LAT
+  LIT
+  LUX
+  MLG
+  MLY
+  NOR
+  POL
+  PRO
+  ROM
+  SLK
+  SLN
+  SPA
+  SRL
+  SUN
+  SWA
+  SWE
+  TAG
+  TUR
+  WEL
+}
+
+"An enumeration."
+enum readapiLanguageCode {
+  AFR
+  ALB
+  AST
+  AUTO
+  AZL
+  BAS
+  BEL
+  BOS
+  BRA
+  BRE
+  BUL
+  CAT
+  CEB
+  CHS
+  CHT
+  CRH
+  CRO
+  CZH
+  DAN
+  DUT
+  ENG
+  EST
+  FIN
+  FRE
+  FRI
+  GAL
+  GER
+  GLI
+  HAT
+  HUN
+  ICE
+  IND
+  ITA
+  JAV
+  JPN
+  KKC
+  KKL
+  KRN
+  LIT
+  LUX
+  MLY
+  NOR
+  POL
+  PRO
+  ROM
+  RUS
+  SCO
+  SLK
+  SLN
+  SPA
+  SRC
+  SRL
+  SWA
+  SWE
+  TUR
+  UZC
+  VOL
+  WEL
+}
+
+"An enumeration."
+enum readapiTablesV1LanguageCode {
+  AFR
+  ALB
+  ANP
+  ARA
+  AST
+  AUTO
+  AWA
+  AZL
+  BAS
+  BEL
+  BFY
+  BFZ
+  BGC
+  BHO
+  BNS
+  BOS
+  BRA
+  BRAJ
+  BRE
+  BRX
+  BUA
+  BUL
+  CAT
+  CEB
+  CHS
+  CHT
+  CNRC
+  CNRL
+  CRH
+  CRO
+  CZH
+  DAN
+  DHI
+  DOI
+  DSB
+  DUT
+  ENG
+  EST
+  FIN
+  FRE
+  FRI
+  GAG
+  GAL
+  GER
+  GLI
+  GON
+  GVR
+  HAT
+  HIN
+  HLB
+  HNE
+  HOC
+  HUN
+  ICE
+  IND
+  ITA
+  JAV
+  JNS
+  JPN
+  KAA
+  KFQ
+  KKC
+  KKL
+  KLR
+  KMJ
+  KOS
+  KPY
+  KRC
+  KRN
+  KSH
+  KUA
+  KUL
+  KUM
+  KYC
+  LIT
+  LKT
+  LTN
+  LUX
+  MAR
+  MLY
+  MNC
+  MYV
+  NEP
+  NIU
+  NOG
+  NOR
+  OSS
+  PAS
+  PER
+  POL
+  PRO
+  PRS
+  PUN
+  RAB
+  ROM
+  RUS
+  SAD
+  SAT
+  SCK
+  SCO
+  SLK
+  SLN
+  SMA
+  SME
+  SMJ
+  SMN
+  SMS
+  SOA
+  SPA
+  SRC
+  SRL
+  SRX
+  SWA
+  SWE
+  TAJ
+  THF
+  TKL
+  TUR
+  TYV
+  UGA
+  URD
+  UZA
+  UZC
+  VOL
+  WEL
+  XNR
+  XSR
+}
+
+"An enumeration."
+enum readapiV2LanguageCode {
+  AFR
+  ALB
+  ANP
+  ARA
+  AST
+  AUTO
+  AWA
+  AZL
+  BAS
+  BEL
+  BFY
+  BFZ
+  BGC
+  BHO
+  BNS
+  BOS
+  BRA
+  BRAJ
+  BRE
+  BRX
+  BUA
+  BUL
+  CAT
+  CEB
+  CHS
+  CHT
+  CNRC
+  CNRL
+  CRH
+  CRO
+  CZH
+  DAN
+  DHI
+  DOI
+  DSB
+  DUT
+  ENG
+  EST
+  FIN
+  FRE
+  FRI
+  GAG
+  GAL
+  GER
+  GLI
+  GON
+  GVR
+  HAT
+  HIN
+  HLB
+  HNE
+  HOC
+  HUN
+  ICE
+  IND
+  ITA
+  JAV
+  JNS
+  JPN
+  KAA
+  KFQ
+  KKC
+  KKL
+  KLR
+  KMJ
+  KOS
+  KPY
+  KRC
+  KRN
+  KSH
+  KUA
+  KUL
+  KUM
+  KYC
+  LIT
+  LKT
+  LTN
+  LUX
+  MAR
+  MLY
+  MNC
+  MYV
+  NEP
+  NIU
+  NOG
+  NOR
+  OSS
+  PAS
+  PER
+  POL
+  PRO
+  PRS
+  PUN
+  RAB
+  ROM
+  RUS
+  SAD
+  SAT
+  SCK
+  SCO
+  SLK
+  SLN
+  SMA
+  SME
+  SMJ
+  SMN
+  SMS
+  SOA
+  SPA
+  SRC
+  SRL
+  SRX
+  SWA
+  SWE
+  TAJ
+  THF
+  TKL
+  TUR
+  TYV
+  UGA
+  URD
+  UZA
+  UZC
+  VOL
+  WEL
+  XNR
+  XSR
+}
+
+"""
+The `Date` scalar type represents a Date
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar Date
+
+"""
+The `DateTime` scalar type represents a DateTime
+value as specified by
+[iso8601](https://en.wikipedia.org/wiki/ISO_8601).
+"""
+scalar DateTime
+
+"""
+ISO-8601 datetime format for JS to parse timezone
+
+For example: 2020-03-20T01:31:12.467113+00:00
+
+This custom scalar should only be used for serializing data out, not as an
+input field, so parse_literal and parse_value are not implemented.
+"""
+scalar DateTimeISO
+
+"""
+The `GenericScalar` scalar type represents a generic
+GraphQL scalar value that could be:
+String, Boolean, Int, Float, List or Object.
+"""
+scalar GenericScalar
+
+"Class to convert to Date for type checking and to String for graphql to pass along"
+scalar InputDate
+
+"""
+Allows use of a JSON String for input / output from the GraphQL schema.
+
+Use of this type is *not recommended* as you lose the benefits of having a defined, static
+schema (one of the key benefits of GraphQL).
+"""
+scalar JSONString
+
+"""
+Recursive filter object that can be used to
+produce any filter combination for component blueprints
+"""
+input ComponentBlueprintFilter {
+  AND: [ComponentBlueprintFilter]
+  OR: [ComponentBlueprintFilter]
+  ands: [ComponentBlueprintFilter]
+  "Component family to filter for"
+  componentFamily: ComponentFamily
+  "Component types to filter for"
+  componentType: [ComponentType]
+  "Name to filter by"
+  name: String
+  ors: [ComponentBlueprintFilter]
+  "Tags that blueprints must have superset of"
+  tags: [BlueprintTag]
+}
+
+"Inputs for a new field specifically for a new component"
+input ComponentFieldInput {
+  "ID of the workflow component to link newly created field to"
+  componentId: Int!
+  "The datatype of the field (e.g. 'date', 'price', etc.)"
+  datatype: String
+  "Configuration dictionary that controls how the normalized type is displayed in Indico Review UI"
+  formatConfig: GenericScalar
+  "Configuration dictionary that controls what inputs are recognized as valid instances of a given type"
+  inputConfig: GenericScalar
+  "Denotes whether a single field instance or multiple field instances are expected for an associated field.  For instance, an invoice may have multiple 'Line Item Total's (multiple=True), but would be expected to only have a single 'Invoice Date' field (multiple=False)"
+  multiple: Boolean
+  "Field name displayed in review UI and the workflow result file"
+  name: String!
+  "Controls whether or not a valid instance of a field must be present to submit an review."
+  required: Boolean
+  "Configuration that controls which additional validation checks should be run and what actions should be taken in case of their failure."
+  validationConfig: [ValidationInputConfig]
+  "Workflow ID"
+  workflowId: Int!
+}
+
+"Data processing configurations for dataset"
+input DataConfigInput {
+  emailOptions: EmailOptionsInput
+  ocrOptions: OCROptionsInput
+}
+
+"Filter options for listing datasets"
+input DatasetFilter {
+  AND: [DatasetFilter]
+  OR: [DatasetFilter]
+  ands: [DatasetFilter]
+  "name contains"
+  name: String
+  ors: [DatasetFilter]
+}
+
+input DateRangeFilter {
+  "The starting time to search from"
+  from: InputDate = null
+  "The ending time to search until"
+  to: InputDate = null
+}
+
+"Email options for dataset"
+input EmailOptionsInput {
+  includeSections: EmailSectionOptionsInput = null
+}
+
+"Email sections to include for processing"
+input EmailSectionOptionsInput {
+  attachments: Boolean
+  body: Boolean
+  header: Boolean
+}
+
+input ExampleFilter {
+  "Include or exclude examples that have auto-generated labels (e.g. from GPT-4)"
+  autolabeled: Boolean
+  "Examples that do not have labels with these class ids"
+  excludeClass: [Int]
+  "Examples for datafile names containing this string"
+  fileName: String
+  "Examples for datafiles of these file types"
+  fileType: [FileType]
+  "Examples with labels that include these class ids"
+  includeClass: [Int]
+  "Examples labeled by these users"
+  labeler: [Int]
+  "Include or exclude examples that are partially labeled (e.g. annotated in review)."
+  partial: Boolean
+  "Examples currently with these statuses"
+  status: [ExampleStatus]
+  "Filter examples based on whether a text string is in the content"
+  textSearch: String
+}
+
+input ExchangeIntegrationConfigurationInput {
+  "Filters for inbox ie: is_read, is_from_domain, is_unread, is_not_from_domain, etc. "
+  filters: JSONString
+  "Identifier for mailbox folder"
+  folderId: String
+  "User's ID"
+  userId: String
+}
+
+input ExchangeIntegrationCredentialsInput {
+  "Client id"
+  clientId: String
+  "Client secret"
+  clientSecret: String
+  "Azure tenant id"
+  tenantId: String
+}
+
+input FieldInput {
+  "The datatype of the field (e.g. 'date', 'price', etc.)"
+  datatype: String
+  "Configuration dictionary that controls how the normalized type is displayed in Indico Review UI"
+  formatConfig: GenericScalar
+  "Configuration dictionary that controls what inputs are recognized as valid instances of a given type"
+  inputConfig: GenericScalar
+  "Denotes whether a single field instance or multiple field instances are expected for an associated field.  For instance, an invoice may have multiple 'Line Item Total's (multiple=True), but would be expected to only have a single 'Invoice Date' field (multiple=False)"
+  multiple: Boolean
+  "Field name displayed in review UI and the workflow result file"
+  name: String!
+  "Controls whether or not a valid instance of a field must be present to submit an review."
+  required: Boolean
+  "Configuration that controls which additional validation checks should be run and what actions should be taken in case of their failure."
+  validationConfig: [ValidationInputConfig]
+}
+
+input FileInput {
+  """
+  
+      JSON string containing the following keys:
+      - name: filename
+      - path: indico storage path
+      - uploadType: must be set to "legacy"
+  """
+  filemeta: JSONString
+  """
+  
+      Name of the file. Note: not the full path.
+      EG: "sample.pdf"
+  """
+  filename: String
+}
+
+input LabelInput {
+  "Denote that this label has been generated automatically and has not been  subject to manual review (e.g. has been generated by GPT-3 / GPT-4)"
+  autolabeled: Boolean
+  exampleId: Int!
+  "Override all existing labels for the example with this one. Required True if unrejecting an example. Only available to Analysts+"
+  override: Boolean
+  "Denote that not all valid labels present in the document have been captured (e.g. document was processed in review UI). Override must also be set to True to permit flagging a label as partial."
+  partial: Boolean
+  "Reject(True) or unreject(False) this example. Unrejection is only available to Analysts+"
+  rejected: Boolean
+  targets: [LabelInst]
+}
+
+input LabelInst {
+  bounds: [SpatialSpanInput]
+  "id of class name on labelset"
+  clsId: Int!
+  spans: [TokenSpanInput]
+}
+
+input ModelGroupFilter {
+  AND: [ModelGroupFilter]
+  OR: [ModelGroupFilter]
+  ands: [ModelGroupFilter]
+  "name contains"
+  name: String
+  ors: [ModelGroupFilter]
+  "model group subset id is"
+  subsetId: Int
+  "model group task type is"
+  taskType: TaskType
+}
+
+input NewLabelsetInput {
+  "Field type, configuration and linking data.  If not provided will automatically create fields with corresponding names, or link targets to existing fields with the same name. If an empty list is provided, no fields will be created."
+  fieldData: [FieldInput]
+  "Name of the labelset. Defaults to model group name"
+  name: String
+  "Number of labelers required"
+  numLabelersRequired: Int = 1
+  "Target name information"
+  targetNameInputs: [TargetNameInput]
+  "Labelset task type"
+  taskType: TaskType
+}
+
+input OCROptionsInput {
+  "Which engine to use for OCR"
+  ocrEngine: OCREngine = READAPI_V2
+  omnipageOptions: OmnipageOcrOptionsInput
+  readapiOptions: ReadapiOcrOptionsInput
+  readapiTablesV1Options: ReadapiTablesV1OcrOptionsInput
+  readapiV2Options: ReadapiV2OcrOptionsInput
+}
+
+input OmnipageOcrOptionsInput {
+  "Auto rotate"
+  autoRotate: Boolean
+  "Return table information for post-processing rules"
+  cells: Boolean
+  "Force render"
+  forceRender: Boolean
+  "List of languages to use"
+  languages: [omnipageLanguageCode]
+  "Native layout"
+  nativeLayout: Boolean
+  "Native PDF"
+  nativePdf: Boolean
+  "Read table as a single column"
+  singleColumn: Boolean
+  "PDF split version"
+  splitVersion: Int = 2
+  "Spreadsheet converter version (supported versions: 1,2,3,4)"
+  spreadsheetConverterVersion: Int = 3
+  "Read table in row or column order"
+  tableReadOrder: TableReadOrder
+  "Scale up low resolution images"
+  upscaleImages: Boolean
+}
+
+input QuestionInput {
+  keywords: [String]
+  labelsetId: Int
+  modelGroupId: Int
+  targets: [String]!
+  "Help text for question"
+  text: String
+  type: TaskType!
+}
+
+input QuestionnaireFilter {
+  AND: [QuestionnaireFilter]
+  OR: [QuestionnaireFilter]
+  ands: [QuestionnaireFilter]
+  "name contains"
+  name: String
+  ors: [QuestionnaireFilter]
+}
+
+input QuestionnaireInput {
+  "Always use Text Labeling UI"
+  forceTextMode: Boolean = false
+  "Questionnaire instructions"
+  instructions: String
+  "Show predictions at the global level"
+  showPredictions: Boolean = true
+  "User IDs to add to the questionnaire"
+  users: [Int]
+}
+
+input ReadapiOcrOptionsInput {
+  "Auto rotate"
+  autoRotate: Boolean
+  "List of languages to use"
+  languages: [readapiLanguageCode]
+  "Read table as a single column"
+  singleColumn: Boolean
+  "Spreadsheet converter version (supported versions: 1,2,3,4)"
+  spreadsheetConverterVersion: Int = 3
+  "Scale up low resolution images"
+  upscaleImages: Boolean
+}
+
+input ReadapiTablesV1OcrOptionsInput {
+  "Auto rotate"
+  autoRotate: Boolean
+  "List of languages to use"
+  languages: [readapiTablesV1LanguageCode]
+  "Read table as a single column"
+  singleColumn: Boolean
+  "Spreadsheet converter version (supported versions: 1,2,3,4)"
+  spreadsheetConverterVersion: Int = 3
+  "Scale up low resolution images"
+  upscaleImages: Boolean
+}
+
+input ReadapiV2OcrOptionsInput {
+  "Auto rotate"
+  autoRotate: Boolean
+  "List of languages to use"
+  languages: [readapiV2LanguageCode]
+  "Read table as a single column"
+  singleColumn: Boolean
+  "Spreadsheet converter version (supported versions: 1,2,3,4)"
+  spreadsheetConverterVersion: Int = 3
+  "Scale up low resolution images"
+  upscaleImages: Boolean
+}
+
+"Contains the response for a deferred task in a workflow"
+input ResumedTaskResponse {
+  "Response from the task containing outputs and other metadata"
+  data: JSONString
+  "Errors during execution to record. Fails the workflow if error is logged"
+  error: String
+}
+
+input ReviewFilter {
+  AND: [ReviewFilter]
+  OR: [ReviewFilter]
+  ands: [ReviewFilter]
+  "ID of the user who created the submission"
+  createdBy: Int
+  ors: [ReviewFilter]
+  "Whether submission has been rejected"
+  rejected: Boolean
+  "type of review is"
+  reviewType: ReviewType
+}
+
+input ReviewSettingsInput {
+  "Enable the Auto review queue"
+  autoReviewQueueEnabled: Boolean
+  "Add value to Exceptions queue submissions in the workflow"
+  exceptionsQueueAddValueEnabled: Boolean
+  "Enable the Exceptions queue"
+  exceptionsQueueEnabled: Boolean
+  "Add a rejection reason to review queue submissions in the workflow"
+  exceptionsQueueRejectionReasonRequired: Boolean
+  "Enable Submissions List for exceptions queue. Accessible from the Review List page."
+  exceptionsSubmissionListEnabled: Boolean
+  "If toggling exceptions queue off, mark existing subs pending admin review as complete. Ignored if toggling exceptions on"
+  migratePendingAdminReviewToComplete: Boolean = false
+  "If toggling review off, mark existing submissions waiting for review as complete. Ignored if toggling review on."
+  migratePendingReviewToComplete: Boolean = false
+  "If toggling auto review on, mark existing subs pending review as pending auto review. Ignore if toggling off"
+  migratePendingReviewToPendingAutoReview: Boolean = false
+  "Add value to Review queue submissions in the workflow"
+  reviewQueueAddValueEnabled: Boolean
+  "Enable the Review queue. If disabled, also disables the Exceptions and Auto review queues"
+  reviewQueueEnabled: Boolean
+  "Add a rejection reason to Review queue submissions in the workflow"
+  reviewQueueRejectionReasonRequired: Boolean
+  "Required number of reviewers per submission in the workflow"
+  reviewQueueReviewersRequired: Int
+  "Enable Submissions List for review queue. Accessible from the Review List page."
+  reviewSubmissionListEnabled: Boolean
+}
+
+input SpatialSpanInput {
+  bottom: Int!
+  left: Int!
+  pageNum: Int!
+  right: Int!
+  top: Int!
+}
+
+"""
+Filter the submissions by one or more of these attributes.
+A filter can be composed of smaller filters using OR/AND
+"""
+input SubmissionFilter {
+  AND: [SubmissionFilter]
+  OR: [SubmissionFilter]
+  ands: [SubmissionFilter]
+  "Submissions created during given time range"
+  createdAt: DateRangeFilter
+  "Submissions that have had their internal files removed (True) or not (False)"
+  filesDeleted: Boolean
+  "submission file(s) are any of these types"
+  filetype: [FileType!]
+  "input filename contains"
+  inputFilename: String
+  ors: [SubmissionFilter]
+  "Submission has been marked as having been retrieved"
+  retrieved: Boolean
+  "Only show submissions where a review is in progress (or not)"
+  reviewInProgress: Boolean
+  "Only show submissions whose completed reviews match these filters"
+  reviews: ReviewFilter
+  "submission status is"
+  status: SubmissionStatus
+  "Submissions updated during given time range"
+  updatedAt: DateRangeFilter
+}
+
+input SubmissionLabel {
+  "Must be supplied when rejected is not None and the labelset came from an uploaded csv"
+  datapointId: Int
+  "DON’T USE THIS UNTIL 4.14 - OLD, BAD THING"
+  deleted: Boolean
+  "Must be manager or analyst to use. Required True if rejected is False (unrejecting an example) or if submitting a label as a user who already submitted a label"
+  override: Boolean
+  "True if rejecting an example. Rejecting an example will remove it from all associated labelsets and teach tasks. Set to False to unreject an example and make it available for labeling again."
+  rejected: Boolean
+  rowIndex: Int!
+  "JSON string of target for label"
+  target: JSONString
+}
+
+input SubmissionLogFilter {
+  AND: [SubmissionLogFilter]
+  OR: [SubmissionLogFilter]
+  ands: [SubmissionLogFilter]
+  createdAt: DateRangeFilter
+  "List of submission IDs to filter by"
+  id: [Int]
+  ors: [SubmissionLogFilter]
+  "Status of the submission process to filter by"
+  status: SubmissionStatus
+  updatedAt: DateRangeFilter
+  "List of workflow IDs to filter by"
+  workflowId: [Int]
+}
+
+input TargetNameInput {
+  "Name for this TargetName"
+  name: String!
+  "Type for this TargetName - if not provided, default is based on Task Type"
+  targetType: TargetType
+}
+
+input TokenSpanInput {
+  end: Int!
+  pageNum: Int!
+  start: Int!
+}
+
+input UserFilter {
+  AND: [UserFilter]
+  OR: [UserFilter]
+  ands: [UserFilter]
+  "email contains"
+  email: String
+  "name contains"
+  name: String
+  ors: [UserFilter]
+}
+
+input UserInput {
+  email: String!
+  role: Roles!
+}
+
+input UserReportFilter {
+  AND: [UserReportFilter]
+  OR: [UserReportFilter]
+  ands: [UserReportFilter]
+  ors: [UserReportFilter]
+  "User email in this list"
+  userEmail: [String]
+  "User id in this list"
+  userId: [Int]
+}
+
+"Input configuration for a specific validation rule"
+input ValidationInputConfig {
+  "Determines how failure to validate is handled."
+  onFailure: ValidationActionType
+  "Name of the validation rule, e.g. 'TYPE_CONVERSION' or 'DATE_RANGE'"
+  settingName: String
+  "Setting value for the validation rule, e.g. {'start_date': '2020-01-01', 'end_date': '2021-01-01'}"
+  settingValue: GenericScalar
+}
+
+input WorkflowBlueprintFilter {
+  AND: [WorkflowBlueprintFilter]
+  OR: [WorkflowBlueprintFilter]
+  ands: [WorkflowBlueprintFilter]
+  "The workflow blueprint is enabled"
+  enabled: Boolean
+  ors: [WorkflowBlueprintFilter]
+}
+
+input WorkflowFilter {
+  AND: [WorkflowFilter]
+  OR: [WorkflowFilter]
+  ands: [WorkflowFilter]
+  "all new submissions will wait for Auto Review"
+  autoReviewEnabled: Boolean
+  "name contains"
+  name: String
+  ors: [WorkflowFilter]
+  "all new submissions will pass through Review"
+  reviewEnabled: Boolean
+  "the workflow can use Review for its submissions"
+  reviewable: Boolean
+}
