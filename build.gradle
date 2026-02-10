@@ -23,14 +23,14 @@ version = "6.0.0"
 test.onlyIf { project.hasProperty('runTests') }
 
 tasks.register('sourceJar', Jar) {
-    classifier "sources"
-    from sourceSets.main.allJava
+    archiveClassifier.set("sources")
+    from sourceSets.main.allSource
 }
 
 tasks.register('javadocJar', Jar) {
     dependsOn javadoc
-    classifier "javadoc"
-    from javadoc.destinationDir
+    archiveClassifier.set("javadoc")
+    from javadoc.destinationDirectory
 }
 
 publishing {
