@@ -26,7 +26,7 @@ test.onlyIf { project.hasProperty('runTests') }
 
 tasks.register('sourceJar', Jar) {
     archiveClassifier.set("sources")
-    from sourceSets.main.allJava
+    from sourceSets.main.allSource
 }
 
 tasks.register('javadocJar', Jar) {
@@ -88,16 +88,14 @@ java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
     withJavadocJar()
     withSourcesJar()
 }
 
 kotlin {
     jvmToolchain(21)
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.release = 8
 }
 
 
