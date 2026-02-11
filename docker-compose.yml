@@ -1,10 +1,9 @@
-services:
-  java:
-    build: .
-    env_file: .env
-    command: ./build.sh
+java:
+  build: .
+  env_file: .env
+  command: ./build.sh
 
-  test:
-    build: .
-    env_file: .env
-    command: ./test.sh
+test:
+  build: .
+  env_file: .env
+  command: ./test.sh
