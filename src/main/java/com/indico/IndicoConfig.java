@@ -23,7 +23,7 @@ public class IndicoConfig {
     public static class Builder {
 
         protected String apiToken;
-        protected String host = "app.indico.io";
+        protected String host = "try.indico.io";
         protected String protocol = "https";
         protected int maxConnections = 10;
         protected int connectionReadTimeout = 60;

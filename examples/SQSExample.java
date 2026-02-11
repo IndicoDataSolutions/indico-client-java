@@ -16,7 +16,7 @@ import java.util.List;
 public class SQSExample {
     private static final String QUEUE_NAME = "CHANGE_ME_QUEUE";
     private static final String PDF_LOCATION = "CHANGE_ME_PDF";
-    private static final String HOST = "app.indico.io";
+    private static final String HOST = "try.indico.io";
     private static final String TOKEN = "CHANGE_ME_TOKEN_PATH";
     private static final int WORKFLOW_ID = 0;
     private static final Region REGION = Region.US_WEST_2;

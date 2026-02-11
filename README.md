@@ -33,7 +33,7 @@ This is the Java SDK used to access Indico Data's platform. As of `4.12.0`, the 
 ## Authentication
 
 The Indico Platform and Client Libraries use JSON Web Tokens (JWT) for user authentication. You can download a token 
-from the account page in the [indico app](https://app.indico.io/auth/account) by clicking the large, blue “Download new API Token” 
+from the account page in the [indico app](https://try.indico.io/auth/account) by clicking the large, blue “Download new API Token” 
 button. Most browsers will download the API token as indico_api_token.txt and place it in your Downloads directory. You should move 
 the token file from Downloads to either your home directory or another convenient location in your development environment. 
 
@@ -44,7 +44,7 @@ The IndicoConfig class gives you the maximum control over the Java Client Librar
 an IndicoConfig object and set the host and path to your API Token:
 ```
 IndicoConfig config = new IndicoConfig.Builder()
-                .host("app.indico.io")
+                .host("try.indico.io")
                 .tokenPath("/home/user/indico-api-token.txt")
                 .build();
 ```
@@ -87,7 +87,7 @@ The examples can be run by putting them in an appropriate java project and refer
 ### Create a Client
 ```
 IndicoConfig config = new IndicoConfig.Builder()
-                .host("app.indico.io")
+                .host("try.indico.io")
                 .tokenPath("/home/user/indico-api-token.txt")
                 .build();
 IndicoClient client = new IndicoKtorClient(config);

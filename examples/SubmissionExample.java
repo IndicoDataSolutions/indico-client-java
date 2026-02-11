@@ -28,7 +28,7 @@ public class SubmissionExample {
 
     public static void main(String args[]) throws IOException, InterruptedException {
         IndicoConfig config = new IndicoConfig.Builder()
-                .host("app.indico.io")
+                .host("try.indico.io")
                 .tokenPath("__TOKEN_PATH__")
                 .build();
 

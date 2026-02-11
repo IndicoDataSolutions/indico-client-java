@@ -64,7 +64,7 @@ dependencies {
 //use with update-schema.sh to refresh graphql schema
 graphqlIntrospectSchema {
     outputFile = file("${project.projectDir}/src/main/graphql/schema.graphql")
-    endpoint = "https://app.indico.io/graph/api/graphql"
+    endpoint = "https://try.indico.io/graph/api/graphql"
     headers = ["Authorization" : "Bearer " + project.getProperties().getOrDefault('graphQlToken', "")]
 }
 
